@@ -1,5 +1,5 @@
 /**
- * @author jk
+ * @author eric
  * @version 1.0.0
  */
 
@@ -18,7 +18,7 @@ export default {
     let exist = await UserModel.find({openid: req.body.openid});
 
     // 如果不存在, 就创建用户
-    if ($.isEmpty(exist)) {
+    if ($.empty(exist)) {
       exist = await UserModel.create(req.body);
       return $.result(res, exist);
     }
@@ -39,7 +39,7 @@ export default {
       code:   req.body.code
     });
 
-    if ($.isEmpty(exist)) { return $.result(res, 'not match'); }
+    if ($.empty(exist)) { return $.result(res, 'not match'); }
 
     // 如果用户未激活 并且验证码正确, 则登录成功
     else if (exist.status === -1) {

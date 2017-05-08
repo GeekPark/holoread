@@ -3,7 +3,6 @@
  import moment from 'moment';
  import log4js from 'log4js';
  import joi    from 'joi';
- import job    from './scheduleJob';
 
 log4js.configure(config.log, {});
 const logger = log4js.getLogger('debug');
@@ -13,7 +12,6 @@ module.exports           = logger;
 module.exports.paramter  = joi;
 module.exports.moment    = moment;
 module.exports.config    = config;
-module.exports.job       = job;
 module.exports.logAccess = log4js.connectLogger(log4js.getLogger('access'), {
   level: 'auto'
 });
@@ -62,7 +60,7 @@ module.exports.result = function (res, data, msg, status) {
   res.status(status).send(redata);
 };
 
-module.exports.isTrue = function (value) {
+module.exports.true = function (value) {
   if (typeof value === 'boolean') {
     return value;
   } else if (typeof value === 'string') {
@@ -72,7 +70,7 @@ module.exports.isTrue = function (value) {
   }
 };
 
-module.exports.isEmpty = function (value) {
+module.exports.empty = function (value) {
   if (typeof value == 'string') {
     return value.trim() === '';
   } else if (typeof value == 'number') {

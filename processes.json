@@ -27,14 +27,14 @@
 
   "deploy" : {
     "production" : {
-      "user" : "jk",
+      "user" : "eric",
       "host" :[{
         "host" : "192.168.2.5",
         "port": "22"
       }],
       "ref"  : "origin/master",
       "repo" : "ssh://git@gitlab.geekpark.net:2222/geekpark/topApp-backend.git",
-      "path" : "/home/jk/top/backend",
+      "path" : "/home/eric/top/backend",
       "post-deploy" : "yarn install && npm run doc && pm2 startOrRestart processes.json --env production"
     },
     "dev" : {

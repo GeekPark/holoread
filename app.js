@@ -58,6 +58,6 @@ app.use('/api/admin', routers.admin);
 models.connect();
 
 console.log('=====================================================');
-console.log('TOPAPP SERVICES START AT ' + $.dateformat(new Date()));
+console.log('SHAREADING SERVICES START AT ' + $.dateformat(new Date()));
 console.log('=====================================================');
 export default app;

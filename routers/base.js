@@ -1,5 +1,5 @@
 /**
- * @author jk
+ * @author eric
  * @version 1.0.0
  */
 
@@ -14,7 +14,7 @@ export default class Base {
     this.router = router
   }
 
-  rest (resources = '', controller = {}, functions = []) {
+  resources (resource = '', controller = {}, functions = []) {
     const router = this.router;
 
     const resolve = function (req, res) {
@@ -29,12 +29,12 @@ export default class Base {
       del    = resolve,
     } = controller;
 
-    router.get(resources,             functions, index);
-    router.get(`${resources}/:id`,    functions, show);
-    router.post(resources,            functions, create);
-    router.put(`${resources}/:id`,    functions, update);
-    router.patch(`${resources}/:id`,  functions, update);
-    router.delete(`${resources}/:id`, functions, del);
+    router.get(resource,             functions, index);
+    router.get(`${resource}/:id`,    functions, show);
+    router.post(resource,            functions, create);
+    router.put(`${resource}/:id`,    functions, update);
+    router.patch(`${resource}/:id`,  functions, update);
+    router.delete(`${resource}/:id`, functions, del);
     return this;
   }
 }

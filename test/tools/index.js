@@ -5,7 +5,8 @@ import $         from '../../utils';
 import mock      from './mock';
 
 
-const v1      = '/api/mobile/v1/';
+const v1      = '/api/v1/';
+const admin   = '/api/admin/';
 const request = supertest(app);
 
 // console.log = () => {};
@@ -16,4 +17,5 @@ export {
   mock,
   app,
   v1,
+  admin
 }
