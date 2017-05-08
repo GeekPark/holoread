@@ -1,0 +1,52 @@
+{
+  /**
+   * Application configuration section
+   * http://pm2.keymetrics.io/docs/usage/application-declaration/
+   */
+  "apps" : [
+    // First application
+    {
+      "name":               "shareading",
+      "max_memory_restart": "300M",
+      "script":             "index.js",
+      "log_date_format":    "YYYY-MM-DD HH:mm Z",
+      "out_file":           "log/out.log",
+      "error_file":         "log/error.log",
+      "instances":          4,
+      "exec_mode":          "cluster",
+      "env":                {
+          "NODE_ENV": "production"
+      }
+    }
+  ],
+
+  /**
+   * Deployment section
+   * http://pm2.keymetrics.io/docs/usage/deployment/
+   */
+
+  "deploy" : {
+    "production" : {
+      "user" : "jk",
+      "host" :[{
+        "host" : "192.168.2.5",
+        "port": "22"
+      }],
+      "ref"  : "origin/master",
+      "repo" : "ssh://git@gitlab.geekpark.net:2222/geekpark/topApp-backend.git",
+      "path" : "/home/jk/top/backend",
+      "post-deploy" : "yarn install && npm run doc && pm2 startOrRestart processes.json --env production"
+    },
+    "dev" : {
+      "user" : "node",
+      "host" : "212.83.163.1",
+      "ref"  : "origin/master",
+      "repo" : "git@github.com:repo.git",
+      "path" : "/var/www/development",
+      "post-deploy" : "npm install && pm2 startOrRestart ecosystem.json --env dev",
+      "env"  : {
+        "NODE_ENV": "dev"
+      }
+    }
+  }
+}
