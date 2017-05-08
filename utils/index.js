@@ -60,7 +60,7 @@ module.exports.result = function (res, data, msg, status) {
   res.status(status).send(redata);
 };
 
-module.exports.isTrue = function (value) {
+module.exports.true = function (value) {
   if (typeof value === 'boolean') {
     return value;
   } else if (typeof value === 'string') {
@@ -70,7 +70,7 @@ module.exports.isTrue = function (value) {
   }
 };
 
-module.exports.isEmpty = function (value) {
+module.exports.empty = function (value) {
   if (typeof value == 'string') {
     return value.trim() === '';
   } else if (typeof value == 'number') {

@@ -1,5 +1,5 @@
 /**
- * @author jk
+ * @author eric
  * @version 1.0.0
  */
 
@@ -39,11 +39,11 @@ const Article = new Base('Article', {
 });
 
 function editedTitle () {
-
+  return 'do something';
 }
 
 function editedContent () {
-
+  return 'do something';
 }
 
 export default Article.methods

@@ -1,8 +1,9 @@
-import mongoose        from 'mongoose'
-import $               from '../utils'
-import UserModel       from './user'
-import ArticleModel    from './article'
-import LogModel        from './log'
+import mongoose     from 'mongoose'
+import $            from '../utils'
+import UserModel    from './user'
+import ArticleModel from './article'
+import LogModel     from './log'
+import FollowModel  from './follow'
 
 const dbname = process.env.NODE_ENV === 'test' ? $.config.testdb : $.config.db;
 
@@ -22,5 +23,6 @@ export default {
   },
   UserModel,
   ArticleModel,
-  LogModel
+  LogModel,
+  FollowModel
 }

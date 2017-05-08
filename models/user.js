@@ -1,21 +1,14 @@
 /**
- * @author jk
+ * @author eric
  * @version 1.0.0
  */
 
-// type:
-// 1: 普通
-// 2: 受邀请
-// 3: 运营
-// 4: 编辑
-// 99: 管理员
 import $    from '../utils';
 import Base from './base';
 
 const User = new Base('User', {
-  openid:     String, // , unique: true
-  sex:        Number,
-  weight:     { type: Number, default: 0 },
+  openid:     String,
+  gender:     Number,
   language:   String,
   city:       String,
   province:   String,
@@ -24,28 +17,17 @@ const User = new Base('User', {
   token:      String,
   company:    String,
   title:      String,
-  intro:      String,
   sign:       String,
-  code:       String,
   password:   String,
-  permission: { type: Array, default: ['unset'] },
+  email:      String,
+  wechat:     String,
+  phone:      String,
+  permission: { type: Array, default: ['visitor'] },
   state:      { type: Number, default: -1 },
   nickname:   {
     type:    String,
     index:   true,
     default: '用户' + Math.random().toString(36).substring(20),
-  },
-  email: {
-    addr:   String,
-    hidden: { type: Boolean, default: false },
-  },
-  wechat: {
-    number: String,
-    hidden: { type: Boolean, default: false },
-  },
-  phone: {
-    number: String,
-    hidden: { type: Boolean, default: false },
   }
 });
 

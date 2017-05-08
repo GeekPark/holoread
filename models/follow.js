@@ -3,10 +3,10 @@
 import $    from '../utils';
 import Base from './base';
 
-const Invitation = new Base('Invitation', {
-  user:    { type: String, default: '' },
+const Follow = new Base('Follow', {
+  from:    { type: Base.ObjectId(), ref: 'User' , required: true},
   article: { type: Base.ObjectId(), ref: 'Article' },
-  to:      { type: Base.ObjectId(), ref: 'User' },
+  user:    { type: Base.ObjectId(), ref: 'User' },
 });
 
-export default Invitation.methods
+export default Follow.methods

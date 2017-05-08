@@ -1,5 +1,5 @@
 /**
- * @author jk
+ * @author eric
  * @version 1.0.0
  */
 import $      from '../utils';
@@ -13,11 +13,11 @@ String.prototype.firstUpperCase= function() {
 export default async function (req, res, next) {
 
   let  query = {};
-  query[req.query.searchKey] =  { $regex: req.query.searchVal, $options: 'i' };
+  query[req.query.key] =  { $regex: req.query.val, $options: 'i' };
 
-  const model = Models[`${req.query.model}Model`];
+  const model = Models[`${req.query.type}Model`];
 
-  if ($.isEmpty(model)) {return $.result(res, 'error');}
+  if ($.empty(model)) {return $.result(res, 'error');}
   const docs = await model.all(query, req.query.start);
   $.result(res, docs);
 }

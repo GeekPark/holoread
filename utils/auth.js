@@ -1,5 +1,5 @@
 /**
- * @author jk
+ * @author eric
  * @version 1.0.0
  */
 
@@ -46,9 +46,9 @@ export default {
     const token  = req.headers.token || req.body.token || null;
     const userid = req.body.userid || req.query.userid || null;
     let user     = {};
-    if (!$.isEmpty(token)) {
+    if (!$.empty(token)) {
       user = await UserModel.find({'token': token});
-    } else if(!$.isEmpty(user)) {
+    } else if(!$.empty(user)) {
       user = await UserModel.find({'_id': userid});
     } else {
       result(res, 'load user error');
@@ -59,7 +59,7 @@ export default {
 
   authToken: async function (req, res, next) {
     const token = req.headers.token || req.body.token || null;
-    if ($.isEmpty(token)) { return result(res, 'token error'); }
+    if ($.empty(token)) { return result(res, 'token error'); }
 
     _tokenPromise(token).then(async (decode) => {
       const user = await UserModel.find({'_id': decode.user});
@@ -73,17 +73,17 @@ export default {
 
   authSession: async function (req, res, next) {
 
-    if ($.isEmpty(req.session.user)) { return result(res, 'session error'); }
+    if ($.empty(req.session.user)) { return result(res, 'session error'); }
 
     const user = await UserModel.find({ '_id': req.session.user._id });
 
-    if ($.isEmpty(user)) { return result(res, 'session error'); }
+    if ($.empty(user)) { return result(res, 'session error'); }
 
     // 判断权限
     const permissionStr = user.permission.toString();
     let actions = {}, url = `${req.baseUrl}${req.route.path}#${req.method}`;
 
-    if ($.isEmpty(permissionCache[permissionStr])) {
+    if ($.empty(permissionCache[permissionStr])) {
       user.permission.forEach(key => {
         if (yml[key]) { actions = Object.assign(actions, yml[key]); }
       })

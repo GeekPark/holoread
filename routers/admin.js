@@ -1,5 +1,5 @@
 /**
- * @author jk
+ * @author eric
  * @version 1.0.0
  */
 
@@ -18,12 +18,8 @@ router.post('/account/resetPassword', Admin.User.resetPassword);
 // 搜索
 router.get('/search',  Admin.Search);
 
-
-// 统计
-// router.get('/statistics/total',  Admin.Statistics.total);
-
-
-export default BaseRouter.rest('/users',      Admin.User)
-                         .rest('/articles',   Admin.Article)
-                         .rest('/comments',   Admin.Comment)
+export default BaseRouter.resources('/users',    Admin.User)
+                         .resources('/articles', Admin.Article)
+                         .resources('/follows',  Admin.Follow)
+                         .resources('/logs',     Admin.Log)
                          .router;

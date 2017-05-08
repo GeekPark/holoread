@@ -23,75 +23,28 @@ runner: &runner
 admin: &admin
   # user
   /api/admin/users#GET: allow
-  /api/admin/user/:id#GET: allow
-  /api/admin/user/add#POST: allow
-  /api/admin/user/:id#PUT: allow
-  /api/admin/user/:id#DELETE: allow
+  /api/admin/users/:id#GET: allow
+  /api/admin/users#POST: allow
+  /api/admin/users/:id#PUT: allow
+  /api/admin/users/:id#DELETE: allow
   # article
   /api/admin/articles#GET: allow
-  /api/admin/article/:id#GET: allow
-  /api/admin/article#POST: allow
-  /api/admin/article/:id#PUT: allow
-  /api/admin/article/update/index#PUT: allow
-  /api/admin/article/:id#DELETE: allow
-  # activity
-  /api/admin/activities#GET: allow
-  /api/admin/activity/:id#GET: allow
-  /api/admin/activity#POST: allow
-  /api/admin/activity/:id#PUT: allow
-  /api/admin/activity/:id#DELETE: allow
-  # vote
-  /api/admin/votes#GET: allow
-  /api/admin/vote/:id#GET: allow
-  /api/admin/vote#POST: allow
-  /api/admin/vote/:id#PUT: allow
-  /api/admin/vote/:id#DELETE: allow
-  # vote-record
-  /api/admin/voterecords#GET: allow
-  /api/admin/voterecord/:id#GET: allow
-  /api/admin/voterecord#POST: allow
-  /api/admin/voterecord/:id#PUT: allow
-  /api/admin/voterecord/:id#DELETE: allow
-  # question
-  /api/admin/questions#GET: allow
-  /api/admin/question/:id#GET: allow
-  /api/admin/question#POST: allow
-  /api/admin/question/:id#PUT: allow
-  /api/admin/question/:id#DELETE: allow
-  # answer
-  /api/admin/answers#GET: allow
-  /api/admin/answer/:id#GET: allow
-  /api/admin/answer#POST: allow
-  /api/admin/answer/:id#PUT: allow
-  /api/admin/answer/:id#DELETE: allow
-  # comment
-  /api/admin/comments#GET: allow
-  /api/admin/comment/:id#GET: allow
-  /api/admin/comment#POST: allow
-  /api/admin/comment/:id#PUT: allow
-  /api/admin/comment/:id#DELETE: allow
-  # like
-  /api/admin/likes#GET: allow
-  /api/admin/like/:id#GET: allow
-  /api/admin/like#POST: allow
-  /api/admin/like/:id#PUT: allow
-  /api/admin/like/:id#DELETE: allow
-  # invitation
-  /api/admin/invitations#GET: allow
-  /api/admin/invitation/:id#GET: allow
-  /api/admin/invitation#POST: allow
-  /api/admin/invitation/:id#PUT: allow
-  /api/admin/invitation/:id#DELETE: allow
-  # push
-  /api/admin/pushs#GET: allow
-  /api/admin/push/:id#GET: allow
-  /api/admin/push#POST: allow
-  /api/admin/push/:id#PUT: allow
-  /api/admin/push/:id#DELETE: allow
-  #service
-  /api/admin/services/uptoken#GET: allow
-  #statistics
-  /api/admin/statistics/total#GET: allow
+  /api/admin/articles/:id#GET: allow
+  /api/admin/articles#POST: allow
+  /api/admin/articles/:id#PUT: allow
+  /api/admin/articles/:id#DELETE: allow
+  # log
+  /api/admin/logs#GET: allow
+  /api/admin/logs/:id#GET: allow
+  /api/admin/logs#POST: allow
+  /api/admin/logs/:id#PUT: allow
+  /api/admin/logs/:id#DELETE: allow
+  # follow
+  /api/admin/follows#GET: allow
+  /api/admin/follows/:id#GET: allow
+  /api/admin/follows#POST: allow
+  /api/admin/follows/:id#PUT: allow
+  /api/admin/follows/:id#DELETE: allow
   #search
   /api/admin/search#GET: allow
 

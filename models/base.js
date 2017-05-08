@@ -1,5 +1,5 @@
 /**
- * @author jk
+ * @author eric
  * @version 1.0.0
  */
 
@@ -8,7 +8,7 @@ import mongoose from 'mongoose';
 import $        from '../utils';
 
 
-const rules  = [{ path: 'user', select: '-token -openid -password'}];
+const rules  = [];
 
 
 // baseModel
@@ -51,11 +51,11 @@ export default class Base {
   // try catch methods
   async all(query, options) {
     const _count  = 20;
-    const {_start = 0, _rules = rules} = options;
+    const {_start = 0} = options;
     try {
       return await this.model.find(query)
         .limit(_count).skip(_count * _start)
-        .populate(_rules).sort({ _index: -1});
+        .populate(rules).sort({createdAt: -1});
     } catch (e) {
       console.error(e);
     }
@@ -64,7 +64,7 @@ export default class Base {
   async find(query, options) {
     try {
       return await this.model.findOne(query)
-        .populate(_rules);
+        .populate(rules);
     } catch (e) {
       console.error(e);
     }
