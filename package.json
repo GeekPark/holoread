@@ -18,16 +18,13 @@
     "express": "~4.13.4",
     "express-session": "^1.15.1",
     "joi": "^10.2.2",
-    "jpush-sdk": "^3.3.1",
     "js-yaml": "^3.8.2",
     "jsonwebtoken": "^7.3.0",
     "log4js": "^1.1.0",
     "method-override": "^2.3.7",
     "moment": "^2.17.1",
     "mongoose": "^4.7.5",
-    "morgan": "~1.7.0",
-    "node-schedule": "^1.2.0",
-    "qiniu": "^6.1.13"
+    "morgan": "~1.7.0"
   },
   "devDependencies": {
     "apidoc": "^0.16.1",

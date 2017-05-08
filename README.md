@@ -32,7 +32,7 @@ npm run doc
 ``` bash
 pm2 deploy processes.json production setup
 
-// cp config.simple.json config.json
+// cp config.example.json config.json
 
 pm2 deploy processes.json production
 ```
