@@ -18,7 +18,7 @@ const Article = new Base('Article', {
   published:      Date,
   order: {
     type:    Number,
-    default: 0,
+    default: 0
   },
   added: {
     type:    Date,

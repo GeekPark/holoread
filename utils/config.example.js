@@ -8,15 +8,6 @@ module.exports = {
   db:          'mongodb://127.0.0.1:27017/shareading',
   testdb:      'mongodb://127.0.0.1:27017/shareading-test',
   sessiondb:   'mongodb://127.0.0.1:27017/shareading-session',
-  qiniu:       {
-    bucket: '*',
-    ACCESS_KEY: '*',
-    SECRET_KEY: '*',
-  },
-  jpush: {
-    ACCESS_KEY: '************************',
-    SECRET_KEY: '************************',
-  },
   cookie: {
     domain: 'http://127.0.0.1',
     path:   '/',
