@@ -6,7 +6,7 @@ import $      from '../../utils'
 import Models from '../../models'
 import Base   from './base'
 
-const {ArticleModel, LikeModel, CommentModel, } = Models;
+const {ArticleModel} = Models;
 
 
 export default new Base({
