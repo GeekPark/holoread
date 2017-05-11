@@ -21,6 +21,6 @@ router.get('/search',  Admin.Search);
 
 export default BaseRouter.resources('/users',    Admin.User)
                          .resources('/articles', Admin.Article)
-                         .resources('/follows',  Admin.Follow, [authSession])
-                         .resources('/logs',     Admin.Log, [authSession])
+                         .resources('/follows',  Admin.Follow)
+                         .resources('/logs',     Admin.Log)
                          .router;
