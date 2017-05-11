@@ -9,6 +9,4 @@ import Base   from './base'
 const {ArticleModel} = Models;
 
 
-export default new Base({
-  model: ArticleModel
-})
+export default new Base(ArticleModel)

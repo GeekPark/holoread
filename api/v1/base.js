@@ -2,47 +2,49 @@
  * @author eric
  * @version 1.0.0
  */
-import $ from '../../utils'
-
+import $ from '../../utils';
 
 export default class Base {
-  constructor(options) {
-
-    this.model = options.model;
-
+  constructor(model = {}) {
+    this.model = model;
     addMethods(this);
-
-    Object.keys(options).forEach(el => {
-      this[el] = options[el];
-    })
   }
 }
 
 
-const addMethods = (_this) => {
-  _this.find = async function (req, res, next) {
-    return $.result(res, await _this.model.find({'_id': req.params.id}));
-  };
+function addMethods(_this) {
 
-  _this.all = async function (req, res, next) {
-    $.result(res, await _this.model.all({}, req.query.start));
-  };
+  _this.show = async function (req, res, next) {
+    $.result(res, await _this.model.findById(req.params.id));
+  }
+
+  _this.index = async function (req, res, next) {
+    const list = await _this.model.all({}, req.query);
+    const count = await _this.model.count();
+    $.result(res, {
+      list: list,
+      meta: {
+        total_count: count,
+        limit_value: 20,
+      }
+    });
+  }
 
   _this.create = async function (req, res, next) {
-    let documents = await _this.model.create(req.body);
-    if (documents === -1) $.result(res, 'create failed');
-    else $.result(res, documents);
-  };
+    const doc = await _this.model.create(req.body);
+    if (doc === -1) { return $.result(res, 'create failed');}
+    $.result(res, doc);
+  }
 
-  _this.update =  async function (req, res, next) {
-    let documents = await _this.model.update({"_id": req.params.id}, req.body)
-    if (documents === -1) $.result(res, 'update failed');
-    else $.result(res, documents);
-  };
+  _this.update = async function (req, res, next) {
+    let docs = await _this.model.updateBy({ "_id": req.params.id }, req.body)
+    if (docs === -1) $.result(res, 'update failed');
+    else $.result(res, docs);
+  }
 
-  _this.delete = async function (req, res, next) {
-    let documents = await _this.model.delete({"_id": req.params.id})
-    if (documents === -1) $.result(res, 'delete failed');
-    else $.result(res, documents);
-  };
+  _this.del = async function (req, res, next) {
+    let docs = await _this.model.delete({ "_id": req.params.id })
+    if (docs === -1) $.result(res, 'delete failed');
+    else $.result(res, docs);
+  }
 }

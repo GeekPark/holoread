@@ -10,6 +10,4 @@ import Base   from './base'
 const {LogModel} = Models;
 
 
-export default new Base({
-  model: LogModel,
-})
+export default new Base(LogModel)

@@ -44,8 +44,8 @@
   "apidoc": {
     "name": "API Document",
     "version": "1.0.0",
-    "description": "http://www.geekpark.net:10007",
-    "title": "TOPVIEW API 文档",
+    "description": "http://www.geekpark.net",
+    "title": "shareading API 文档",
     "template": {
       "withCompare": true,
       "withGenerator": true

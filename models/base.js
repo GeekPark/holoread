@@ -137,9 +137,11 @@ function addMethods (_this) {
     return await _this.create(query);
   };
 
+  methods.updateBy = async function (query, info) {
+    return await _this.updateBy(query, info);
+  };
+
   methods.update = async function (query, info) {
-    const item = await _this.find(query);
-    if (!item) { return -1; }
     return await _this.update(query, info);
   };
 

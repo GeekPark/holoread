@@ -5,13 +5,8 @@
 import $      from '../utils';
 import Models from '../models';
 
-String.prototype.firstUpperCase= function() {
-  return this.replace(/^\S/,function(s){return s.toUpperCase();});
-}
-
 
 export default async function (req, res, next) {
-
   let  query = {};
   query[req.query.key] =  { $regex: req.query.val, $options: 'i' };
 
