@@ -7,7 +7,6 @@ import $    from '../utils';
 import Base from './base';
 
 const Article = new Base('Article', {
-  // { type:      Base.ObjectId(), ref: 'User' }
   origin_title:   String,
   origin_content: String,
   trans_title:    String,
@@ -38,6 +37,7 @@ const Article = new Base('Article', {
   }
 });
 
+// custom function
 function editedTitle () {
   return 'do something';
 }

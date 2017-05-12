@@ -37,7 +37,7 @@ function addMethods(_this) {
   }
 
   _this.update = async function (req, res, next) {
-    let docs = await _this.model.update({ "_id": req.params.id }, req.body)
+    let docs = await _this.model.updateBy({ "_id": req.params.id }, req.body)
     if (docs === -1) $.result(res, 'update failed');
     else $.result(res, docs);
   }

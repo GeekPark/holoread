@@ -8,8 +8,15 @@ import auth   from '../utils/auth';
 import Models from '../models';
 import Base   from './base';
 
-const {UserModel} = Models;
-const UserAPI     = new Base(UserModel);
+const {UserModel}   = Models;
+const UserAPI       = new Base(UserModel);
+const {createToken} = auth;
+
+UserAPI.create = async function (req, res, next) {
+  const result = await UserModel.create(req.body);
+  result.token = createToken({_id: result._id});
+  $.result(res, await UserModel.update(result));
+}
 
 UserAPI.login = async function (req, res, next) {
   const { error, value } = $.paramter.validate(req.body,

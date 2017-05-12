@@ -51,10 +51,10 @@ export default class Base {
   // try catch methods
   async all(query, options) {
     const _count  = 20;
-    const {_start = 0} = options;
+    const {start = 0} = options;
     try {
       return await this.model.find(query)
-        .limit(_count).skip(_count * _start)
+        .limit(_count).skip(_count * start)
         .populate(rules).sort({createdAt: -1});
     } catch (e) {
       console.error(e);
@@ -137,9 +137,11 @@ function addMethods (_this) {
     return await _this.create(query);
   };
 
+  methods.updateBy = async function (query, info) {
+    return await _this.updateBy(query, info);
+  };
+
   methods.update = async function (query, info) {
-    const item = await _this.find(query);
-    if (!item) { return -1; }
     return await _this.update(query, info);
   };
 

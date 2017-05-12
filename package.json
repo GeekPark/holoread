@@ -24,7 +24,8 @@
     "method-override": "^2.3.7",
     "moment": "^2.17.1",
     "mongoose": "^4.7.5",
-    "morgan": "~1.7.0"
+    "morgan": "~1.7.0",
+    "request": "^2.81.0"
   },
   "devDependencies": {
     "apidoc": "^0.16.1",
@@ -44,8 +45,8 @@
   "apidoc": {
     "name": "API Document",
     "version": "1.0.0",
-    "description": "http://www.geekpark.net:10007",
-    "title": "TOPVIEW API 文档",
+    "description": "http://www.geekpark.net",
+    "title": "shareading API 文档",
     "template": {
       "withCompare": true,
       "withGenerator": true

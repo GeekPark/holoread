@@ -5,10 +5,11 @@ module.exports = {
   ports:       isDev ? ['3000'] : ['10007'],
   secret:      '*',
   allowOrigin: 'http://127.0.0.1:8080',
+  yunpian:     '',
   db:          'mongodb://127.0.0.1:27017/shareading',
   testdb:      'mongodb://127.0.0.1:27017/shareading-test',
   sessiondb:   'mongodb://127.0.0.1:27017/shareading-session',
-  cookie: {
+  cookie:      {
     domain: 'http://127.0.0.1',
     path:   '/',
     maxAge: 15552000000, // 6 * 30 days

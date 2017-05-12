@@ -22,8 +22,13 @@ const User = new Base('User', {
   email:      String,
   wechat:     String,
   phone:      String,
+  verifyCode: String, // 短信验证码
   permission: { type: Array, default: ['visitor'] },
   state:      { type: Number, default: -1 },
+  sms:        {
+    code: String,
+    time: Date,
+  },
   nickname:   {
     type:    String,
     index:   true,

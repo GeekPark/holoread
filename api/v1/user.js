@@ -13,41 +13,56 @@ const {UserModel} = Models;
 
 export default {
   // 登录
-  login: async (req, res, next) => {
+  // 如果不存在就创建新用户
+   wechatLogin: async (req, res, next) => {
 
     let exist = await UserModel.find({openid: req.body.openid});
 
-    // 如果不存在, 就创建用户
-    if ($.empty(exist)) {
-      exist = await UserModel.create(req.body);
-      return $.result(res, exist);
-    }
-    // 如果存在 检查状态
-    else if (exist.status === -1) {
-      return $.result(res, `status: ${exist.status}`);
-    }
+    if ($.empty(exist)) { exist = await UserModel.create(req.body); }
 
     $.result(res, exist);
   },
 
+  verifySms: async (req, res, next) => {
+    const { error, value } = $.paramter.validate(req.body,
+    $.paramter.object().keys({
+      phone: $.paramter.string(),
+      code: $.paramter.string()
+    }).with('phone', 'code'));
+    if (error) return $.result(res, 'params error');
 
-  // 验证邀请码
-  verify: async (req, res, next) => {
-
-    let exist = await UserModel.find({
-      openid: req.body.openid,
-      code:   req.body.code
-    });
-
+    let exist = await UserModel.find({ phone: value.phone});
     if ($.empty(exist)) { return $.result(res, 'not match'); }
+    if (value.code === exist.sms.code &&
+      exist.sms.time > Date.now()) {
+      return $.result(res, "验证成功", 200);
+    }
+    $.result(res, '验证失败');
+  },
 
-    // 如果用户未激活 并且验证码正确, 则登录成功
-    else if (exist.status === -1) {
-      exist = await UserModel.update({
-        _id: exist._id}, { status: 1 });
-      $.result(res, exist);
+  // 短信验证码
+  createSms: async (req, res, next) => {
+    const code = $.createCode();
+    const {phone} = req.body;
+
+    if ($.empty(phone)) {return $.result(res, '发送失败');}
+
+    let exist = await UserModel.find({phone: phone});
+
+    if ($.empty(exist)) {
+      exist = await UserModel.create({phone: phone});
     }
 
+    exist.sms = {
+      code: code,
+      time: $.DateAdd("m", 30, new Date())
+    }
+
+    await UserModel.update(exist);
+    const result = await $.createSms(phone, code);
+
+    if (result === -1) {return $.result(res, '发送失败');}
+    $.result(res, '发送成功', 200);
   }
 
 }
