@@ -13,7 +13,7 @@ const UserAPI       = new Base(UserModel);
 const {createToken} = auth;
 
 UserAPI.create = async function (req, res, next) {
-  const result = await UserModel.create(req.query);
+  const result = await UserModel.create(req.body);
   result.token = createToken({_id: result._id});
   $.result(res, await UserModel.update(result));
 }

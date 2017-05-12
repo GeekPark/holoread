@@ -8,5 +8,16 @@ import Base   from './base'
 
 const {ArticleModel} = Models;
 
-
-export default new Base(ArticleModel)
+export default {
+  index: async function (req, res, next) {
+    const list = await ArticleModel.all({}, req.query);
+    const count = await ArticleModel.count();
+    $.result(res, {
+      list: list,
+      meta: {
+        total_count: count,
+        limit_value: 20,
+      }
+    });
+  }
+}

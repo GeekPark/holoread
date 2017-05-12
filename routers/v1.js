@@ -7,18 +7,22 @@ import express from 'express'
 import api     from '../api'
 import auth    from '../utils/auth'
 import $       from '../utils'
+import Base    from './base'
 
-const {authToken} = auth;
+// 验证 token, 加载用户, 按需使用
+const {authToken, loadUser} = auth;
 const {V1}   = api;
 
-const router = express.Router();
+const router     = express.Router();
+const BaseRouter = new Base(router);
 
-
-//  用户
-
+// 微信登录
 router.post('/login/wechat', V1.User.wechatLogin);
+// 验证短信
 router.post('/sms/verify',   V1.User.verifySms);
+// 发送短信
 router.post('/sms/new',      V1.User.createSms);
-router.post('/log',          V1.Log.create);
 
-export default router;
+export default BaseRouter.resources('/articles', V1.Article)
+                         .resources('/logs',     V1.Log)
+                         .router;

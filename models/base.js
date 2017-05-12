@@ -51,10 +51,10 @@ export default class Base {
   // try catch methods
   async all(query, options) {
     const _count  = 20;
-    const {_start = 0} = options;
+    const {start = 0} = options;
     try {
       return await this.model.find(query)
-        .limit(_count).skip(_count * _start)
+        .limit(_count).skip(_count * start)
         .populate(rules).sort({createdAt: -1});
     } catch (e) {
       console.error(e);

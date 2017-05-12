@@ -9,5 +9,9 @@ import Base   from './base'
 
 const {LogModel} = Models;
 
-
-export default new Base(LogModel)
+export default {
+  create: async function (req, res, next) {
+    const doc = await LogModel.create(req.body);
+    $.result(res, doc);
+  }
+}

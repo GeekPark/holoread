@@ -7,13 +7,22 @@ import Models from '../models';
 
 
 export default async function (req, res, next) {
-  let  query = {};
-  query[req.query.key] =  { $regex: req.query.val, $options: 'i' };
+  const {kw, value, type, start = 0} = req.query;
+  const query = {};
 
-  const model = Models[`${req.query.type}Model`];
+  query[`${kw}`] = { $regex: value, $options: 'i' };
+  const model = Models[`${type}Model`];
 
   if ($.empty(model)) {return $.result(res, 'error');}
-  const docs = await model.all(query, req.query.start);
-  $.result(res, docs);
+
+  const docs = await model.all(query, start);
+  const count = await model.count(query);
+  $.result(res, {
+      list: docs,
+      meta: {
+        total_count: count,
+        limit_value: 20,
+      }
+    });
 }
 
