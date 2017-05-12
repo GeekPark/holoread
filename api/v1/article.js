@@ -9,7 +9,7 @@ import Base   from './base'
 const {ArticleModel} = Models;
 
 export default {
-  index: async function (req, res, next) {
+  index: async (req, res, next) => {
     const list = await ArticleModel.all({}, req.query);
     const count = await ArticleModel.count();
     $.result(res, {

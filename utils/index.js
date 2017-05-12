@@ -33,7 +33,7 @@ module.exports.createCode = () => {
   return Math.random().toString(10).substring(11);
 }
 
-module.exports.createSms = async (mobile, code)=> {
+module.exports.createSms = async (mobile, code) => {
   const tpl = `【极客公园】您的验证码是 ${code}， 有效期为30分钟。请妥善保管您的验证码，勿透露给他人`
   try {
     return request({
