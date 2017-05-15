@@ -32,7 +32,7 @@ UserAPI.login = async function (req, res, next) {
   if ($.empty(docs)) return $.result(res, 'login failed');
 
   req.session.user = docs;
-  res.cookie('email', docs.email.addr, { maxAge: 900000 });
+  res.cookie('email', docs.email, { maxAge: 900000 });
   $.result(res, docs);
 }
 

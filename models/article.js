@@ -38,12 +38,12 @@ const Article = new Base('Article', {
 });
 
 // custom function
-function editedTitle () {
-  return 'do something';
+function editedTitle (res) {
+  return res ? res : this.trans_title;
 }
 
-function editedContent () {
-  return 'do something';
+function editedContent (res) {
+  return res ? res : this.trans_content;
 }
 
 export default Article.methods
