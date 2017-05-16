@@ -29,22 +29,24 @@ const Article = new Base('Article', {
   },
   edited_title: {
     type: String,
-    get:  editedTitle
+    default: ''
   },
   edited_content: {
     type: String,
-    get:  editedContent
+    default: ''
   }
 });
 
-// custom function
-function editedTitle (res) {
-  return res ? res : this.trans_title;
-}
 
-function editedContent (res) {
-  return res ? res : this.trans_content;
-}
+Article.schema.path('edited_title')
+.get(function(val) {
+    return $.empty(val) ? this.trans_title : val;
+})
+
+Article.schema.path('edited_content')
+.get(function(val) {
+    return $.empty(val) ? this.trans_content : val;
+})
 
 export default Article.methods
 
