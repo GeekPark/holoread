@@ -18,8 +18,8 @@ export default class Base {
 
     const schema = mongoose.Schema(options, {
       versionKey: false,
-      toObject:   { virtuals: true },
-      toJSON:     { virtuals: true },
+      toObject:   { virtuals: true , getters: true},
+      toJSON:     { virtuals: true , getters: true},
       timestamps: {
         createdAt: 'createdAt',
         updatedAt: 'updatedAt'
