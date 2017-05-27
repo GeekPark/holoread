@@ -27,14 +27,14 @@
 
   "deploy" : {
     "production" : {
-      "user" : "eric",
+      "user" : "jk",
       "host" :[{
         "host" : "192.168.2.5",
         "port": "22"
       }],
       "ref"  : "origin/master",
-      "repo" : "ssh://git@gitlab.geekpark.net:2222/geekpark/topApp-backend.git",
-      "path" : "/home/eric/top/backend",
+      "repo" : "https://github.com/GeekPark/shareading.git",
+      "path" : "/home/jk/shareading",
       "post-deploy" : "yarn install && npm run doc && pm2 startOrRestart processes.json --env production"
     },
     "dev" : {
