@@ -25,7 +25,7 @@ try {
 }
 
 
-function _tokenPromise (token) {
+const verify = function  (token) {
   return new Promise ((resolve, reject) => {
     jwt.verify(token, $.config.secret, (err, value) => {
       if (err) {reject(err); return;}
@@ -37,10 +37,12 @@ function _tokenPromise (token) {
 
 export default {
 
-  createToken: (json) => {
+  sign: (json) => {
     const token = jwt.sign(json, $.config.secret, { expiresIn: '180d'});
     return token;
   },
+
+  verify,
 
   loadUser: async function (req, res, next) {
     const token  = req.headers.token || req.body.token || null;
@@ -61,7 +63,7 @@ export default {
     const token = req.headers.token || req.body.token || null;
     if ($.empty(token)) { return result(res, 'token error'); }
 
-    _tokenPromise(token).then(async (decode) => {
+    verify(token).then(async (decode) => {
       const user = await UserModel.find({'_id': decode.user});
       if (user) req.user = user, next();
       else result(res, 'token error');

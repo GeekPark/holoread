@@ -5,16 +5,18 @@
 
 import $      from '../utils';
 import auth   from '../utils/auth';
+import cipher from '../utils/cipher';
 import Models from '../models';
 import Base   from './base';
 
 const {UserModel}   = Models;
 const UserAPI       = new Base(UserModel);
-const {createToken} = auth;
+const {sign} = auth;
 
 UserAPI.create = async function (req, res, next) {
   const result = await UserModel.create(req.body);
-  result.token = createToken({_id: result._id});
+  result.token = sign({_id: result._id});
+  result.password = cipher.encode(result.password);
   $.result(res, await UserModel.update(result));
 }
 
@@ -24,15 +26,12 @@ UserAPI.login = async function (req, res, next) {
     email: $.paramter.string(),
     password: $.paramter.string()
   }));
-
   if (error) return $.result(res, 'params error');
 
-  let docs = await UserModel.find(value);
-
+  value.password = cipher.encode(value.password);
+  const docs = await UserModel.find(value);
   if ($.empty(docs)) return $.result(res, 'login failed');
-
   req.session.user = docs;
-  res.cookie('email', docs.email, { maxAge: 900000 });
   $.result(res, docs);
 }
 
