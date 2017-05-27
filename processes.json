@@ -32,7 +32,7 @@
         "host" : "192.168.2.5",
         "port": "22"
       }],
-      "ref"  : "origin/master",
+      "ref"  : "origin/develop",
       "repo" : "https://github.com/GeekPark/shareading.git",
       "path" : "/home/jk/shareading",
       "post-deploy" : "yarn install && npm run doc && pm2 startOrRestart processes.json --env production"
