@@ -17,19 +17,19 @@ module.exports.decode = function (msg) {
         var decipher = crypto.createDecipher(CIPHER_ALGORITHM, key);
         var decipheredMessage = decipher.update(msg, 'hex', 'binary');
         decipheredMessage += decipher.final("binary");
-        // console.log(typeof decipheredMessage);
-        // preserve newlines, etc - use valid JSON
-        decipheredMessage = decipheredMessage.replace(/\\n/g, "\\n")
-        .replace(/\\'/g, "\\'")
-        .replace(/\\"/g, '\\"')
-        .replace(/\\&/g, "\\&")
-        .replace(/\\r/g, "\\r")
-        .replace(/\\t/g, "\\t")
-        .replace(/\\b/g, "\\b")
-        .replace(/\\f/g, "\\f");
-        // remove non-printable and other non-valid JSON chars
-        decipheredMessage = decipheredMessage.replace(/[\u0000-\u0019]+/g, "");
-        ret = JSON.parse(decipheredMessage);
+        // // console.log(typeof decipheredMessage);
+        // // preserve newlines, etc - use valid JSON
+        // decipheredMessage = decipheredMessage.replace(/\\n/g, "\\n")
+        // .replace(/\\'/g, "\\'")
+        // .replace(/\\"/g, '\\"')
+        // .replace(/\\&/g, "\\&")
+        // .replace(/\\r/g, "\\r")
+        // .replace(/\\t/g, "\\t")
+        // .replace(/\\b/g, "\\b")
+        // .replace(/\\f/g, "\\f");
+        // // remove non-printable and other non-valid JSON chars
+        // decipheredMessage = decipheredMessage.replace(/[\u0000-\u0019]+/g, "");
+        ret = decipheredMessage;
     } catch (e) {
         console.log('------------------------------------');
         console.log(e);

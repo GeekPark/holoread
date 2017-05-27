@@ -6,6 +6,7 @@ require("babel-polyfill");
 import M      from '../../models'
 import faker  from 'faker'
 import $      from '../../utils'
+import cipher from '../../utils/cipher'
 
 faker.locale  = 'zh_CN';
 const objects = {};
@@ -42,7 +43,11 @@ const generate = {
 
 const methods  = {
   create_user: async () => {
-    return await M.UserModel.create(generate.user());
+    let user = generate.user();
+    user.password = cipher.encode(user.password);
+    user = await M.UserModel.create(user);
+    user.password = cipher.decode(user.password);
+    return user;
   },
 
   create_article:  async () => {
