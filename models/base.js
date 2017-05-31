@@ -9,6 +9,7 @@ import $        from '../utils';
 
 
 const rules  = [];
+const LIMIT = 20;
 
 
 // baseModel
@@ -50,12 +51,19 @@ export default class Base {
 
   // try catch methods
   async all(query, options) {
-    const _count  = 20;
-    const {start = 0} = options;
+    const {pre = ''} = options;
+    console.log()
     try {
-      return await this.model.find(query)
-        .limit(_count).skip(_count * start)
-        .populate(rules).sort({createdAt: -1});
+      if (pre === '') {
+        _query = query;
+      } else {
+        _query = {'_id' :{ '$gt': pre}};
+      }
+      return await this.model
+                   .find()
+                   .limit(LIMIT)
+                   .populate(rules)
+                   .sort({createdAt: -1});
     } catch (e) {
       console.error(e);
     }
