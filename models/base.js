@@ -52,13 +52,8 @@ export default class Base {
   // try catch methods
   async all(query, options) {
     const {pre = ''} = options;
-    console.log()
     try {
-      if (pre === '') {
-        _query = query;
-      } else {
-        _query = {'_id' :{ '$gt': pre}};
-      }
+      const _query = pre === '' ? query : {'_id' :{ '$gt': pre}};
       return await this.model
                    .find()
                    .limit(LIMIT)
