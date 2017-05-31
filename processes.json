@@ -27,14 +27,14 @@
 
   "deploy" : {
     "production" : {
-      "user" : "jk",
+      "user" : "dev",
       "host" :[{
-        "host" : "192.168.2.5",
-        "port": "22"
+        "host" : "207.226.143.239",
+        "port": "2277"
       }],
       "ref"  : "origin/develop",
       "repo" : "https://github.com/GeekPark/shareading.git",
-      "path" : "/home/jk/shareading",
+      "path" : "/home/dev/holoread",
       "post-deploy" : "yarn install && npm run doc && pm2 startOrRestart processes.json --env production"
     },
     "dev" : {
@@ -43,7 +43,7 @@
       "ref"  : "origin/master",
       "repo" : "git@github.com:repo.git",
       "path" : "/var/www/development",
-      "post-deploy" : "npm install && pm2 startOrRestart ecosystem.json --env dev",
+      "post-deploy" : "yarn && pm2 startOrRestart ecosystem.json --env dev",
       "env"  : {
         "NODE_ENV": "dev"
       }
