@@ -18,6 +18,7 @@ export default class Base {
 
     const schema = mongoose.Schema(options, {
       versionKey: false,
+      id: false,
       toObject:   { virtuals: true , getters: true},
       toJSON:     { virtuals: true , getters: true},
       timestamps: {
@@ -32,12 +33,6 @@ export default class Base {
     schema.virtual('updated_at').get(function () {
       return $.dateformat(this.updatedAt);
     });
-    schema.options.toObject.transform = function (doc, ret, options) {
-      delete ret.id;
-    };
-    schema.options.toJSON.transform = function (doc, ret, options) {
-      delete ret.id;
-    };
 
     this.schema  = schema;
     this.model   = mongoose.model(name, schema);
@@ -53,7 +48,7 @@ export default class Base {
     let _query = {};
     const {last = '',
            first = '',
-           limit = 2} = options;
+           limit = 20} = options;
 
     if (last !== '') {
       _query =  {'_id' :{ '$gt': last}};
@@ -73,7 +68,7 @@ export default class Base {
                           as: "access"
                          }
                      },
-                     { $limit: limit },
+                     { $limit: parseInt(limit) },
                    ])
     } catch (e) {
       console.error(e);
