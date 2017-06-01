@@ -9,7 +9,6 @@ import $        from '../utils';
 
 
 const rules  = [];
-const LIMIT = 20;
 
 
 // baseModel
@@ -51,14 +50,31 @@ export default class Base {
 
   // try catch methods
   async all(query, options) {
-    const {pre = ''} = options;
+    let _query = {};
+    const {last = '',
+           first = '',
+           limit = 2} = options;
+
+    if (last !== '') {
+      _query =  {'_id' :{ '$gt': last}};
+    } else if (first !== '') {
+      _query =  {'_id' :{ '$lt': first}};
+    }
+
     try {
-      const _query = pre === '' ? query : {'_id' :{ '$gt': pre}};
       return await this.model
-                   .find()
-                   .limit(LIMIT)
-                   .populate(rules)
-                   .sort({createdAt: -1});
+                   .aggregate([
+                     { $match: _query },
+                     { $lookup:
+                         {
+                          from: "accesses",
+                          localField: "_id",
+                          foreignField: "article",
+                          as: "access"
+                         }
+                     },
+                     { $limit: limit },
+                   ])
     } catch (e) {
       console.error(e);
     }

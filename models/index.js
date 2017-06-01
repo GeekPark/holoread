@@ -4,6 +4,7 @@ import UserModel    from './user'
 import ArticleModel from './article'
 import LogModel     from './log'
 import FollowModel  from './follow'
+import AccessModel  from './access'
 
 const dbname = process.env.NODE_ENV === 'test' ? $.config.testdb : $.config.db;
 
@@ -24,5 +25,6 @@ export default {
   UserModel,
   ArticleModel,
   LogModel,
-  FollowModel
+  FollowModel,
+  AccessModel
 }
