@@ -18,13 +18,13 @@ export default {
     today.setHours(0,0,0);
     $.debug($.dateformat(today));
     const getArticle = async () => {
-      if (result.length > 0) {
+      if (result) {
         return;
       } else {
         // console.time('t');
         const query = {'published' :{'$gt': today}};
-        result  = await ArticleModel.model.find(query);
-        today.setHours(-24 * 30,0,0);
+        result  = await ArticleModel.model.findOne(query);
+        today.setHours(-24 * 7,0,0);
         $.debug($.dateformat(today));
         // console.timeEnd('t');
         await getArticle();
@@ -32,6 +32,6 @@ export default {
     }
     await getArticle();
 
-    return result[0];
+    return result;
   }
 }

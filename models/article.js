@@ -14,7 +14,7 @@ const Article = new Base('Article', {
   summary:        String,
   url:            String,
   source:         String,
-  published:      Date,
+  published:      {type: Date, index: true},
   order: {
     type:    Number,
     default: 0
