@@ -17,21 +17,22 @@ export default {
     let result = [];
     today.setHours(0,0,0);
     $.debug($.dateformat(today));
+    console.time('all time');
     const getArticle = async () => {
-      if (result) {
+      if (result.length > 0) {
         return;
       } else {
-        // console.time('t');
+        console.time('t');
         const query = {'published' :{'$gt': today}};
-        result  = await ArticleModel.model.findOne(query);
+        result  = await ArticleModel.model.find(query);
         today.setHours(-24 * 7,0,0);
         $.debug($.dateformat(today));
-        // console.timeEnd('t');
+        console.timeEnd('t');
         await getArticle();
       }
     }
     await getArticle();
-
-    return result;
+    console.time('all time')
+    return result[0];
   }
 }
