@@ -24,7 +24,7 @@ export default {
         // console.time('t');
         const query = {'published' :{'$gt': today}};
         result  = await ArticleModel.model.find(query);
-        today.setHours(-24 * 7,0,0);
+        today.setHours(-24 * 30,0,0);
         $.debug($.dateformat(today));
         // console.timeEnd('t');
         await getArticle();
