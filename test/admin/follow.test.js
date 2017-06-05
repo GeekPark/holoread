@@ -6,27 +6,27 @@ const {_get, _delete, _post} = new Base({});
 let user     = {};
 
 
-describe('ADMIN: FOLLOW',  () => {
+describe('ADMIN: Like',  () => {
 
-  it('create follow', async () => {
+  it('create Like', async () => {
     const user = await mock.create('user');
     const article = await mock.create('article');
-    return _post('follows', {
-      from :user.id,
-      article: article.id
+    return _post('likes', {
+      from :user._id,
+      article: article._id
     }, 200);
   });
 
-  it('repeat follow', async () => {
+  it('repeat Like', async () => {
     const user = await mock.create('user');
     const article = await mock.create('article');
-    return _post('follows', {
-      from :user.id,
-      article: article.id
+    return _post('likes', {
+      from :user._id,
+      article: article._id
     }, 400);
   });
 
-  it('access to all follows', () => {
-    return _get('follows', {start: 0}, 200);
+  it('access to all likes', () => {
+    return _get('likes', {start: 0}, 200);
   });
 });

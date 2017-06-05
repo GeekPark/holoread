@@ -21,6 +21,6 @@ router.get('/search',  Admin.Search);
 
 export default BaseRouter.resources('/users',    Admin.User)
                          .resources('/articles', Admin.Article)
-                         .resources('/follows',  Admin.Follow)
+                         .resources('/likes',  Admin.Like)
                          .resources('/logs',     Admin.Log)
                          .router;

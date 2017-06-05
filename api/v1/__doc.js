@@ -108,12 +108,12 @@
  */
 
 /**
- * @api {get} /api/v1/articles  获取所有文章
+ * @api {get} /api/v1/articles  获取所有文章(默认当天)
  * @apiName Index
  * @apiGroup Article
  * @apiVersion 1.0.0
  *
- * @apiParam {Number} start 分页,默认为0
+ * @apiParam {String} date 日期, 获取指定日期文章 例如 ?date=2017-06-06
  *
  * @apiExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -137,6 +137,28 @@
  */
 
 /**
+ * @api {get} /api/v1/articles/:user/likes 获取用户收藏文章
+ * @apiName Get
+ * @apiGroup Article
+ * @apiVersion 1.0.0
+ *
+ * @apiExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "data": {
+ *       },
+ *       "msg": ""
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 403
+ *     {
+ *       "data": "",
+ *       "msg" : "..."
+ *     }
+ */
+
+/**
  * @api {post} /api/v1/logs  创建日志
  * @apiName Create
  * @apiGroup Log
@@ -145,6 +167,53 @@
  * @apiParam {String} token token
  * @apiParam {String} type 日志类型
  * @apiParam {String} event 日志事件
+ *
+ * @apiExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "data": {
+ *       },
+ *       "msg": ""
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 403
+ *     {
+ *       "data": "",
+ *       "msg" : "..."
+ *     }
+ */
+
+/**
+ * @api {post} /api/v1/likes 收藏文章
+ * @apiName Create
+ * @apiGroup Like
+ * @apiVersion 1.0.0
+ *
+ * @apiParam {String} from  当前用户ID
+ * @apiParam {String} article 文章 ID
+ *
+ * @apiExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "data": {
+ *       },
+ *       "msg": ""
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 403
+ *     {
+ *       "data": "",
+ *       "msg" : "..."
+ *     }
+ */
+
+/**
+ * @api {delete} /api/v1/likes/:id 删除收藏文章
+ * @apiName Delete
+ * @apiGroup Like
+ * @apiVersion 1.0.0
  *
  * @apiExample {json} Success-Response:
  *     HTTP/1.1 200 OK

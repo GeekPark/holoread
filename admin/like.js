@@ -6,14 +6,14 @@ import $      from '../utils';
 import Models from '../models';
 import Base   from './base';
 
-const FollowModel = Models.FollowModel;
-const FollowAPI   = new Base(FollowModel);
+const LikeModel = Models.LikeModel;
+const LikeAPI   = new Base(LikeModel);
 
-FollowAPI.create = async (req, res, next)=> {
+LikeAPI.create = async (req, res, next)=> {
   const query = Object.assign({}, req.body);
-  const exist = await FollowModel.find(query);
+  const exist = await LikeModel.find(query);
   if ($.empty(exist) === false) {return $.result(res, 'create failed');}
-  $.result(res, await FollowModel.create(query));
+  $.result(res, await LikeModel.create(query));
 };
 
-export default FollowAPI
+export default LikeAPI

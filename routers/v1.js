@@ -22,7 +22,10 @@ router.post('/login/wechat', V1.User.wechatLogin);
 router.post('/sms/verify',   V1.User.verifySms);
 // 发送短信
 router.post('/sms/new',      V1.User.createSms);
+// 获取收藏的文章
+router.get('/articles/:user/likes', V1.Article.myLikes);
 
 export default BaseRouter.resources('/articles', V1.Article)
-                         .resources('/logs',     V1.Log)
+                         .resources('/logs',  V1.Log)
+                         .resources('/likes', V1.Like)
                          .router;
