@@ -9,23 +9,25 @@ import mongoose from 'mongoose'
 
 const {ArticleModel, AccessModel, LikeModel} = Models;
 
-const select = [{$lookup:{
-                    from: "accesses",
-                    localField: "_id",
-                    foreignField: "article",
-                    as: "accesses"
-                 }},
-                 {$lookup:{
-                    from: "likes",
-                    localField: "_id",
-                    foreignField: "article",
-                    as: "likes"
-                 }},
-                 {$project : {
-                    origin_content: 0,
-                    trans_content: 0,
-                    edited_content: 0,
-                 }}];
+const selectAccess = {$lookup:{
+  from: "accesses",
+  localField: "_id",
+  foreignField: "article",
+  as: "accesses"
+}};
+
+const selectLike = {$lookup:{
+  from: "likes",
+  localField: "_id",
+  foreignField: "article",
+  as: "likes"
+}};
+
+const selectArticle = {
+  origin_content: 0,
+  trans_content: 0,
+  edited_content: 0,
+};
 
 export default {
 
@@ -90,9 +92,27 @@ function getHotArticle (list) {
 async function queryLikes (query) {
   const list  = await LikeModel.model.aggregate([
                  {$sort: {createdAt: -1}},
-                 {$match: query }
+                 {$match: query},
+                 {$lookup:{
+                    from: "articles",
+                    localField: "article",
+                    foreignField: "_id",
+                    as: "article"
+                 }},
+                 {$lookup:{
+                    from: "likes",
+                    localField: "article",
+                    foreignField: "article",
+                    as: "likes"
+                 }},
+                 {$project: {
+                    article: selectArticle
+                 }}
                ]);
-  return list;
+  return list.map(el => {
+    const article = el.article[0];
+    return article;
+  });
 }
 
 
@@ -101,7 +121,10 @@ async function queryArticles (query) {
   // $.debug($.dateformat(date));
   const list  = await ArticleModel.model.aggregate([
                  {$sort: {published: -1}},
-                 {$match: query }
-                ].concat(select));
+                 {$match: query },
+                 selectLike,
+                 selectAccess,
+                 {$project: selectArticle}
+                ]);
   return list;
 }
