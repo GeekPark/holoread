@@ -5,6 +5,7 @@
 import $      from '../utils';
 import Models from '../models';
 import Base   from './base';
+import helper from './helper';
 import mongoose from 'mongoose';
 
 const ArticleModel = Models.ArticleModel;
@@ -17,11 +18,13 @@ ArticleAPI.index = async function (req, res, next) {
     const {last  = '', first = '', limit = LIMIT} = req.query;
 
     if (last !== '') {
-      _query =  {'published' :{'$lt': new Date(last)}};
+      _query = {'published' :{'$lt': new Date(last)}};
     } else if (first !== '') {
-      _query =  {'published' :{'$gt': new Date(first)}};
+      _query = {'published' :{'$gt': new Date(first)}};
+    } else {
+      const recent = await helper.getRecent();
+      _query = {'published' :{'$lte': recent.published}};
     }
-    $.debug(_query);
     try {
       const list = await ArticleModel.model.aggregate([
                      { $sort: {published: -1}},
@@ -43,7 +46,7 @@ ArticleAPI.index = async function (req, res, next) {
                          }
                      },
                      { $limit: 20 }
-                   ]).allowDiskUse(true)
+                   ])
       // const list = await ArticleModel.model.find({}).limit(20).sort({published: -1});
       const count = await ArticleModel.count();
       $.result(res, {
