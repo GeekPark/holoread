@@ -108,7 +108,7 @@ async function queryLikes (query) {
                  {$project: {
                     article: selectArticle
                  }}
-               ],{allowDiskUse: true});
+               ]).allowDiskUse(true);
   return list.map(el => {
     const article = el.article[0];
     return article;
@@ -125,6 +125,6 @@ async function queryArticles (query) {
                  selectLike,
                  selectAccess,
                  {$project: selectArticle}
-                ],{allowDiskUse: true});
+                ]).allowDiskUse(true);
   return list;
 }

@@ -43,7 +43,7 @@ ArticleAPI.index = async function (req, res, next) {
                          }
                      },
                      { $limit: 20 }
-                   ],{allowDiskUse: true})
+                   ]).allowDiskUse(true)
       // const list = await ArticleModel.model.find({}).limit(20).sort({published: -1});
       const count = await ArticleModel.count();
       $.result(res, {
