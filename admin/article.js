@@ -31,7 +31,15 @@ ArticleAPI.index = async function (req, res, next) {
                           from: "accesses",
                           localField: "_id",
                           foreignField: "article",
-                          as: "access"
+                          as: "accesses"
+                         }
+                     },
+                     { $lookup:
+                         {
+                          from: "likes",
+                          localField: "_id",
+                          foreignField: "article",
+                          as: "likes"
                          }
                      },
                      { $limit: 20 }
