@@ -27,24 +27,29 @@ ArticleAPI.index = async function (req, res, next) {
     }
     try {
       const list = await ArticleModel.model.aggregate([
-                     { $sort: {published: -1}},
+                     // { $sort: {published: -1}},
                      { $match: _query },
-                     { $lookup:
-                         {
-                          from: "accesses",
-                          localField: "_id",
-                          foreignField: "article",
-                          as: "accesses"
-                         }
-                     },
-                     { $lookup:
-                         {
-                          from: "likes",
-                          localField: "_id",
-                          foreignField: "article",
-                          as: "likes"
-                         }
-                     },
+                     // { $project: {
+                     //     trans_content: 0,
+                     //     edited_content: 0,
+                     //     origin_content: 0
+                     // }},
+                     // { $lookup:
+                     //     {
+                     //      from: "accesses",
+                     //      localField: "_id",
+                     //      foreignField: "article",
+                     //      as: "accesses"
+                     //     }
+                     // },
+                     // { $lookup:
+                     //     {
+                     //      from: "likes",
+                     //      localField: "_id",
+                     //      foreignField: "article",
+                     //      as: "likes"
+                     //     }
+                     // },
                      { $limit: 20 }
                    ])
       // const list = await ArticleModel.model.find({}).limit(20).sort({published: -1});
