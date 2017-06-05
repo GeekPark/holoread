@@ -48,6 +48,7 @@ export default class Base {
     let _query = {};
     const {last = '',
            first = '',
+           start = 0,
            limit = 20} = options;
 
     if (last !== '') {
@@ -57,19 +58,9 @@ export default class Base {
     }
 
     try {
-      return await this.model
-                   .aggregate([
-                     { $match: _query },
-                     { $lookup:
-                         {
-                          from: "accesses",
-                          localField: "_id",
-                          foreignField: "article",
-                          as: "access"
-                         }
-                     },
-                     { $limit: parseInt(limit) },
-                   ])
+      return await this.model.find(query)
+        .limit(limit).skip(start * limit)
+        .populate(rules).sort({createdAt: -1});
     } catch (e) {
       console.error(e);
     }

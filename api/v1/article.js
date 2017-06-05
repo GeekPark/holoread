@@ -21,14 +21,35 @@ export default {
   },
 
   index: async (req, res) => {
-    const list = await ArticleModel.all({}, req.query);
+    const date = getToday(req);
+    $.debug(date);
+    $.debug($.dateformat(date));
+    const query = {'published' :{'$gt': date}};
     const count = await ArticleModel.count();
+    const list  = await ArticleModel.model.aggregate([
+                   {$sort: {published: -1}},
+                   {$match: query },
+                   {$lookup:{
+                      from: "accesses",
+                      localField: "_id",
+                      foreignField: "article",
+                      as: "access"
+                   }},
+                   {$project : {
+                      origin_content: 0,
+                      trans_content: 0,
+                      edited_content: 0,
+                   }}
+                 ])
     $.result(res, {
       list: list,
-      meta: {
-        total_count: count,
-        limit_value: 20,
-      }
+      meta: {total_count: count}
     });
   }
+}
+
+function getToday (req) {
+  const today = req.query.date ? (new Date(req.query.date)) : (new Date());
+  today.setHours(0,0,0);
+  return today;
 }

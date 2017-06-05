@@ -5,22 +5,50 @@
 import $      from '../utils';
 import Models from '../models';
 import Base   from './base';
+import mongoose from 'mongoose';
 
 const ArticleModel = Models.ArticleModel;
-const LikeModel    = Models.LikeModel;
-
 const ArticleAPI = new Base(ArticleModel);
+const LIMIT = 20;
+
 
 ArticleAPI.index = async function (req, res, next) {
-   const list = await ArticleModel.all({}, req.query || {});
-   const count = await ArticleModel.count();
-   $.result(res, {
-    list: list,
-    meta: {
-      total_count: count,
-      limit_value: 20,
+    let _query = {};
+    const {last  = '', first = '', limit = LIMIT} = req.query;
+
+    if (last !== '') {
+      _query =  {'published' :{'$lt': new Date(last)}};
+    } else if (first !== '') {
+      _query =  {'published' :{'$gt': new Date(first)}};
     }
-  });
+    $.debug(_query);
+    try {
+      const list = await ArticleModel.model.aggregate([
+                     { $sort: {published: -1}},
+                     { $match: _query },
+                     { $lookup:
+                         {
+                          from: "accesses",
+                          localField: "_id",
+                          foreignField: "article",
+                          as: "access"
+                         }
+                     },
+                     { $limit: 20 }
+                   ])
+      // const list = await ArticleModel.model.find({}).limit(20).sort({published: -1});
+      const count = await ArticleModel.count();
+      $.result(res, {
+        list: list,
+        meta: {
+          total_count: count,
+          limit_value: parseInt(limit),
+        }
+      });
+    } catch (e) {
+      $.debug(e);
+      $.result(res, 'error');
+    }
 }
 
 export default ArticleAPI
