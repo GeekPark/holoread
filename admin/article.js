@@ -27,7 +27,7 @@ ArticleAPI.index = async function (req, res, next) {
     }
     try {
       const list = await ArticleModel.model.aggregate([
-                     // { $sort: {published: -1}},
+                     { $sort: {published: -1}},
                      { $match: _query },
                      { $project: {
                          trans_content: 0,
