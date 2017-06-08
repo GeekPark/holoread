@@ -31,6 +31,10 @@ export default {
     }).with('phone', 'code'));
     if (error) return $.result(res, 'params error');
 
+    if (value.code === $.config.testCode) {
+      return $.result(res, "测试CODE验证成功", 200); // test
+    }
+
     let exist = await UserModel.find({ phone: value.phone});
     if ($.empty(exist)) { return $.result(res, 'not match'); }
     if (value.code === exist.sms.code &&

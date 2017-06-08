@@ -4,6 +4,7 @@ module.exports = {
   isDev:       isDev,
   ports:       isDev ? ['3000'] : ['10007'],
   secret:      '*',
+  testCode:    '',
   allowOrigin: 'http://127.0.0.1:8080',
   yunpian:     '',
   db:          'mongodb://127.0.0.1:27017/shareading',
