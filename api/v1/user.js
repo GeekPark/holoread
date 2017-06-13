@@ -6,7 +6,7 @@
 import $      from '../../utils';
 import auth   from '../../utils/auth';
 import Models from '../../models';
-
+const {sign} = auth;
 
 const {UserModel} = Models;
 
@@ -15,12 +15,20 @@ export default {
   // 登录
   // 如果不存在就创建新用户
    wechatLogin: async (req, res, next) => {
+    $.debug(req.body);
+    if ($.empty(req.body.openid)) {
+      return $.result(res, 'error');
+    }
 
     let exist = await UserModel.find({openid: req.body.openid});
 
-    if ($.empty(exist)) { exist = await UserModel.create(req.body); }
-
-    $.result(res, exist);
+    if ($.empty(exist)) {
+      exist = await UserModel.create(req.body);
+      exist.token = sign({_id: exist._id});
+      $.result(res, await UserModel.update(exist));
+    } else {
+      $.result(res, exist);
+    }
   },
 
   verifySms: async (req, res, next) => {
