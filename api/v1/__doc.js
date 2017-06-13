@@ -31,7 +31,13 @@
  * @apiGroup User
  * @apiVersion 1.0.0
  *
- * @apiParam {String} openid 微信openid (微信授权获取到的信息, 全部提交)
+ * @apiParam {String} openid 微信openid
+ * @apiParam {Number} gender 性别, 男1, 女0
+ * @apiParam {String} province 省份
+ * @apiParam {String} city  城市
+ * @apiParam {String} headimgurl 头像
+ * @apiParam {String} nickname 昵称
+ * @apiParam {String} language 语言
  *
  * @apiExample {json} Success-Response:
  *     HTTP/1.1 200 OK
