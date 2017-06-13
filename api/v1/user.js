@@ -23,9 +23,9 @@ export default {
     let exist = await UserModel.find({openid: req.body.openid});
 
     if ($.empty(exist)) {
-      exist = await UserModel.create(req.body);
-      exist.token = sign({_id: exist._id});
-      $.result(res, await UserModel.update(exist));
+      const result = await UserModel.create(req.body);
+      result.token = sign({_id: result._id});
+      $.result(res, await UserModel.update(result));
     } else {
       $.result(res, exist);
     }
