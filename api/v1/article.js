@@ -50,7 +50,7 @@ export default {
     const hotList    = hot(list);
     const editedList = edited(hotList.concat(list));
     $.result(res, {
-      list: editedList,
+      list: filterLiked(editedList),
       total: await ArticleModel.count()
     });
   },
@@ -114,11 +114,11 @@ function someDay (req, hours) {
 }
 
 async function lastDate (req) {
-  if (req.query.last) {
-    return new Date(req.query.last);
-  } else {
+  if (req.query.last === 'now') {
     const recent = await helper.getRecent();
     return new Date(recent.published);
+  } else {
+    return new Date(req.query.last);
   }
 }
 
@@ -141,6 +141,20 @@ function edited (list) {
       el.edited_title = el.trans_title;
       delete el.trans_title;
     }
+    return el;
+  })
+}
+
+function filterLiked (list, userid) {
+  return list.map(el => {
+    let is_like = false;
+    el.likes && el.likes.forEach(sub => {
+      if (sub._id === userid) {is_like = true;}
+      return false;
+    })
+    el.is_like = is_like;
+    el.published = $.dateformat(el.published);
+    el.summary = !el.summary ? '' : el.summary;
     return el;
   })
 }

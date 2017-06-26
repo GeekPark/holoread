@@ -17,15 +17,18 @@ export default {
    wechatLogin: async (req, res, next) => {
     $.debug(req.body);
     if ($.empty(req.body.openid)) {
-      return $.result(res, 'error');
+      return $.result(res, 'openid error');
     }
-
     let exist = await UserModel.find({openid: req.body.openid});
-
     if ($.empty(exist)) {
       const result = await UserModel.create(req.body);
       result.token = sign({_id: result._id});
-      $.result(res, await UserModel.update(result));
+      const update = await UserModel.update(result);
+      $.result(res, '请继续操作, 绑定手机号!');
+
+    } else if ($.empty(exist.phone)) {
+      $.result(res, '请绑定手机号!');
+
     } else {
       $.result(res, exist);
     }

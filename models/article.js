@@ -11,11 +11,11 @@ const Article = new Base('Article', {
   origin_content: String,
   trans_title:    String,
   trans_content:  String,
-  summary:        String,
-  url:            String,
-  source:         String,
+  summary:        {type: String, default: ''},
+  url:            {type: String, default: ''},
+  source:         {type: String, default: ''},
   published:      {type: Date, index: true},
-  order: {
+  order:          {
     type:    Number,
     default: 0
   },

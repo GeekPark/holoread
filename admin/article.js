@@ -30,8 +30,8 @@ ArticleAPI.index = async function (req, res, next) {
                      { $sort: {published: -1}},
                      { $match: _query },
                      { $project: {
-                         trans_content: 0,
-                         edited_content: 0,
+                         // trans_content: 0,
+                         // edited_content: 0,
                          origin_content: 0
                      }},
                      { $lookup:
