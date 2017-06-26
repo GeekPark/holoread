@@ -26,8 +26,8 @@ const selectLike = {$lookup:{
 
 const selectArticle = {
   origin_content: 0,
-  trans_content: 0,
-  edited_content: 0,
+  // trans_content: 0,
+  // edited_content: 0,
   origin_title: 0,
 };
 
@@ -136,13 +136,25 @@ function hot (list) {
 }
 
 function edited (list) {
-  return list.map(el => {
+  return list.map(el => { // 聚合查询后 getter 失效
     if (!el.edited_title) {
       el.edited_title = el.trans_title;
-      delete el.trans_title;
     }
+    if (!el.edited_content) {
+      el.edited_content = el.trans_content;
+    }
+    const summary = delHtmlTag(el.edited_content);
+    el.summary = !el.summary ? summary.substr(0, 100) : el.summary;
+    delete el.trans_title;
+    delete el.edited_content;
+    delete el.trans_content;
+    el.published = $.dateformat(el.published);
     return el;
   })
+}
+
+function delHtmlTag(str) {
+  return str.replace(/<[^>]+>/g,"");//去掉所有的html标记
 }
 
 function filterLiked (list, userid) {
@@ -153,8 +165,7 @@ function filterLiked (list, userid) {
       return false;
     })
     el.is_like = is_like;
-    el.published = $.dateformat(el.published);
-    el.summary = !el.summary ? '' : el.summary;
+
     return el;
   })
 }
