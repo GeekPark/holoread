@@ -119,7 +119,7 @@
  * @apiGroup Article
  * @apiVersion 1.0.0
  *
- * @apiParam {String} date 日期, 获取指定日期文章 例如 ?date=2017-06-06
+ * @apiParam {String} last 本页最后一个 item 的 published (例如 ?last=2017-05-10T08:42:58.000Z)
  *
  * @apiExample {json} Success-Response:
  *     HTTP/1.1 200 OK
