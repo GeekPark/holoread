@@ -23,7 +23,7 @@ ArticleAPI.index = async function (req, res, next) {
       _query = {'published' :{'$gt': new Date(first)}};
     } else {
       const recent = await helper.getRecent();
-      _query = {'published' :{'$lte': recent.published}};
+      _query = {'published' :{'$lte': new Date(recent.published)}};
     }
     try {
       const list = await ArticleModel.model.aggregate([
@@ -52,7 +52,6 @@ ArticleAPI.index = async function (req, res, next) {
                      },
                      { $limit: 20 }
                    ])
-      // const list = await ArticleModel.model.find({}).limit(20).sort({published: -1});
       const count = await ArticleModel.count();
       $.result(res, {
         list: list,

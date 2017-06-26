@@ -6,6 +6,7 @@ import $      from '../../utils'
 import Models from '../../models'
 import Base   from './base'
 import mongoose from 'mongoose'
+import helper from '../../admin/helper'
 
 const {ArticleModel, AccessModel, LikeModel} = Models;
 
@@ -27,6 +28,7 @@ const selectArticle = {
   origin_content: 0,
   trans_content: 0,
   edited_content: 0,
+  origin_title: 0,
 };
 
 export default {
@@ -42,52 +44,28 @@ export default {
   },
 
   index: async (req, res) => {
-    const date = getSomeDay(req, 0);
-    const query = {'published' :{'$gt': date}};
-    const list = await queryArticles(query);
-    const hot = getHotArticle(list);
+    const date       = await lastDate(req);
+    const query      = {'published' :{'$lte': date}};
+    const list       = await queryArticles(query);
+    const hotList    = hot(list);
+    const editedList = edited(hotList.concat(list));
     $.result(res, {
-      list: hot.concat(list),
-      meta: {total_count: await ArticleModel.count()}
+      list: editedList,
+      total: await ArticleModel.count()
     });
   },
 
-  myLikes: async (req, res) => {
+  myLikes: async (req, res) => { // 我的收藏
     const date = getSomeDay(req, -48);
     const user = mongoose.Types.ObjectId(req.params.user);
     const query = {createdAt :{'$gt': date}, from: user};
     const list = await queryLikes(query);
     $.result(res, {
       list,
-      meta: {total_count: await LikeModel.count()}
+      total: await LikeModel.count()
     });
   }
 }
-
-function getSomeDay (req, hours) {
-  const today = req.query.date ? (new Date(req.query.date)) : (new Date());
-  today.setHours(hours,0,0);
-  return today;
-}
-
-function getHotArticle (list) {
-  const hot = [];
-  list.forEach((el, index) => {
-    el.likes = el.likes.length;
-    el.accesses = el.accesses.length;
-    if (el.likes * 10 + el.accesses >= 20) { // hot
-      hot.push(el);
-      list.splice(index, 1);
-    }
-  })
-  // hot.sort(function(a, b){
-  //   if(keyA < keyB) return -1;
-  //   if(keyA > keyB) return 1;
-  //   return 0;
-  // });
-  return hot;
-}
-
 
 async function queryLikes (query) {
   const list  = await LikeModel.model.aggregate([
@@ -117,14 +95,52 @@ async function queryLikes (query) {
 
 
 async function queryArticles (query) {
-  // $.debug(date);
-  // $.debug($.dateformat(date));
   const list  = await ArticleModel.model.aggregate([
                  {$sort: {published: -1}},
                  {$match: query },
                  selectLike,
                  selectAccess,
-                 {$project: selectArticle}
+                 {$project: selectArticle},
+                 {$limit: 20}
                 ]).allowDiskUse(true);
   return list;
+}
+
+
+function someDay (req, hours) {
+  const today = req.query.date ? (new Date(req.query.date)) : (new Date());
+  today.setHours(hours, 0, 0);
+  return today;
+}
+
+async function lastDate (req) {
+  if (req.query.last) {
+    return new Date(req.query.last);
+  } else {
+    const recent = await helper.getRecent();
+    return new Date(recent.published);
+  }
+}
+
+function hot (list) {
+  const hot = [];
+  list.forEach((el, index) => {
+    el.likes = el.likes.length;
+    el.accesses = el.accesses.length;
+    if (el.likes * 10 + el.accesses >= 20) { // hot
+      hot.push(el);
+      list.splice(index, 1);
+    }
+  })
+  return hot;
+}
+
+function edited (list) {
+  return list.map(el => {
+    if (!el.edited_title) {
+      el.edited_title = el.trans_title;
+      delete el.trans_title;
+    }
+    return el;
+  })
 }

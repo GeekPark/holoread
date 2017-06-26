@@ -48,8 +48,6 @@ Article.schema.path('edited_content')
     return $.empty(val) ? this.trans_content : val;
 })
 
-Article.methods.model = Article.model;
-
-export default Article.methods
+export default Article
 
 

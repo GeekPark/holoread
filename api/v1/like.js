@@ -18,5 +18,8 @@ export default {
   del: async (req, res, next) => {
     const doc = await LikeModel.delete(req.body);
     $.result(res, doc);
+  },
+  index: async (req, res) => {
+
   }
 }

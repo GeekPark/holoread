@@ -9,6 +9,4 @@ const Like = new Base('Like', {
   user:    { type: Base.ObjectId(), ref: 'User' }
 });
 
-Like.methods.model = Like.model;
-
-export default Like.methods
+export default Like

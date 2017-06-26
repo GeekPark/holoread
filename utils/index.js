@@ -30,7 +30,7 @@ module.exports.trimStr = function (str) {
 }
 
 module.exports.createCode = () => {
-  return Math.random().toString(10).substring(11);
+  return Math.random().toString(10).substring(14);
 }
 
 module.exports.createSms = async (mobile, code) => {

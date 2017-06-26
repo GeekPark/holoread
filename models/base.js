@@ -36,7 +36,7 @@ export default class Base {
 
     this.schema  = schema;
     this.model   = mongoose.model(name, schema);
-    this.methods = addMethods(this);
+    addMethods(this);
   };
 
   static ObjectId() {
@@ -120,41 +120,41 @@ export default class Base {
 
 function addMethods (_this) {
 
-  const methods = {};
 
-  methods.count = async function (query) {
+
+  _this.count = async function (query) {
     return await _this.model.count(query);
   };
 
-  methods.all = async function (query, options) {
+  _this.all = async function (query, options) {
     return await _this.all(query, options);
   };
 
-  methods.find = async function (query) {
+  _this.find = async function (query) {
     return await _this.find(query);
   };
 
-  methods.findById = async function (id) {
+  _this.findById = async function (id) {
     return await _this.find({ _id: id });
   };
 
-  methods.create = async function (query) {
+  _this.create = async function (query) {
     return await _this.create(query);
   };
 
-  methods.updateBy = async function (query, info) {
+  _this.updateBy = async function (query, info) {
     return await _this.updateBy(query, info);
   };
 
-  methods.update = async function (query, info) {
+  _this.update = async function (query, info) {
     return await _this.update(query, info);
   };
 
-  methods.delete = async function (query) {
+  _this.delete = async function (query) {
     const item = await _this.find(query);
     if (!item) { return -1;}
     return await _this.delete(item);
   };
 
-  return methods;
+  return _this;
 }

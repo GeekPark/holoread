@@ -36,4 +36,4 @@ const User = new Base('User', {
   }
 });
 
-export default User.methods
+export default User

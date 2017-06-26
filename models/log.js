@@ -12,4 +12,4 @@ const Log = new Base('Log', {
   user:  { type: Base.ObjectId(), ref: 'User' }
 });
 
-export default Log.methods
+export default Log

@@ -9,4 +9,4 @@ const Access = new Base('Access', {
   user:    { type: Base.ObjectId(), ref: 'User' }
 });
 
-export default Access.methods
+export default Access
