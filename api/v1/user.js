@@ -15,7 +15,6 @@ export default {
   // 登录
   // 如果不存在就创建新用户
    wechatLogin: async (req, res, next) => {
-    $.debug(req.body);
     if ($.empty(req.body.openid)) {
       return $.result(res, 'openid error');
     }
@@ -28,7 +27,6 @@ export default {
 
     } else if ($.empty(exist.phone)) {
       $.result(res, '请绑定手机号!');
-
     } else {
       $.result(res, exist);
     }
@@ -36,10 +34,11 @@ export default {
 
   verifySms: async (req, res, next) => {
     const { error, value } = $.paramter.validate(req.body,
-    $.paramter.object().keys({
-      phone: $.paramter.string(),
-      code: $.paramter.string()
-    }).with('phone', 'code'));
+                             $.paramter.object().keys({
+                               phone: $.paramter.string(),
+                               code: $.paramter.string()
+                             }).with('phone', 'code'));
+
     if (error) return $.result(res, 'params error');
 
     if (value.code === $.config.testCode) {
@@ -48,8 +47,8 @@ export default {
 
     let exist = await UserModel.find({ phone: value.phone});
     if ($.empty(exist)) { return $.result(res, 'not match'); }
-    if (value.code === exist.sms.code &&
-      exist.sms.time > Date.now()) {
+
+    if (value.code === exist.sms.code &&  exist.sms.time > Date.now()) {
       return $.result(res, "验证成功", 200);
     }
     $.result(res, '验证失败');
@@ -58,14 +57,14 @@ export default {
   // 短信验证码
   createSms: async (req, res, next) => {
     const code = $.createCode();
-    const {phone} = req.body;
+    const {phone, openid} = req.body;
 
-    if ($.empty(phone)) {return $.result(res, '发送失败');}
+    if ($.empty(phone) || $.empty(openid) ) {return $.result(res, '发送失败');}
 
-    let exist = await UserModel.find({phone: phone});
+    let exist = await UserModel.find({phone: phone, openid: openid});
 
     if ($.empty(exist)) {
-      exist = await UserModel.create({phone: phone});
+      exist = await UserModel.create({phone: phone, openid: openid});
     }
 
     exist.sms = {

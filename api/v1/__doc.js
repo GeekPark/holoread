@@ -42,6 +42,15 @@
  * @apiExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
+ *     登录说明:
+ *     用户点击 '微信登录', 调用 /login/wechat,
+ *        1. 如果已经注册并绑定手机号, 会返回 token, 登录成功,
+ *        2. 如果未绑定手机号, 会返回 '请继续操作, 绑定手机号', 登录失败,
+ *           调用 /sms/new 生成验证码, 然后 /sms/verify 验证通过, 再调用 /login/wechat
+ *
+ *
+ *
+ *
  *       "data": {
  **         "_id": "59142b85c92638bf4e1d8017",
  *          "updatedAt": "2017-05-11T09:29:42.708Z",
@@ -96,6 +105,7 @@
  * @apiVersion 1.0.0
  *
  * @apiParam {String} phone 手机号
+ * @apiParam {String} openid openid
  *
  * @apiExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -147,8 +157,12 @@
  * @apiName Get
  * @apiGroup Article
  * @apiVersion 1.0.0
+ * @apiParam {String} last 本页最后一个 item 的 created_at
+ *
  *
  * @apiExample {json} Success-Response:
+ *     分两次请求 第一次不带参数, 请求为当天收藏, 无分页
+ *     第二次请求过往收藏数据, 有分页 带上 ?last=
  *     HTTP/1.1 200 OK
  *     {
  *       "data": {
