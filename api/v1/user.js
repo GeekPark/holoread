@@ -23,10 +23,7 @@ export default {
       const result = await UserModel.create(req.body);
       result.token = sign({_id: result._id});
       const update = await UserModel.update(result);
-      $.result(res, '请继续操作, 绑定手机号!');
-
-    } else if ($.empty(exist.phone)) {
-      $.result(res, '请绑定手机号!');
+      $.result(res, update);
     } else {
       $.result(res, exist);
     }
