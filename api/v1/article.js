@@ -44,7 +44,7 @@ export default {
 
   index: async (req, res) => {
     const date       = await lastDate(req);
-    const query      = {'published' :{'$lte': date}};
+    const query      = {'published' :{'$lt': date}};
     const list       = await queryArticles(query);
     const hotList    = hot(list);
     const editedList = edited(hotList.concat(list));
