@@ -56,7 +56,7 @@ export default {
     const code = $.createCode();
     const {phone, openid} = req.body;
 
-    if ($.empty(phone) || $.empty(openid) ) {return $.result(res, '发送失败');}
+    if ($.empty(phone) || $.empty(openid) ) {return $.result(res, '缺少 phone / openid');}
 
     let exist = await UserModel.find({phone: phone, openid: openid});
 
@@ -71,7 +71,6 @@ export default {
 
     await UserModel.update(exist);
     const result = await $.createSms(phone, code);
-
     if (result === -1) {return $.result(res, '发送失败');}
     $.result(res, '发送成功', 200);
   }

@@ -44,7 +44,11 @@ module.exports.createSms = async (mobile, code) => {
         "Content-Type":"application/x-www-form-urlencoded;charset=utf-8"
       },
       body: `mobile=${mobile}&text=${tpl}&apikey=${config.yunpian}`
-    })
+    }, function (error, response, body) {
+      console.log('error:', error);
+      console.log('statusCode:', response && response.statusCode);
+      console.log('body:', body);
+        })
   } catch (e) {
     $.debug(e);
     return -1;
