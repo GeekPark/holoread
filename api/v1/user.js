@@ -45,6 +45,8 @@ export default {
     let exist = await UserModel.find({ phone: value.phone, openid: value.openid});
     if ($.empty(exist)) { return $.result(res, 'not match'); }
     if (value.code === exist.sms.code &&  exist.sms.time > Date.now()) {
+      exist.phone = value.phone;
+      await UserModel.update(exist);
       return $.result(res, "验证成功", 200);
     }
     $.result(res, '验证失败');
@@ -71,5 +73,4 @@ export default {
     if (result === -1) {return $.result(res, '发送失败');}
     $.result(res, '发送成功', 200);
   }
-
 }
