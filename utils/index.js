@@ -144,7 +144,7 @@ module.exports.DateAdd = function (interval, number, date) {
     return date;
     break;
   }
-  case "m": {
+  case "mi": {
     date.setMinutes(date.getMinutes() + number);
     return date;
     break;

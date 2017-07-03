@@ -23,6 +23,7 @@ export default {
       const result = await UserModel.create(req.body);
       result.token = sign({_id: result._id});
       const update = await UserModel.update(result);
+      $.debug(update);
       $.result(res, update);
     } else {
       $.result(res, exist);
@@ -38,14 +39,13 @@ export default {
                              }).with('phone', 'code'));
     if (error) return $.result(res, 'params error');
 
-    if (value.code === $.config.testCode) {
-      return $.result(res, "测试CODE验证成功", 200); // test
-    }
+    if (value.code === $.config.testCode) {return $.result(res, "test", 200);}
 
     let exist = await UserModel.find({ phone: value.phone, openid: value.openid});
     if ($.empty(exist)) { return $.result(res, 'not match'); }
     if (value.code === exist.sms.code &&  exist.sms.time > Date.now()) {
       exist.phone = value.phone;
+      $.debug(exist)
       await UserModel.update(exist);
       return $.result(res, "验证成功", 200);
     }
@@ -56,17 +56,16 @@ export default {
   createSms: async (req, res, next) => {
     const code = $.createCode();
     const {phone, openid} = req.body;
-    const sms = {code: code, time: $.DateAdd("m", 30, new Date())};
+    const sms = {code: code, time: $.DateAdd("mi", 30, new Date())};
 
     if ($.empty(phone) || $.empty(openid) ) {return $.result(res, '缺少 phone / openid');}
 
-    let exist = await UserModel.find({phone: phone, openid: openid});
+    let exist = await UserModel.find({phone: phone});
 
     if ($.empty(exist)) {
-      exist = await UserModel.create({phone: phone, openid: openid, sms: sms});
+      exist = await UserModel.updateBy({openid: openid}, {phone: phone, sms: sms});
     } else {
-      exist.sms = sms;
-      await UserModel.update(exist);
+      return $.result(res, '已经绑定其他账号');
     }
 
     const result = await $.createSms(phone, code);
