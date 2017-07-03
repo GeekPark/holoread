@@ -42,17 +42,9 @@
  * @apiExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *     目前登录说明, (待定):
- *     用户点击 '微信登录', 调用 /login/wechat,
- *        1. 如果已经注册并绑定手机号, 会返回 token, 登录成功,
- *        2. 如果未绑定手机号, 会返回 '请继续操作, 绑定手机号', 登录失败,
- *           调用 /sms/new 生成验证码, 然后 /sms/verify 验证通过, 再调用 /login/wechat
- *
- *
- *
  *
  *       "data": {
- **         "_id": "59142b85c92638bf4e1d8017",
+ *         "_id": "59142b85c92638bf4e1d8017",
  *          "updatedAt": "2017-05-11T09:29:42.708Z",
  *          "createdAt": "2017-05-11T09:14:45.997Z",
  *          "token": "...",
@@ -82,6 +74,7 @@
  *
  * @apiParam {String} phone 手机号
  * @apiParam {String} code 邀请码
+ * @apiParam {String} openid openid
  *
  * @apiExample {json} Success-Response:
  *     HTTP/1.1 200 OK
