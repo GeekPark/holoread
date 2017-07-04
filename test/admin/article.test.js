@@ -1,19 +1,15 @@
-import {request, v1, mock} from '../tools'
+import {request, admin, v1, mock} from '../tools'
 import Base from './base'
 
 
 const {_get, _delete, _post} = new Base({});
-let user     = {};
+let user = {};
 
 
-describe('ADMIN: ARTICLE',  () => {
+describe('ADMIN: ARTICLE',  function (){
 
   it('create article', async () => {
     return _post('articles', await mock.generate.article(), 200);
-  });
-
-  it('access to all articles', () => {
-    return _get('articles', {start: 0}, 200);
   });
 
   it('show article', async () => {

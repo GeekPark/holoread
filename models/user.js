@@ -21,7 +21,7 @@ const User = new Base('User', {
   password:   String,
   email:      String,
   wechat:     String,
-  phone:      String,
+  phone:      { type: String, default: ''},
   verifyCode: String, // 短信验证码
   permission: { type: Array, default: ['visitor'] },
   state:      { type: Number, default: -1 },
