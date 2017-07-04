@@ -41,11 +41,11 @@ export default {
 
     if (value.code === $.config.testCode) {return $.result(res, "test", 200);}
 
-    let exist = await UserModel.find({ phone: value.phone, openid: value.openid});
+    let exist = await UserModel.find({openid: value.openid});
     if ($.empty(exist)) { return $.result(res, 'not match'); }
-    if (value.code === exist.sms.code &&  exist.sms.time > Date.now()) {
+    if (value.code === exist.sms.code &&
+        exist.sms.time > Date.now()) {
       exist.phone = value.phone;
-      $.debug(exist)
       await UserModel.update(exist);
       return $.result(res, "验证成功", 200);
     }
@@ -63,7 +63,7 @@ export default {
     let exist = await UserModel.find({phone: phone});
 
     if ($.empty(exist)) {
-      exist = await UserModel.updateBy({openid: openid}, {phone: phone, sms: sms});
+      exist = await UserModel.updateBy({openid: openid}, {sms: sms});
     } else {
       return $.result(res, '已经绑定其他账号');
     }
