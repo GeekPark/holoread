@@ -11,10 +11,11 @@ import auth    from '../utils/auth'
 const router        = express.Router();
 const BaseRouter    = new Base(router);
 const {authSession} = auth;
-// 账号
-router.post('/account/login',         Admin.User.login);
-router.post('/account/logout',        Admin.User.logout);
-router.post('/account/resetPassword', Admin.User.resetPassword);
+
+//                             账号
+router.post('/account/login',  Admin.User.login);
+router.post('/account/logout', Admin.User.logout);
+router.post('/account/sms',    Admin.User.sms);
 
 // 搜索
 router.get('/search',  Admin.Search);
