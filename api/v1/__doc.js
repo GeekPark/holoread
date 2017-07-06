@@ -123,6 +123,7 @@
  * @apiVersion 1.0.0
  *
  * @apiParam {String} last 本页最后一个 item 的 published (例如 ?last=2017-05-10T08:42:58.000Z)
+ * @apiParam {user} userid
  *
  * @apiExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -203,7 +204,7 @@
  * @apiGroup Like
  * @apiVersion 1.0.0
  *
- * @apiParam {String} from  当前用户ID
+ * @apiParam {String} token  当前用户token
  * @apiParam {String} article 文章 ID
  *
  * @apiExample {json} Success-Response:
@@ -227,6 +228,8 @@
  * @apiName Delete
  * @apiGroup Like
  * @apiVersion 1.0.0
+ *
+ * @apiParam {String} token  当前用户token
  *
  * @apiExample {json} Success-Response:
  *     HTTP/1.1 200 OK
