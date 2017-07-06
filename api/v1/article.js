@@ -50,7 +50,7 @@ export default {
     const editedList = edited(hotList.concat(list));
 
     $.result(res, {
-      list: filterLiked(editedList),
+      list: filterLiked(editedList, req.query.user || ''),
       total: await ArticleModel.count(query)
     });
   },
@@ -67,13 +67,13 @@ export default {
       isLimit   = false;
     }
     const user       = mongoose.Types.ObjectId(req.params.user);
-    const query      = {createdAt : queryDate, from: user, order: order};
+    const query      = {createdAt : queryDate, from: user};
     const list       = await queryLikes(query, isLimit);
     const hotList    = hot(list);
     const editedList = edited(hotList.concat(list));
 
     $.result(res, {
-      list: editedList,
+      list: hotList,
       total: await LikeModel.count(query)
     });
   }
@@ -97,14 +97,13 @@ async function queryLikes (query, isLimit) {
                     as: "likes"
                  }},
                  {$project: {
-                    article: selectArticle
+                    article: Object.assign(selectArticle)
                  }},
                  limit
                ]).allowDiskUse(true);
   return list.map(el => {
-    const article      = el.article[0];
-    article.created_at = $.dateformat(el.createdAt);
-    return article;
+    el.created_at = $.dateformat(el.createdAt);
+    return el;
   });
 }
 
@@ -140,7 +139,7 @@ async function lastDate (req) {
 function hot (list) {
   return list.map(el => {
     el.hot = false;
-    el.accesses = el.accesses.length;
+    el.accesses = el.accesses ? el.accesses.length : 0;
     if (el.likes * 10 + el.accesses >= 20) {el.hot = true;}
     return el;
   })
@@ -173,8 +172,7 @@ function delHtmlTag(str) {
 
 function filterLiked (list, userid) {
   return list.map(el => {
-    el.is_like = el.likes.length > 0 ? el.likes.some(sub => sub._id === userid) : false;
-    el.likes = el.likes.length;
+    el.is_like = el.likes.length > 0 ? el.likes.some(sub => sub.from.toString() === userid.toString()) : false;
     return el;
   })
 }

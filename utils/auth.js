@@ -48,7 +48,7 @@ export default {
     const token  = req.headers.token || req.body.token || null;
     if ($.empty(token)) return $.result(res, 'load user error');
     const user = await UserModel.find({'token': token});
-    $.debug(user);
+    $.debug(user._id);
     req.user = user;
     next();
   },

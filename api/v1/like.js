@@ -23,7 +23,7 @@ export default {
       return $.result(res, 'success', 200);
     }
 
-    $.result(res, 'error');
+    $.result(res, 'repeat like');
   },
 
 
