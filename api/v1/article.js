@@ -26,10 +26,10 @@ const selectLike = {$lookup:{
 
 const selectArticle = {
   origin_content: 0,
-  // trans_content: 0,
-  // edited_content: 0,
   origin_title: 0,
 };
+
+const order = {'$gt': -1};
 
 export default {
 
@@ -44,7 +44,7 @@ export default {
 
   index: async (req, res) => {
     const date       = await lastDate(req);
-    const query      = {'published' :{'$lt': date}};
+    const query      = {'published' :{'$lt': date}, order: order};
     const list       = await queryArticles(query);
     const hotList    = hot(list);
     const editedList = edited(hotList.concat(list));
@@ -66,9 +66,8 @@ export default {
       queryDate = {'$lte': someDay(req)};
       isLimit   = false;
     }
-
     const user       = mongoose.Types.ObjectId(req.params.user);
-    const query      = {createdAt : queryDate, from: user};
+    const query      = {createdAt : queryDate, from: user, order: order};
     const list       = await queryLikes(query, isLimit);
     const hotList    = hot(list);
     const editedList = edited(hotList.concat(list));
@@ -139,16 +138,12 @@ async function lastDate (req) {
 }
 
 function hot (list) {
-  const hot = [];
-  list.forEach((el, index) => {
-    if (!el.accesses) {return false;}
+  return list.map(el => {
+    el.hot = false;
     el.accesses = el.accesses.length;
-    if (el.likes * 10 + el.accesses >= 20) { // hot
-      hot.push(el);
-      list.splice(index, 1);
-    }
+    if (el.likes * 10 + el.accesses >= 20) {el.hot = true;}
+    return el;
   })
-  return hot;
 }
 
 function edited (list) {
@@ -178,8 +173,7 @@ function delHtmlTag(str) {
 
 function filterLiked (list, userid) {
   return list.map(el => {
-    console.log(el);
-    el.is_like = el.likes ? el.likes.some(sub => sub._id === userid) : false;
+    el.is_like = el.likes.length > 0 ? el.likes.some(sub => sub._id === userid) : false;
     el.likes = el.likes.length;
     return el;
   })

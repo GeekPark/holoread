@@ -12,8 +12,35 @@ const ArticleModel = Models.ArticleModel;
 const ArticleAPI = new Base(ArticleModel);
 const LIMIT = 20;
 
+async function findEditing(req) {
+  const exist = await ArticleModel.model
+                                  .findOne({_id: req.params.id})
+                                  .populate('editing');
+                                  $.debug(exist);
+  if ($.empty(exist.editing) ||
+    req.session.user._id === exist.editing._id.toString()) return exist;
+  return -1;
+}
 
-ArticleAPI.index = async function (req, res, next) {
+
+ArticleAPI.editing = async function (req, res) {
+  const exist = await findEditing(req);
+  if (exist === -1) return $.result(res, exist, 400);
+  exist.editing = req.session.user._id;
+  await ArticleModel.update(exist);
+  $.result(res, exist);
+
+}
+
+ArticleAPI.update = async function (req, res) {
+  let exist = await findEditing(req);
+  if (exist === -1) return $.result(res, exist, 400);
+  exist = await ArticleModel.updateBy({_id: req.params.id}, Object.assign({editing: null}, req.body));
+  if (exist === -1) return $.result(res, 'update failed');
+  $.result(res, exist);
+}
+
+ArticleAPI.index = async function (req, res) {
     let _query = {};
     const {last  = '', first = '', limit = LIMIT} = req.query;
 
@@ -25,13 +52,12 @@ ArticleAPI.index = async function (req, res, next) {
       const recent = await helper.getRecent();
       _query = {'published' :{'$lte': new Date(recent.published)}};
     }
+
     try {
       const list = await ArticleModel.model.aggregate([
                      { $sort: {published: -1}},
                      { $match: _query },
                      { $project: {
-                         // trans_content: 0,
-                         // edited_content: 0,
                          origin_content: 0
                      }},
                      { $lookup:

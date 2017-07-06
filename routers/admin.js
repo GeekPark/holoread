@@ -17,6 +17,8 @@ router.post('/account/login',  Admin.User.login);
 router.post('/account/logout', Admin.User.logout);
 router.post('/account/sms',    Admin.User.sms);
 
+router.post('/articles/:id/editing',    Admin.Article.editing);
+
 // 搜索
 router.get('/search',  Admin.Search);
 
