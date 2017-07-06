@@ -46,15 +46,9 @@ export default {
 
   loadUser: async function (req, res, next) {
     const token  = req.headers.token || req.body.token || null;
-    const userid = req.body.userid || req.query.userid || null;
-    let user     = {};
-    if (!$.empty(token)) {
-      user = await UserModel.find({'token': token});
-    } else if(!$.empty(user)) {
-      user = await UserModel.find({'_id': userid});
-    } else {
-      result(res, 'load user error');
-    }
+    if ($.empty(token)) return $.result(res, 'load user error');
+    const user = await UserModel.find({'token': token});
+    $.debug(user);
     req.user = user;
     next();
   },

@@ -27,5 +27,5 @@ router.get('/articles/:user/likes', V1.Article.myLikes);
 
 export default BaseRouter.resources('/articles', V1.Article)
                          .resources('/logs',  V1.Log)
-                         .resources('/likes', V1.Like)
+                         .resources('/likes', V1.Like, [loadUser])
                          .router;

@@ -11,19 +11,25 @@ const {LikeModel} = Models;
 
 export default {
   create: async (req, res, next) => {
-    if (!req.body.article && !req.body.user) {
+    if ($.empty(req.body.article)) {
       return $.result(res, ' params error');
     }
-    const exist = await LikeModel.find(req.body);
+
+    const query = {article: req.body.article, from: req.user._id};
+    const exist = await LikeModel.find(query);
+
     if ($.empty(exist)) {
-      // const query = Object.assign({createdAt: new Date()}, req.body);
-      $.result(res, await LikeModel.create(req.body));
-    } else {
-      $.result(res, exist);
+      await LikeModel.create(query)
+      return $.result(res, 'success', 200);
     }
+
+    $.result(res, 'error');
   },
+
+
   del: async (req, res, next) => {
-    const doc = await LikeModel.delete(req.body);
+    const query = {article: req.params.id, from: req.user._id};
+    const doc = await LikeModel.deleteBy(query);
     $.result(res, doc);
   }
 }
