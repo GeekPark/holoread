@@ -46,7 +46,7 @@ export default {
 
   loadUser: async function (req, res, next) {
     const token  = req.headers.token || req.body.token || null;
-    if ($.empty(token)) return $.result(res, 'load user error');
+    if ($.empty(token)) return result(res, 'load user error');
     const user = await UserModel.find({'token': token});
     $.debug(user._id);
     req.user = user;
@@ -71,30 +71,10 @@ export default {
 
     if ($.empty(req.session.user)) return result(res, 'session error');
 
-    const user = await UserModel.find({ '_id': req.session.user._id });
-
-    if ($.empty(user)) return result(res, 'error empty');
-
-    if (user.permission.indexOf('admin') <= 0) {
-      return $.result('permission denied');
+    if (req.session.user.permission.indexOf('admin') <= 0) {
+      return result(res, 'permission denied');
     }
-    $.debug(`auth session: ${user.phone}`)
+    $.debug(`auth session: ${req.session.user.phone}`)
     next();
-  //   // 判断权限
-  //   const permissionStr = user.permission.toString();
-  //   let actions = {}, url = `${req.baseUrl}${req.route.path}#${req.method}`;
-
-  //   if ($.empty(permissionCache[permissionStr])) {
-  //     user.permission.forEach(key => {
-  //       if (yml[key]) { actions = Object.assign(actions, yml[key]); }
-  //     })
-  //     permissionCache[permissionStr] = actions;
-  //   } else {
-  //     actions = permissionCache[permissionStr];
-  //   }
-
-  //   if (actions[url] === 'allow') { next(); return; }
-
-  //   result(res, `Permission denied. ${url}, your permission is ${user.permission}`);
   }
 }
