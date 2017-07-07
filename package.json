@@ -21,7 +21,7 @@
     "js-yaml": "^3.8.2",
     "jsonwebtoken": "^7.3.0",
     "log4js": "^1.1.0",
-    "method-override": "^2.3.7",
+    "method-override": "^2.3.9",
     "moment": "^2.17.1",
     "mongoose": "^4.7.5",
     "morgan": "~1.7.0",
