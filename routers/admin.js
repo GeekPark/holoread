@@ -17,13 +17,14 @@ router.post('/account/login',  Admin.User.login);
 router.post('/account/logout', Admin.User.logout);
 router.post('/account/sms',    Admin.User.sms);
 
+// 锁定编辑, 更新后取消编辑
 router.post('/articles/:id/editing',    Admin.Article.editing);
 
 // 搜索
 router.get('/search',  Admin.Search);
 
-export default BaseRouter.resources('/users',    Admin.User)
-                         .resources('/articles', Admin.Article)
-                         .resources('/likes',  Admin.Like)
-                         .resources('/logs',     Admin.Log)
+export default BaseRouter.resources('/users',    Admin.User, [authSession])
+                         .resources('/articles', Admin.Article, [authSession])
+                         .resources('/likes',  Admin.Like, [authSession])
+                         .resources('/logs',     Admin.Log, [authSession])
                          .router;

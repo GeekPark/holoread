@@ -16,7 +16,6 @@ async function findEditing(req) {
   const exist = await ArticleModel.model
                                   .findOne({_id: req.params.id})
                                   .populate('editing');
-                                  $.debug(exist);
   if ($.empty(exist.editing) ||
     req.session.user._id === exist.editing._id.toString()) return exist;
   return -1;

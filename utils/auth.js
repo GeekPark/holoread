@@ -69,27 +69,32 @@ export default {
 
   authSession: async function (req, res, next) {
 
-    if ($.empty(req.session.user)) { return result(res, 'session error'); }
+    if ($.empty(req.session.user)) return result(res, 'session error');
 
     const user = await UserModel.find({ '_id': req.session.user._id });
 
-    if ($.empty(user)) { return result(res, 'session error'); }
+    if ($.empty(user)) return result(res, 'error empty');
 
-    // 判断权限
-    const permissionStr = user.permission.toString();
-    let actions = {}, url = `${req.baseUrl}${req.route.path}#${req.method}`;
-
-    if ($.empty(permissionCache[permissionStr])) {
-      user.permission.forEach(key => {
-        if (yml[key]) { actions = Object.assign(actions, yml[key]); }
-      })
-      permissionCache[permissionStr] = actions;
-    } else {
-      actions = permissionCache[permissionStr];
+    if (user.permission.indexOf('admin') <= 0) {
+      return $.result('permission denied');
     }
+    $.debug(`auth session: ${user.phone}`)
+    next();
+  //   // 判断权限
+  //   const permissionStr = user.permission.toString();
+  //   let actions = {}, url = `${req.baseUrl}${req.route.path}#${req.method}`;
 
-    if (actions[url] === 'allow') { next(); return; }
+  //   if ($.empty(permissionCache[permissionStr])) {
+  //     user.permission.forEach(key => {
+  //       if (yml[key]) { actions = Object.assign(actions, yml[key]); }
+  //     })
+  //     permissionCache[permissionStr] = actions;
+  //   } else {
+  //     actions = permissionCache[permissionStr];
+  //   }
 
-    result(res, `Permission denied. ${url}, your permission is ${user.permission}`);
+  //   if (actions[url] === 'allow') { next(); return; }
+
+  //   result(res, `Permission denied. ${url}, your permission is ${user.permission}`);
   }
 }
