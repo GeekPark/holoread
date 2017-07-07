@@ -22,15 +22,6 @@ app.use(logger('dev'));
 app.use(express.static(path.join(__dirname, 'public/api/')));
 if ($.isDev === false) {app.use($.logAccess);}
 
-app.use(methodOverride(function(req, res){
-  if (req.body && typeof req.body === 'object' && '_method' in req.body) {
-    var method = req.body._method
-    delete req.body._method
-    return method
-  }
-}))
-
-
 app.use(function (req, res, next) {
   res.header('Access-Control-Allow-Origin',      $.config.allowOrigin);
   res.header('Access-Control-Allow-Methods',     'GET, POST, PUT, DELETE, OPTIONS');
@@ -52,6 +43,14 @@ app.use(session({
   saveUninitialized: false,
   resave: false
 }));
+
+app.use(methodOverride(function(req, res){
+  if (req.body && typeof req.body === 'object' && '_method' in req.body) {
+    var method = req.body._method
+    delete req.body._method
+    return method
+  }
+}))
 
 app.use((err, req, res, next) => {
   res.status(err.status || 500);
