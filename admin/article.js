@@ -41,7 +41,7 @@ ArticleAPI.update = async function (req, res) {
 
 ArticleAPI.index = async function (req, res) {
     let _query = {};
-    const {last  = '', first = '', limit = LIMIT} = req.query;
+    const {last  = '', first = '', limit = LIMIT, title = null} = req.query;
 
     if (last !== '') {
       _query = {'published' :{'$lt': new Date(last)}};
@@ -51,6 +51,10 @@ ArticleAPI.index = async function (req, res) {
       const recent = await helper.getRecent();
       _query = {'published' :{'$lte': new Date(recent.published)}};
     }
+
+    if (title !== null) {_query.trans_title = { $regex: title, $options: 'i' };}
+
+    $.debug(_query);
 
     try {
       const list = await ArticleModel.model.aggregate([
@@ -77,7 +81,7 @@ ArticleAPI.index = async function (req, res) {
                      },
                      { $limit: 20 }
                    ])
-      const count = await ArticleModel.count();
+      const count = await ArticleModel.count(_query);
       $.result(res, {
         list: list,
         meta: {
