@@ -102,6 +102,8 @@ async function queryLikes (query, isLimit) {
                  limit
                ]).allowDiskUse(true);
   return list.map(el => {
+    el = Object.assign(el, el.article[0]);
+    delete el.article;
     el.created_at = $.dateformat(el.createdAt);
     return el;
   });
