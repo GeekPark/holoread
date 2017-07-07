@@ -71,10 +71,11 @@ export default {
 
     if ($.empty(req.session.user)) return result(res, 'session error');
 
-    if (req.session.user.permission.indexOf('admin') <= 0) {
+    if (req.session.user.permission.indexOf('admin') < 0) {
+      $.debug(permission denied);
       return result(res, 'permission denied');
     }
-    $.debug(`auth session: ${req.session.user.phone}`)
+    $.debug(`auth session: ${req.session.user.phone}`);
     next();
   }
 }
