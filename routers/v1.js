@@ -22,6 +22,8 @@ router.post('/login/wechat', V1.User.wechatLogin);
 router.post('/sms/verify',   V1.User.verifySms);
 // 发送短信
 router.post('/sms/new',      V1.User.createSms);
+// 反馈
+router.post('/feedback',      V1.User.feedback);
 // 获取收藏的文章
 router.get('/articles/:user/likes', V1.Article.myLikes);
 

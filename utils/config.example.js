@@ -16,6 +16,16 @@ module.exports = {
     maxAge: 15552000000, // 6 * 30 days
     signed: true
   },
+  email: {
+    receiver: '',
+    host: 'smtp.example.com',
+    port: 465,
+    secure: true, // secure:true for port 465, secure:false for port 587
+    auth: {
+        user: 'username@example.com',
+        pass: 'userpass'
+    },
+  },
   log: {
     appenders: [{
       layout: {

@@ -117,6 +117,31 @@
  */
 
 /**
+ * @api {post} /api/v1/feedback  提交反馈
+ * @apiName  Feedback
+ * @apiGroup User
+ * @apiVersion 1.0.0
+ *
+ * @apiParam {String} email email
+ * @apiParam {String} content content
+ *
+ * @apiExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "data": {
+ *       },
+ *       "msg": "发送成功"
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 403
+ *     {
+ *       "data": "",
+ *       "msg" : "发送失败"
+ *     }
+ */
+
+/**
  * @api {get} /api/v1/articles  获取所有文章(默认当天)
  * @apiName Index
  * @apiGroup Article

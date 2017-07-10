@@ -6,10 +6,13 @@
 import $      from '../../utils';
 import auth   from '../../utils/auth';
 import Models from '../../models';
-const {sign} = auth;
+import nodemailer from 'nodemailer';
 
+const {sign} = auth;
 const {UserModel} = Models;
 
+// create reusable transporter object using the default SMTP transport
+const transporter = nodemailer.createTransport($.config.email);
 
 export default {
   // 登录
@@ -71,5 +74,23 @@ export default {
     const result = await $.createSms(phone, code);
     if (result === -1) {return $.result(res, '发送失败');}
     $.result(res, '发送成功', 200);
+  },
+
+  feedback: async (req, res, next) => {
+    const {content = '', email = ''} = req.body;
+
+    const mailOptions = {
+      from: `HOLOREAD 👻 <${$.config.email.auth.user}>`, // sender address
+      to: $.config.email.receiver, // list of receivers
+      subject: `[ HOLOREAD 意见反馈 ]`, // Subject line
+      text: '', // plain text body
+      html: `<p>${content} <p>${email}</p></p>` // html body
+    };
+
+    // send mail with defined transport object
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) return $.debug(error);
+      $.debug('Message %s sent: %s', info.messageId, info.response);
+    });
   }
 }
