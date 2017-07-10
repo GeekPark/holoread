@@ -91,6 +91,7 @@ export default {
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) return $.debug(error);
       $.debug('Message %s sent: %s', info.messageId, info.response);
+      $.result(res, info.response, 200);
     });
   }
 }
