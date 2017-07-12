@@ -49,7 +49,7 @@ export default {
     const hotList    = hot(list);
     const editedList = edited(hotList.concat(list));
     $.result(res, {
-      list: list
+      list: filterLiked(editedList, req.query.user || '')
     });
   },
 
