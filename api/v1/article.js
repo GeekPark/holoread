@@ -44,14 +44,12 @@ export default {
 
   index: async (req, res) => {
     const date       = await lastDate(req);
-    const query      = {'published' :{'$lt': date}, order: order};
+    const query      = {'published' :{'$lt': date}};
     const list       = await queryArticles(query);
     const hotList    = hot(list);
     const editedList = edited(hotList.concat(list));
-
     $.result(res, {
-      list: filterLiked(editedList, req.query.user || ''),
-      total: await ArticleModel.count(query)
+      list: list
     });
   },
 
@@ -66,6 +64,7 @@ export default {
       queryDate = {'$lte': someDay(req)};
       isLimit   = false;
     }
+    // techcrunch
     const user       = mongoose.Types.ObjectId(req.params.user);
     const query      = {createdAt : queryDate, from: user};
     const list       = await queryLikes(query, isLimit);
@@ -73,8 +72,7 @@ export default {
     const editedList = edited(hotList.concat(list));
 
     $.result(res, {
-      list: hotList,
-      total: await LikeModel.count(query)
+      list: hotList
     });
   }
 }
@@ -112,12 +110,12 @@ async function queryLikes (query, isLimit) {
 
 async function queryArticles (query) {
   const list  = await ArticleModel.model.aggregate([
-                 {$sort: {published: -1}},
                  {$match: query },
+                 {$sort: {published: -1}},
+                 {$limit: 20},
+                 {$project: selectArticle},
                  selectLike,
                  selectAccess,
-                 {$project: selectArticle},
-                 {$limit: 20}
                 ]).allowDiskUse(true);
   return list;
 }
