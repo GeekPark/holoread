@@ -60,8 +60,10 @@ ArticleAPI.index = async function (req, res) {
       const count = await ArticleModel.count(_query);
       const skip = isSkip ? {$skip: count - limit} : {$skip: 0};
       const list = await ArticleModel.model.aggregate([
-                     { $sort: {published: -1}},
                      { $match: _query },
+                     { $sort: {published: -1}},
+                     skip,
+                     { $limit: parseInt(limit) },
                      { $project: {
                          origin_content: 0
                      }},
@@ -80,9 +82,8 @@ ArticleAPI.index = async function (req, res) {
                           foreignField: "article",
                           as: "likes"
                          }
-                     },
-                     skip,
-                     { $limit: parseInt(limit) }
+                     }
+
                    ])
 
       $.result(res, {
