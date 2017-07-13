@@ -40,12 +40,14 @@ ArticleAPI.update = async function (req, res) {
 }
 
 ArticleAPI.index = async function (req, res) {
-    let _query = {};
+    let _query = {}, isSkip = false;
     const {last  = '', first = '', limit = LIMIT, title = null} = req.query;
+
 
     if (last !== '') {
       _query = {'published' :{'$lt': new Date(last)}};
     } else if (first !== '') {
+      isSkip = true;
       _query = {'published' :{'$gt': new Date(first)}};
     } else {
       const recent = await helper.getRecent();
@@ -54,9 +56,9 @@ ArticleAPI.index = async function (req, res) {
 
     if (title !== null) {_query.trans_title = { $regex: title, $options: 'i' };}
 
-    $.debug(_query);
-
     try {
+      const count = await ArticleModel.count(_query);
+      const skip = isSkip ? {$skip: count - limit} : {$skip: 0};
       const list = await ArticleModel.model.aggregate([
                      { $sort: {published: -1}},
                      { $match: _query },
@@ -79,9 +81,10 @@ ArticleAPI.index = async function (req, res) {
                           as: "likes"
                          }
                      },
-                     { $limit: 20 }
+                     skip,
+                     { $limit: parseInt(limit) }
                    ])
-      const count = await ArticleModel.count(_query);
+
       $.result(res, {
         list: list,
         meta: {
