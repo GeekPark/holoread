@@ -47,7 +47,7 @@ export default {
     const query      = {'published' :{'$lt': date}};
     const list       = await queryArticles(query);
     const hotList    = hot(list);
-    const editedList = edited(hotList.concat(list));
+    const editedList = edited(hotList);
     $.result(res, {
       list: filterLiked(editedList, req.query.user || '')
     });
@@ -69,10 +69,10 @@ export default {
     const query      = {createdAt : queryDate, from: user};
     const list       = await queryLikes(query, isLimit);
     const hotList    = hot(list);
-    const editedList = edited(hotList.concat(list));
+    const editedList = edited(hotList);
 
     $.result(res, {
-      list: hotList
+      list: editedList
     });
   }
 }
