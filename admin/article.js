@@ -17,14 +17,15 @@ async function findEditing(req) {
                                   .findOne({_id: req.params.id})
                                   .populate('editing');
   if ($.empty(exist.editing) ||
-    req.session.user._id === exist.editing._id.toString()) return exist;
-  return -1;
+    req.session.user._id === exist.editing._id.toString()) return {code: 1, exist: exist};
+  return {code: -1, exist: exist};
 }
 
 
 ArticleAPI.editing = async function (req, res) {
-  const exist = await findEditing(req);
-  if (exist === -1) return $.result(res, exist, 400);
+  const result = await findEditing(req);
+  const {exist} = result;
+  if (result.code === -1) return $.result(res, exist, 400);
   exist.editing = req.session.user._id;
   await ArticleModel.update(exist);
   $.result(res, exist);
