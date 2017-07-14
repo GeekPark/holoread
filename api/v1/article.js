@@ -35,10 +35,13 @@ export default {
 
   show: async (req, res) => {
     const ip    = req.ip.match(/\d+\.\d+\.\d+\.\d+/)[0];
-    const query = {article: req.params.id, ip: ip};
-    const exist = await AccessModel.find(query);
-    if ($.empty(exist)) { await AccessModel.create(query); }
-    $.result(res, await ArticleModel.findById(req.params.id));
+    const query = {article: req.params.id, ip: req.query.id || ip};
+    const access = await AccessModel.find(query);
+    if ($.empty(access)) { await AccessModel.create(query);};
+    const article = await ArticleModel.findById(req.params.id);
+    const like = await LikeModel.find({article: req.params.id, from: req.query.user});
+    article.is_like = !$.empty(like);
+    $.result(res, article);
   },
 
 

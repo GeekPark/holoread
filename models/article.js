@@ -16,6 +16,7 @@ const Article = new Base('Article', {
   source:         {type: String, default: ''},
   published:      {type: Date, index: true},
   editing:        {type: Base.ObjectId(), ref: 'User' },
+  is_like:        Boolean,
   order:          {
     type:    Number,
     default: 0
