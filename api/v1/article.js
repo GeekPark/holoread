@@ -66,9 +66,9 @@ export default {
 
 
   myLikes: async (req, res) => { // 我的收藏
-    const queryDate = {'$lt': new Date(req.query.last)};
+    const date       = await lastDate(req, 48);
     const user       = mongoose.Types.ObjectId(req.params.user);
-    const query      = {createdAt : queryDate, from: user};
+    const query      = {createdAt : {'$lt': date}, from: user};
     const list       = await queryLikes(query, req.query.limit);
     const hotList    = hot(list);
     const editedList = edited(hotList);
@@ -127,11 +127,10 @@ function someDay (req, hours = 24) {
   return today;
 }
 
-async function lastDate (req) {
+function lastDate (req) {
   if (req.query.last === 'now') {
     const today = new Date();
     today.setHours(0, 0, 0);
-    $.debug($.dateformat(today));
     return today;
   } else {
     return new Date(req.query.last);
