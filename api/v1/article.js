@@ -69,7 +69,7 @@ export default {
     const queryDate = {'$lt': new Date(req.query.last)};
     const user       = mongoose.Types.ObjectId(req.params.user);
     const query      = {createdAt : queryDate, from: user};
-    const list       = await queryLikes(query, isLimit);
+    const list       = await queryLikes(query, req.query.limit);
     const hotList    = hot(list);
     const editedList = edited(hotList);
 
