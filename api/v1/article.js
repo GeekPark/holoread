@@ -29,28 +29,36 @@ const selectArticle = {
   origin_title: 0,
 };
 
+
 const order = {'$gt': -1};
+
 
 export default {
 
   show: async (req, res) => {
+
     const ip    = req.ip.match(/\d+\.\d+\.\d+\.\d+/)[0];
     const query = {article: req.params.id, ip: req.query.id || ip};
     const access = await AccessModel.find(query);
+
     if ($.empty(access)) { await AccessModel.create(query);};
+
     const article = await ArticleModel.findById(req.params.id);
     const like = await LikeModel.find({article: req.params.id, from: req.query.user});
     article.is_like = !$.empty(like);
+
     $.result(res, article);
   },
 
 
   index: async (req, res) => {
+
     const date       = await lastDate(req);
-    const query      = {'published' :{'$lt': date}};
+    const query      = {'published' :{'$gt': date}, order: order};
     const list       = await queryArticles(query);
     const hotList    = hot(list);
     const editedList = edited(hotList);
+
     $.result(res, {
       list: filterLiked(editedList, req.query.user || '')
     });
@@ -58,30 +66,19 @@ export default {
 
 
   myLikes: async (req, res) => { // 我的收藏
-    let queryDate, isLimit;
-
-    if (req.query.last) {
-      queryDate = {'$lt': new Date(req.query.last)};
-      isLimit   = true;
-    } else {
-      queryDate = {'$lte': someDay(req)};
-      isLimit   = false;
-    }
-    // techcrunch
+    const queryDate = {'$lt': new Date(req.query.last)};
     const user       = mongoose.Types.ObjectId(req.params.user);
     const query      = {createdAt : queryDate, from: user};
     const list       = await queryLikes(query, isLimit);
     const hotList    = hot(list);
     const editedList = edited(hotList);
 
-    $.result(res, {
-      list: editedList
-    });
+    $.result(res, {list: editedList});
   }
 }
 
-async function queryLikes (query, isLimit) {
-  const limit = isLimit ? {$limit: 20} : {$limit: 100};
+
+async function queryLikes (query) {
   const list  = await LikeModel.model.aggregate([
                  {$sort: {createdAt: -1}},
                  {$match: query},
@@ -100,7 +97,7 @@ async function queryLikes (query, isLimit) {
                  {$project: {
                     article: Object.assign(selectArticle)
                  }},
-                 limit
+                 {$limit: 20}
                ]).allowDiskUse(true);
   return list.map(el => {
     el = Object.assign(el, el.article[0]);
@@ -114,7 +111,7 @@ async function queryLikes (query, isLimit) {
 async function queryArticles (query) {
   const list  = await ArticleModel.model.aggregate([
                  {$match: query },
-                 {$sort: {published: -1}},
+                 {$sort: {published: 1}},
                  {$limit: 20},
                  {$project: selectArticle},
                  selectLike,
@@ -125,15 +122,17 @@ async function queryArticles (query) {
 
 
 function someDay (req, hours = 24) {
-  const today = req.query.date ? (new Date(req.query.date)) : (new Date());
+  const today = req.query.last ? (new Date(req.query.last)) : (new Date());
   today.setHours(hours, 0, 0);
   return today;
 }
 
 async function lastDate (req) {
   if (req.query.last === 'now') {
-    const recent = await helper.getRecent();
-    return new Date(recent.published);
+    const today = new Date();
+    today.setHours(0, 0, 0);
+    $.debug($.dateformat(today));
+    return today;
   } else {
     return new Date(req.query.last);
   }
