@@ -55,7 +55,7 @@ export default {
 
     const date       = await lastDate(req);
     const query      = {'published' :{'$gt': date, '$ne': date}, order: order};
-    const list       = await queryArticles(query);
+    const list       = await queryArticles(query, req.query.limit);
     const hotList    = hot(list);
     const editedList = edited(hotList);
 
@@ -78,7 +78,7 @@ export default {
 }
 
 
-async function queryLikes (query) {
+async function queryLikes (query, limit = 20) {
   const list  = await LikeModel.model.aggregate([
                  {$sort: {createdAt: -1}},
                  {$match: query},
@@ -97,7 +97,7 @@ async function queryLikes (query) {
                  {$project: {
                     article: Object.assign(selectArticle)
                  }},
-                 {$limit: 20}
+                 {$limit: limit}
                ]).allowDiskUse(true);
   return list.map(el => {
     el = Object.assign(el, el.article[0]);
