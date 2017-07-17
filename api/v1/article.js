@@ -97,7 +97,7 @@ async function queryLikes (query, limit = 20) {
                  {$project: {
                     article: Object.assign(selectArticle)
                  }},
-                 {$limit: limit}
+                 {$limit: parseInt(limit)}
                ]).allowDiskUse(true);
   return list.map(el => {
     el = Object.assign(el, el.article[0]);
@@ -108,11 +108,11 @@ async function queryLikes (query, limit = 20) {
 }
 
 
-async function queryArticles (query) {
+async function queryArticles (query, limit = 20) {
   const list  = await ArticleModel.model.aggregate([
                  {$match: query },
                  {$sort: {published: 1}},
-                 {$limit: 20},
+                 {$limit: parseInt(limit)},
                  {$project: selectArticle},
                  selectLike,
                  selectAccess,
