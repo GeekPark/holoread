@@ -54,7 +54,7 @@ export default {
   index: async (req, res) => {
 
     const date       = await lastDate(req);
-    const query      = {'published' :{'$gt': date}, order: order};
+    const query      = {'published' :{'$gt': date, '$ne': date}, order: order};
     const list       = await queryArticles(query);
     const hotList    = hot(list);
     const editedList = edited(hotList);
