@@ -66,7 +66,7 @@ export default {
 
 
   myLikes: async (req, res) => { // 我的收藏
-    const date       = await lastDate(req, 48);
+    const date       = await lastDate(req, 24);
     const user       = mongoose.Types.ObjectId(req.params.user);
     const query      = {createdAt : {'$lt': date}, from: user};
     const list       = await queryLikes(query, req.query.limit);
@@ -121,16 +121,10 @@ async function queryArticles (query, limit = 20) {
 }
 
 
-function someDay (req, hours = 24) {
-  const today = req.query.last ? (new Date(req.query.last)) : (new Date());
-  today.setHours(hours, 0, 0);
-  return today;
-}
-
-function lastDate (req) {
+function lastDate (req, hours = 0) {
   if (req.query.last === 'now') {
     const today = new Date();
-    today.setHours(0, 0, 0);
+    today.setHours(hours, 0, 0);
     return today;
   } else {
     return new Date(req.query.last);
