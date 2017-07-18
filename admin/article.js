@@ -12,6 +12,8 @@ const ArticleModel = Models.ArticleModel;
 const ArticleAPI = new Base(ArticleModel);
 const LIMIT = 20;
 
+const cnReg = /[\u4E00-\u9FA5\uF900-\uFA2D]/;
+
 async function findEditing(req) {
   const exist = await ArticleModel.model
                                   .findOne({_id: req.params.id})
@@ -42,8 +44,7 @@ ArticleAPI.update = async function (req, res) {
 
 ArticleAPI.index = async function (req, res) {
     let _query = {}, isSkip = false;
-    const {last  = '', first = '', limit = LIMIT, title = null} = req.query;
-
+    const {last  = '', first = '', limit = LIMIT, title = null, language = ''} = req.query;
 
     if (last !== '') {
       _query = {'published' :{'$lt': new Date(last)}};
@@ -56,6 +57,12 @@ ArticleAPI.index = async function (req, res) {
     }
 
     if (title !== null) {_query.trans_title = { $regex: title, $options: 'i' };}
+
+    if (language === 'cn') {
+      _query.origin_title = {$regex:"[\u4e00-\u9fa5]"};
+    } else if (language === 'en') {
+      _query.origin_title = {$regex:"^[^\u4e00-\u9fa5]+$"};
+    }
 
     try {
       const count = await ArticleModel.count(_query);
@@ -86,9 +93,8 @@ ArticleAPI.index = async function (req, res) {
                      }
 
                    ])
-      const cn = /[\u4E00-\u9FA5\uF900-\uFA2D]/;
       list.forEach(el => {
-        el.is_cn = cn.test(el.origin_title);
+        el.is_cn = cnReg.test(el.origin_title);
       })
       $.result(res, {
         list: list,
