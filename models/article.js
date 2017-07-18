@@ -17,26 +17,12 @@ const Article = new Base('Article', {
   published:      {type: Date, index: true},
   editing:        {type: Base.ObjectId(), ref: 'User' },
   is_like:        Boolean,
-  order:          {
-    type:    Number,
-    default: 0
-  },
-  added: {
-    type:    Date,
-    default: Date.now
-  },
-  tags: {
-    type:    [String],
-    default: []
-  },
-  edited_title: {
-    type: String,
-    default: ''
-  },
-  edited_content: {
-    type: String,
-    default: ''
-  }
+  is_cn:          Boolean,
+  order:          {type: Number, default: 0},
+  added:          {type: Date, default: Date.now},
+  tags:           {type: [String], default: []},
+  edited_title:   {type: String, default: ''},
+  edited_content: {type: String, default: ''}
 });
 
 

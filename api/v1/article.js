@@ -94,9 +94,6 @@ async function queryLikes (query, limit = 20) {
                     foreignField: "article",
                     as: "likes"
                  }},
-                 {$project: {
-                    article: Object.assign(selectArticle)
-                 }},
                  {$limit: parseInt(limit)}
                ]).allowDiskUse(true);
   return list.map(el => {
@@ -113,7 +110,6 @@ async function queryArticles (query, limit = 20) {
                  {$match: query },
                  {$sort: {published: 1}},
                  {$limit: parseInt(limit)},
-                 {$project: selectArticle},
                  selectLike,
                  selectAccess,
                 ]).allowDiskUse(true);
@@ -140,6 +136,8 @@ function hot (list) {
   })
 }
 
+const cn = /[\u4E00-\u9FA5\uF900-\uFA2D]/;
+
 function edited (list) {
   return list.map(el => { // 聚合查询后 getter 失效
     if (!el.edited_title) {
@@ -152,10 +150,13 @@ function edited (list) {
     const summary = delHtmlTag(el.edited_content);
     el.summary    = !el.summary ? summary.substr(0, 100) : el.summary;
     el.published  = $.dateformat(el.published);
+    el.is_cn      = cn.test(el.origin_title);
 
     delete el.trans_title;
-    delete el.edited_content;
     delete el.trans_content;
+    delete el.edited_content;
+    delete el.origin_title;
+    delete el.origin_content;
 
     return el;
   })

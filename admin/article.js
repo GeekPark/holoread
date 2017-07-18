@@ -86,7 +86,10 @@ ArticleAPI.index = async function (req, res) {
                      }
 
                    ])
-
+      const cn = /[\u4E00-\u9FA5\uF900-\uFA2D]/;
+      list.forEach(el => {
+        el.is_cn = cn.test(el.origin_title);
+      })
       $.result(res, {
         list: list,
         meta: {
