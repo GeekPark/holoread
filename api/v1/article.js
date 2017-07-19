@@ -9,6 +9,7 @@ import mongoose from 'mongoose'
 import helper from '../../admin/helper'
 
 const {ArticleModel, AccessModel, LikeModel} = Models;
+const cn = /[\u4E00-\u9FA5\uF900-\uFA2D]/;
 
 const selectAccess = {$lookup:{
   from:         "accesses",
@@ -44,8 +45,18 @@ export default {
     if ($.empty(access)) { await AccessModel.create(query);};
 
     const article = await ArticleModel.findById(req.params.id);
+
+    if ($.empty(article)) { return $.result(res, 'query error');}
+
     const like = await LikeModel.find({article: req.params.id, from: req.query.user});
+
     article.is_like = !$.empty(like);
+    article.is_cn = cn.test(article.origin_title);
+
+    if (article.is_cn) {
+      article.edited_content = article.origin_content;
+      article.edited_title = article.origin_title;
+    }
 
     $.result(res, article);
   },
@@ -136,10 +147,10 @@ function hot (list) {
   })
 }
 
-const cn = /[\u4E00-\u9FA5\uF900-\uFA2D]/;
-
 function edited (list) {
   return list.map(el => { // 聚合查询后 getter 失效
+    if (el.origin_title === undefined) {return}
+
     if (!el.edited_title) {
       el.edited_title = el.trans_title;
     }
@@ -151,6 +162,11 @@ function edited (list) {
     el.summary    = !el.summary ? summary.substr(0, 100) : el.summary;
     el.published  = $.dateformat(el.published);
     el.is_cn      = cn.test(el.origin_title);
+
+    if (el.is_cn) {
+      el.edited_content = el.origin_content;
+      el.edited_title = el.origin_title;
+    }
 
     delete el.trans_title;
     delete el.trans_content;
