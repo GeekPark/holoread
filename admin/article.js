@@ -95,6 +95,10 @@ ArticleAPI.index = async function (req, res) {
                    ])
       list.forEach(el => {
         el.is_cn = cnReg.test(el.origin_title);
+        if (el.is_cn) {
+          el.edited_content = el.origin_content;
+          el.edited_title = el.origin_title;
+        }
       })
       $.result(res, {
         list: list,
