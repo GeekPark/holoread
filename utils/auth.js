@@ -48,7 +48,7 @@ export default {
     const token  = req.headers.token || req.body.token || null;
     if ($.empty(token)) return result(res, 'load user error');
     const user = await UserModel.find({'token': token});
-    $.debug(user._id);
+    $.debug(`auth user: ${user._id} ${user.nickname}`);
     req.user = user;
     next();
   },
@@ -72,7 +72,6 @@ export default {
     if ($.empty(req.session.user)) return result(res, 'session error');
 
     if (req.session.user.permission.indexOf('admin') < 0) {
-      $.debug('permission denied');
       return result(res, 'permission denied');
     }
     $.debug(`auth session: ${req.session.user.phone}`);

@@ -9,8 +9,6 @@ const v1      = '/api/v1/';
 const admin   = '/api/admin/';
 const request = supertest(app);
 
-// console.log = () => {};
-
 export {
   request,
   should,

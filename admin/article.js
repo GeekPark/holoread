@@ -108,7 +108,6 @@ ArticleAPI.index = async function (req, res) {
         }
       });
     } catch (e) {
-      $.debug(e);
       $.result(res, 'error');
     }
 }

@@ -26,7 +26,6 @@ export default {
       const result = await UserModel.create(req.body);
       result.token = sign({_id: result._id});
       const update = await UserModel.update(result);
-      $.debug(update);
       $.result(res, update);
     } else {
       $.result(res, exist);
@@ -89,8 +88,7 @@ export default {
 
     // send mail with defined transport object
     transporter.sendMail(mailOptions, (error, info) => {
-      if (error) return $.debug(error);
-      $.debug('Message %s sent: %s', info.messageId, info.response);
+      if (error) return;
       $.result(res, info.response, 200);
     });
   }

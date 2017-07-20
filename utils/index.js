@@ -45,12 +45,11 @@ module.exports.createSms = async (mobile, code) => {
       },
       body: `mobile=${mobile}&text=${tpl}&apikey=${config.yunpian}`
     }, function (error, response, body) {
-      console.log('error:', error);
-      console.log('statusCode:', response && response.statusCode);
-      console.log('body:', body);
+      $.debug('error:', error);
+      $.debug('statusCode:', response && response.statusCode);
+      $.debug('body:', body);
         })
   } catch (e) {
-    $.debug(e);
     return -1;
   }
 };

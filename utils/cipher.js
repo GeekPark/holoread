@@ -19,9 +19,6 @@ module.exports.decode = function (msg) {
         decipheredMessage += decipher.final("binary");
         ret = decipheredMessage;
     } catch (e) {
-        console.log('------------------------------------');
-        console.log(e);
-        console.log('------------------------------------');
         return null;
     }
 

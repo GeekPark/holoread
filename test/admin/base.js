@@ -20,7 +20,6 @@ const addMethods = (_this) => {
       .get(`${admin}${url}`)
       .query(reqData)
       .then((res) => {
-        console.log(res.body.msg);
         res.statusCode.should.equal(statusCode)
         resolve();
       })
@@ -34,7 +33,6 @@ const addMethods = (_this) => {
         request[el](`${admin}${url}`)
         .send(reqData)
         .then((res) => {
-          console.log(res.body.msg);
           res.statusCode.should.equal(statusCode)
           resolve();
         })

@@ -16,7 +16,6 @@ export default {
     const today = new Date();
     let result = [];
     today.setHours(0,0,0);
-    // $.debug($.dateformat(today));
     const getArticle = async () => {
       if (result.length > 0) {
         return;
@@ -33,12 +32,10 @@ export default {
                      {$sort: {published: -1}}
                   ]);
         today.setHours(-24 * 7,0,0);
-        // $.debug($.dateformat(today));
         await getArticle();
       }
     }
     await getArticle();
-    // $.debug(result);
     return result[0];
   }
 }

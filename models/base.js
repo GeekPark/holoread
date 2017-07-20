@@ -68,7 +68,6 @@ export default class Base {
 
   async find(query, options) {
     try {
-      $.debug(query);
       return await this.model.findOne(query);
     } catch (e) {
       console.error(e);
