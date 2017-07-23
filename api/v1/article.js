@@ -64,7 +64,7 @@ export default {
 
   index: async (req, res) => {
 
-    const date       = await lastDate(req);
+    const date       = await lastDate(req, -24);
     const query      = {'published' :{'$gt': date, '$ne': date}, order: order};
     const list       = await queryArticles(query, req.query.limit);
     const hotList    = hot(list);
@@ -131,7 +131,7 @@ async function queryArticles (query, limit = 20) {
 function lastDate (req, hours = 0) {
   if (req.query.last === 'now') {
     const today = new Date();
-    today.setHours(hours, 0, 0);
+    today.setHours(hours);
     return today;
   } else {
     return new Date(req.query.last);

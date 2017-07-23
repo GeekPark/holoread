@@ -14,37 +14,36 @@ const LIMIT = 20;
 
 const cnReg = /[\u4E00-\u9FA5\uF900-\uFA2D]/;
 
-async function findEditing(req) {
-  const exist = await ArticleModel.model
-                                  .findOne({_id: req.params.id})
-                                  .populate('editing');
-  if ($.empty(exist.editing) ||
-    req.session.user._id === exist.editing._id.toString()) return {code: 1, exist: exist};
-  return {code: -1, exist: exist};
-}
+ArticleAPI.show =  async (req, res) => {
 
+  const article = await ArticleModel.findById(req.params.id);
 
-ArticleAPI.editing = async function (req, res) {
-  const result = await findEditing(req);
-  const {exist} = result;
-  if (result.code === -1) return $.result(res, exist, 400);
-  exist.editing = req.session.user._id;
-  await ArticleModel.update(exist);
-  $.result(res, exist);
+  if ($.empty(article)) { return $.result(res, 'query error');}
 
+  article.is_cn = cnReg.test(article.origin_title);
+
+  if (article.is_cn) {
+    article.edited_content = article.origin_content;
+    article.edited_title = article.origin_title;
+  }
+
+  $.result(res, article);
 }
 
 ArticleAPI.update = async function (req, res) {
-  let exist = await findEditing(req);
-  if (exist === -1) return $.result(res, exist, 400);
-  exist = await ArticleModel.updateBy({_id: req.params.id}, Object.assign({editing: null}, req.body));
+  const exist = await ArticleModel.updateBy({_id: req.params.id}, req.body);
   if (exist === -1) return $.result(res, 'update failed');
   $.result(res, exist);
 }
 
 ArticleAPI.index = async function (req, res) {
     let _query = {}, isSkip = false;
-    const {last  = '', first = '', limit = LIMIT, title = null, language = ''} = req.query;
+    const {last  = '',
+          first = '',
+          limit = LIMIT,
+          title = null,
+          language = '',
+          state = ''} = req.query;
 
     if (last !== '') {
       _query = {'published' :{'$lt': new Date(last)}};
@@ -58,11 +57,17 @@ ArticleAPI.index = async function (req, res) {
 
     if (title !== null) {_query.trans_title = { $regex: title, $options: 'i' };}
 
+    if (state !== '') {_query.state = parseInt(state);}
+
     if (language === 'cn') {
       _query.origin_title = {$regex:"[\u4e00-\u9fa5]"};
     } else if (language === 'en') {
       _query.origin_title = {$regex:"^[^\u4e00-\u9fa5]+$"};
     }
+
+    $.debug(_query)
+
+    await ArticleModel.model.update({}, {state: 0})
 
     try {
       const count = await ArticleModel.count(_query);
@@ -73,7 +78,7 @@ ArticleAPI.index = async function (req, res) {
                      skip,
                      { $limit: parseInt(limit) },
                      { $project: {
-                         origin_content: 0
+                         origin_content: 0,
                      }},
                      { $lookup:
                          {
