@@ -10,8 +10,15 @@ const SessionSchema = mongoose.Schema({
   session: String,
   _id:     String,
 });
+const LockSchema = mongoose.Schema({
+  article_id: String,
+  user_id:    String,
+  nickname:   String,
+  title:      String,
+});
 const SessionModel = connc.model('Session', SessionSchema);
-const lockCache = new Map();
+const LockModel = connc.model('Lock', LockSchema);
+
 
 wss.on('connection', async function (socket, req) {
   const cookies = req.headers.cookie;
@@ -20,48 +27,39 @@ wss.on('connection', async function (socket, req) {
   const result = await SessionModel.findOne({_id: session_id});
   const user = JSON.parse(result.session).user;
   const userTpl = `${user.nickname} ${user._id}`;
-  const item = {socket_id: socket.id, user_id: user._id, nickname: user.nickname};
+  const item = {user_id: user._id, nickname: user.nickname};
 
   $.debug(`connect: ${userTpl}`)
-  socket.on('message', function (data) {
+  socket.on('message', async function (data) {
     const json = JSON.parse(data)
     const article = json.article;
+    const exist = await LockModel.findOne({article_id: article._id});
     if (json.channel === 'lock') {
-      if (lockCache.has(article._id) &&
-        lockCache.get(article._id).user_id !== user._id) {
+      if (exist !== undefined && exist !== null && exist.user_id !== user._id) {
         $.debug(`lockFailed: ${article.edited_title} ${article._id}`);
         socket.send(JSON.stringify({channel:  'lockState',
-                      nickname: lockCache.get(article._id).nickname,
+                      nickname: exist.nickname,
                       type:     'failed'
                     }));
         return;
-      };
-       item.article_id = article._id;
-      lockCache.set(article._id, item);
-      socket.send(JSON.stringify({channel: 'lockState',
-                                  nickname: item.nickname,
-                                  type: 'success'}));
-      $.debug(`lock: ${article.edited_title} ${article._id}`);
+      }else {
+        const exist = await LockModel.create({article_id: article._id,
+                                        user_id: user._id,
+                                        nickname: item.nickname});
+        socket.send(JSON.stringify({channel: 'lockState',
+                                    nickname: item.nickname,
+                                    type: 'success'}));
+        $.debug(`lock: ${article.edited_title} ${article._id}`);
+      }
     }
-    //
-
-
   })
 
-  socket.on('close', function (data) {
-    removeItem(item.article_id, user._id)
+  socket.on('close', async function (data) {
+    const exist = await LockModel.remove({user_id: user._id});
     $.debug(`close: ${userTpl}`)
   })
 })
 
-function removeItem (article_id, user_id) {
-  for (let [key, value] of lockCache) {
-    if (key === article_id && value.user_id === user_id) {
-      lockCache.delete(article_id);
-      return;
-    }
-  }
-}
 
 
 function getCookie(cookie, objName){
