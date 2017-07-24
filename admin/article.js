@@ -48,12 +48,16 @@ ArticleAPI.index = async function (req, res) {
 
     if (title !== null) {_query.trans_title = { $regex: title, $options: 'i' };}
     if (state !== '0') {_query.state = state;}
-
+    if (state === 'handled') {
+      delete _query.state
+      _query["$nor"] = [{ state: 'pending' }, { state: 'deleted' } ];
+    }
     if (language === 'cn') {
       _query.origin_title = {$regex:"[\u4e00-\u9fa5]"};
     } else if (language === 'en') {
       _query.origin_title = {$regex:"^[^\u4e00-\u9fa5]+$"};
     }
+
 
     $.debug(_query)
 
@@ -66,7 +70,7 @@ ArticleAPI.index = async function (req, res) {
                      skip,
                      { $limit: parseInt(limit) },
                      { $project: {
-                         origin_content: 0,
+                         origin_content: 0
                      }},
                      { $lookup:
                          {
@@ -88,6 +92,7 @@ ArticleAPI.index = async function (req, res) {
       list.forEach(handleIsCn)
       $.result(res, {list: list, count: count});
     } catch (e) {
+      $.debug(e)
       $.result(res, 'error');
     }
 }
