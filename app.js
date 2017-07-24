@@ -20,7 +20,7 @@ const sessionMiddleware = session({
                               httpOnly: true,
                               secure:   false,
                               maxAge:   60 * 60 * 24 * 10000,
-                              cookie: { domain:'.holoread.news'},
+                              domain:   '.holoread.news',
                             },
                             saveUninitialized: false,
                             resave: false
@@ -39,7 +39,7 @@ app.use(function (req, res, next) {
   res.header('Access-Control-Allow-Origin',      req.headers.origin);
   res.header('Access-Control-Allow-Methods',     'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers',     'X-Requested-With,content-type');
-  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Credentials', true);
   next();
 })
 
