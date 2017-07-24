@@ -1,8 +1,9 @@
 
-import socketIO from 'socket.io'
+
 import mongoose from 'mongoose'
 import $ from '../utils'
-
+const WebSocket = require('ws');
+const wss = new WebSocket.Server({ port: $.config.ws });
 const connc = mongoose.createConnection($.config.sessiondb);
 const SessionSchema = mongoose.Schema({
   expires: String,
@@ -10,12 +11,10 @@ const SessionSchema = mongoose.Schema({
   _id:     String,
 });
 const SessionModel = connc.model('Session', SessionSchema);
-const io = socketIO.listen($.config.ws);
 const lockCache = new Map();
 
-io.sockets.on('connect', async function (socket) {
-
-  const cookies = socket.handshake.headers.cookie;
+wss.on('connection', async function (socket, req) {
+  const cookies = req.headers.cookie;
   const sid = getCookie(cookies, 'connect.sid');
   const session_id = decodeURIComponent(sid).match(/s\:([^.]+)/im)[1];
   const result = await SessionModel.findOne({_id: session_id});
@@ -24,23 +23,34 @@ io.sockets.on('connect', async function (socket) {
   const item = {socket_id: socket.id, user_id: user._id, nickname: user.nickname};
 
   $.debug(`connect: ${userTpl}`)
-  socket.on('lock', function (data) {
-    const article = data.article;
-    if (lockCache.has(article._id) &&
+  socket.on('message', function (data) {
+    const json = JSON.parse(data)
+    const article = json.article;
+    if (json.channel === 'lock') {
+      if (lockCache.has(article._id) &&
         lockCache.get(article._id).user_id !== user._id) {
-      $.debug(`lockFailed: ${article.edited_title} ${article._id}`);
-      socket.emit('lockState', {nickname: lockCache.get(article._id).nickname,                        type:     'failed'});
-      return;
-    };
-    item.article_id = article._id;
-    lockCache.set(article._id, item);
-    socket.emit('lockState', {nickname: item.nickname, type: 'success'});
-    $.debug(`lock: ${data.article.edited_title} ${article._id}`);
+        $.debug(`lockFailed: ${article.edited_title} ${article._id}`);
+        socket.send(JSON.stringify({channel:  'lockState',
+                      nickname: lockCache.get(article._id).nickname,
+                      type:     'failed'
+                    }));
+        return;
+      };
+       item.article_id = article._id;
+      lockCache.set(article._id, item);
+      socket.send(JSON.stringify({channel: 'lockState',
+                                  nickname: item.nickname,
+                                  type: 'success'}));
+      $.debug(`lock: ${article.edited_title} ${article._id}`);
+    }
+    //
+
+
   })
 
-  socket.on('disconnect', function (data) {
+  socket.on('close', function (data) {
     removeItem(item.article_id, user._id)
-    $.debug(`disconnect: ${userTpl}`)
+    $.debug(`close: ${userTpl}`)
   })
 })
 
