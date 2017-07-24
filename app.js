@@ -10,16 +10,28 @@ import connectMongo   from 'connect-mongo';
 import routers        from './routers';
 import $              from './utils';
 import models         from './models';
-const  app            = express();
-const  MongoStore     = connectMongo(session);
+
+const app               = express();
+const MongoStore        = connectMongo(session);
+const sessionMiddleware = session({
+                            secret: $.config.secret,
+                            store:  new MongoStore({ url: $.config.sessiondb }),
+                            cookie: {
+                              httpOnly: true,
+                              secure:   false,
+                              maxAge:   60 * 60 * 24 * 10000
+                            },
+                            saveUninitialized: false,
+                            resave: false
+                          });
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(compression());
-
 app.use(logger('dev'));
-app.use(express.static(path.join(__dirname, 'public/api/')));
+// app.use(express.static(path.join(__dirname, 'public/api/')));
+
 if ($.isDev === false) {app.use($.logAccess);}
 
 app.use(function (req, res, next) {
@@ -30,20 +42,7 @@ app.use(function (req, res, next) {
   next();
 })
 
-app.use(session({
-  secret: $.config.secret,
-  store:  new MongoStore({
-    url: $.config.sessiondb
-  }),
-  cookie: {
-    httpOnly: true,
-    secure:   false,
-    maxAge:   60 * 60 * 24 * 10000
-  },
-  saveUninitialized: false,
-  resave: false
-}));
-
+app.use(sessionMiddleware);
 app.use(methodOverride(function(req, res){
   if (req.body && typeof req.body === 'object' && '_method' in req.body) {
     var method = req.body._method
@@ -69,4 +68,4 @@ models.connect();
 console.log('=====================================================');
 console.log('SHAREADING SERVICES START AT ' + $.dateformat(new Date()));
 console.log('=====================================================');
-export default app;
+export default {app, session: sessionMiddleware};

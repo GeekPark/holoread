@@ -5,7 +5,7 @@
  */
 require('babel-core/register');
 require("babel-polyfill");
-const app    = require('./app').default;
+const app    = require('./app').default.app;
 const http   = require('http');
 const $      = require('./utils');
 const config = $.config;

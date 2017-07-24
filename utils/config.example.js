@@ -3,6 +3,7 @@ var isDev = process.env.NODE_ENV === 'dev';
 module.exports = {
   isDev:       isDev,
   ports:       isDev ? ['3000'] : ['10007'],
+  ws:          '3001',
   secret:      '*',
   testCode:    '',
   allowOrigin: 'http://127.0.0.1:8080',
