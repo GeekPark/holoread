@@ -19,7 +19,8 @@ const sessionMiddleware = session({
                             cookie: {
                               httpOnly: true,
                               secure:   false,
-                              maxAge:   60 * 60 * 24 * 10000
+                              maxAge:   60 * 60 * 24 * 10000,
+                              cookie: { domain:'.holoread.news'},
                             },
                             saveUninitialized: false,
                             resave: false
