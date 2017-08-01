@@ -4,24 +4,24 @@
  */
 
 import express from 'express'
-import Admin   from '../admin'
-import Base    from './base'
-import auth    from '../utils/auth'
+import Admin from '../admin'
+import Base from './base'
+import auth from '../utils/auth'
 
-const router        = express.Router();
-const BaseRouter    = new Base(router);
-const {authSession} = auth;
+const router = express.Router()
+const BaseRouter = new Base(router)
+const {authSession} = auth
 
 //                             账号
-router.post('/account/login',  Admin.User.login);
-router.post('/account/logout', Admin.User.logout);
-router.post('/account/sms',    Admin.User.sms);
+router.post('/account/login', Admin.User.login)
+router.post('/account/logout', Admin.User.logout)
+router.post('/account/sms', Admin.User.sms)
 
 // 搜索
-router.get('/search',  Admin.Search);
+router.get('/search', Admin.Search)
 
-export default BaseRouter.resources('/users',    Admin.User, [authSession])
+export default BaseRouter.resources('/users', Admin.User, [authSession])
                          .resources('/articles', Admin.Article, [authSession])
-                         .resources('/likes',  Admin.Like, [authSession])
-                         .resources('/logs',     Admin.Log, [authSession])
-                         .router;
+                         .resources('/likes', Admin.Like, [authSession])
+                         .resources('/logs', Admin.Log, [authSession])
+                         .router

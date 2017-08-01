@@ -3,24 +3,19 @@
  * @version 1.0.0
  */
 
+import mongoose from 'mongoose'
+import $ from '../utils'
 
-import mongoose from 'mongoose';
-import $        from '../utils';
-
-
-const rules  = [];
-
+const rules = []
 
 // baseModel
 export default class Base {
-
-  constructor(name, options) {
-
+  constructor (name, options) {
     const schema = mongoose.Schema(options, {
       versionKey: false,
       id: false,
-      toObject:   { virtuals: true , getters: true},
-      toJSON:     { virtuals: true , getters: true},
+      toObject: { virtuals: true, getters: true },
+      toJSON: { virtuals: true, getters: true },
       timestamps: {
         createdAt: 'createdAt',
         updatedAt: 'updatedAt'
@@ -28,102 +23,88 @@ export default class Base {
     })
 
     schema.virtual('created_at').get(function (doc) {
-      return $.dateformat(this.createdAt);
-    });
+      return $.dateformat(this.createdAt)
+    })
     schema.virtual('updated_at').get(function () {
-      return $.dateformat(this.updatedAt);
-    });
+      return $.dateformat(this.updatedAt)
+    })
 
-    this.schema  = schema;
-    this.model   = mongoose.model(name, schema);
-    addMethods(this);
+    this.schema = schema
+    this.model = mongoose.model(name, schema)
+    addMethods(this)
   };
 
-  static ObjectId() {
-    return mongoose.Schema.ObjectId;
+  static ObjectId () {
+    return mongoose.Schema.ObjectId
   };
 
   // try catch methods
-  async all(query, options) {
-    let _query = {};
-    const {last = '',
-           first = '',
-           start = 0,
-           limit = 20} = options;
-
-    if (last !== '') {
-      _query =  {'_id' :{ '$gt': last}};
-    } else if (first !== '') {
-      _query =  {'_id' :{ '$lt': first}};
-    }
+  async all (query, options) {
+    const {start = 0, limit = 20} = options
 
     try {
       return await this.model.find(query)
         .limit(limit).skip(start * limit)
-        .populate(rules).sort({createdAt: -1});
+        .populate(rules).sort({createdAt: -1})
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
   };
 
-  async find(query, options) {
+  async find (query, options) {
     try {
-      return await this.model.findOne(query);
+      return await this.model.findOne(query)
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
   };
 
-  async create(query) {
+  async create (query) {
     try {
-      return await this.model.create(query);
+      return await this.model.create(query)
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
   };
 
-  async updateBy(query, info) {
+  async updateBy (query, info) {
     try {
       return await this.model.update(query, { $set: info })
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
   };
 
-  async update(query) {
+  async update (query) {
     try {
-      return await query.save();
+      return await query.save()
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
   };
 
-  async deleteBy(query) {
+  async deleteBy (query) {
     try {
-      return await this.model.remove(query);
+      return await this.model.remove(query)
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
   };
 
-  async delete(query) {
+  async delete (query) {
     try {
-      return await query.remove();
+      return await query.remove()
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
   };
-
 }
 
-
 function addMethods (_this) {
-
-
-
   _this.count = async function (query) {
-    return await _this.model.count(query);
-  };
+    const count = await _this.model.count(query)
+    return count
+  }
 
   // _this.all = async function (query, options) {
   //   return await _this.all(query, options);
@@ -134,8 +115,9 @@ function addMethods (_this) {
   // };
 
   _this.findById = async function (id) {
-    return await _this.find({ _id: id });
-  };
+    const result = await _this.find({ _id: id })
+    return result
+  }
 
   // _this.create = async function (query) {
   //   return await _this.create(query);
@@ -155,5 +137,5 @@ function addMethods (_this) {
   //   return await _this.delete(item);
   // };
 
-  return _this;
+  return _this
 }

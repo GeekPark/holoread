@@ -1,8 +1,8 @@
 
-const crypto           = require('crypto');
-const CIPHER_ALGORITHM = 'aes256';
-const config           = require('./config.js');
-const key = config.secret;
+const crypto = require('crypto')
+const CIPHER_ALGORITHM = 'aes256'
+const config = require('./config.js')
+const key = config.secret
 /**
  * Description
  * @method decipherMessage
@@ -11,18 +11,18 @@ const key = config.secret;
  */
 
 module.exports.decode = function (msg) {
-    var ret = {};
+  var ret = {}
 
-    try {
-        var decipher = crypto.createDecipher(CIPHER_ALGORITHM, key);
-        var decipheredMessage = decipher.update(msg, 'hex', 'binary');
-        decipheredMessage += decipher.final("binary");
-        ret = decipheredMessage;
-    } catch (e) {
-        return null;
-    }
+  try {
+    var decipher = crypto.createDecipher(CIPHER_ALGORITHM, key)
+    var decipheredMessage = decipher.update(msg, 'hex', 'binary')
+    decipheredMessage += decipher.final('binary')
+    ret = decipheredMessage
+  } catch (e) {
+    return null
+  }
 
-    return ret;
+  return ret
 }
 
 /**
@@ -34,12 +34,12 @@ module.exports.decode = function (msg) {
  */
 
 module.exports.encode = function (data) {
-    try {
-        var cipher = crypto.createCipher(CIPHER_ALGORITHM, key);
-        var cipheredData = cipher.update(data, "binary", "hex");
-        cipheredData += cipher.final("hex");
-        return cipheredData;
-    } catch (e) {
-        return null;
-    }
+  try {
+    var cipher = crypto.createCipher(CIPHER_ALGORITHM, key)
+    var cipheredData = cipher.update(data, 'binary', 'hex')
+    cipheredData += cipher.final('hex')
+    return cipheredData
+  } catch (e) {
+    return null
+  }
 }

@@ -2,9 +2,8 @@
 import {request, v1, mock} from '../tools'
 import Base from './base'
 
-
-const {_post} = new Base({});
-let user      = {};
+const {_post} = new Base({})
+let user = {}
 
 // describe('USER LOGIN',  () => {
 
@@ -13,7 +12,6 @@ let user      = {};
 //     return _post('user/login', {openid: user.openid}, 400);
 //   });
 // });
-
 
 // describe('USER VERIFY',  () => {
 
@@ -27,7 +25,6 @@ let user      = {};
 //     return _post('user/verify', reqData, 200);
 //   });
 // });
-
 
 // describe('USER LOGIN',  () => {
 

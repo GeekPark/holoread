@@ -1,12 +1,10 @@
 import {request, v1, mock} from '../tools'
 import Base from './base'
 
+const {_get} = new Base({})
+let user = {}
 
-const {_get} = new Base({});
-let user     = {};
-
-
-describe('GET VOTE',  () => {
+describe('GET VOTE', () => {
 
   // it('获取所有投票, 正确', () => {
   //   return _get('votes', {start: 0}, 200);
@@ -30,4 +28,4 @@ describe('GET VOTE',  () => {
   //   return _get('votes/myComments', {user: user._id.toString()}, 200);
   // });
 
-});
+})
