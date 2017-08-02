@@ -61,30 +61,25 @@ ArticleAPI.index = async function (req, res) {
 
   try {
     const count = await ArticleModel.count(_query)
-    const skip = isSkip ? {$skip: count - limit} : {$skip: 0}
+    const tempCount = (count - limit) > 0 ? (count - limit) : 0
+    const skip = isSkip ? {$skip: tempCount} : {$skip: 0}
     const list = await ArticleModel.model.aggregate([
-                     { $match: _query },
-                     { $sort: {published: -1} },
+      { $match: _query },
+      { $sort: {published: -1} },
       skip,
-                     { $limit: parseInt(limit) },
-      { $project: {
-        origin_content: 0
-      }},
-      { $lookup:
-      {
+      { $limit: parseInt(limit) },
+      { $project: { origin_content: 0 } },
+      { $lookup: {
         from: 'accesses',
         localField: '_id',
         foreignField: 'article',
-        as: 'accesses'
-      }
+        as: 'accesses'}
       },
-      { $lookup:
-      {
+      { $lookup: {
         from: 'likes',
         localField: '_id',
         foreignField: 'article',
-        as: 'likes'
-      }
+        as: 'likes'}
       }
     ])
     list.forEach(handleIsCn)
