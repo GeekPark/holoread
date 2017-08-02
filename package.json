@@ -60,6 +60,7 @@
   },
   "standard": {
     "ignoreRules": [
+      {"align": "colon"}
     ],
     "ignore": [
       "test/*"

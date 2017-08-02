@@ -31,22 +31,14 @@ ArticleAPI.index = async function (req, res) {
   const {last = '',
           first = '',
           limit = LIMIT,
-          title = null,
+          value = '',
           language = '',
-          state = ''} = req.query
+          key = '',
+          state = '0'} = req.query
 
-  if (last !== '') {
-    _query = {'published': {'$lt': new Date(last)}}
-  } else if (first !== '') {
-    isSkip = true
-    _query = {'published': {'$gt': new Date(first)}}
-  } else {
-    const recent = await helper.getRecent()
-    _query = {'published': {'$lte': new Date(recent.published)}}
+  if (state !== '0') {
+    _query.state = state
   }
-
-  if (title !== null) { _query.trans_title = { $regex: title, $options: 'i' } }
-  if (state !== '0') { _query.state = state }
   if (state === 'handled') {
     delete _query.state
     _query['$nor'] = [ { state: 'pending' }, { state: 'deleted' } ]
@@ -55,6 +47,22 @@ ArticleAPI.index = async function (req, res) {
     _query.origin_title = {$regex: '[\u4e00-\u9fa5]'}
   } else if (language === 'en') {
     _query.origin_title = {$regex: '^[^\u4e00-\u9fa5]+$'}
+  }
+  if (key !== '' && value !== '') {
+    _query[key] = { $regex: value, $options: 'i' }
+  }
+
+  $.debug(_query)
+
+  if (last !== '') {
+    _query['published'] = {'$lt': new Date(last)}
+  } else if (first !== '') {
+    isSkip = true
+    _query['published'] = {'$gt': new Date(first)}
+  } else {
+    const now = new Date()
+    const yesterday = new Date(now.setHours(-24 * 7))
+    _query['published'] = {'$lte': new Date()}
   }
 
   $.debug(_query)
@@ -65,22 +73,19 @@ ArticleAPI.index = async function (req, res) {
     const skip = isSkip ? {$skip: tempCount} : {$skip: 0}
     const list = await ArticleModel.model.aggregate([
       { $match: _query },
-      { $sort: {published: -1} },
-      skip,
-      { $limit: parseInt(limit) },
-      { $project: { origin_content: 0 } },
-      { $lookup: {
-        from: 'accesses',
-        localField: '_id',
-        foreignField: 'article',
-        as: 'accesses'}
+      { $project: {
+          origin_content: 0,
+          trans_content: 0,
+          edited_content: 0,
+          tags: 0,
+          url: 0,
+          source: 0,
+          updatedAt : 0,
+          summary: 0
+        }
       },
-      { $lookup: {
-        from: 'likes',
-        localField: '_id',
-        foreignField: 'article',
-        as: 'likes'}
-      }
+      skip,
+      { $limit: 40 }
     ])
     list.forEach(handleIsCn)
     $.result(res, {list: list, count: count})
@@ -93,9 +98,10 @@ ArticleAPI.index = async function (req, res) {
 function handleIsCn (el) {
   el.is_cn = cnReg.test(el.origin_title)
   if (el.is_cn) {
-    el.edited_content = el.origin_content
     el.edited_title = el.origin_title
   }
+  // delete el.trans_title
+  // delete el.origin_title
   return el
 }
 

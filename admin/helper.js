@@ -18,12 +18,12 @@ export default {
         const query = {'published': {'$gt': today}}
         result = await ArticleModel.model.aggregate([
                      {$match: query},
-          {$project: {
-            _id: 1,
-            published: 1,
-            origin_title: 1,
-            trans_title: 1
-          }},
+                     {$project: {
+                       _id: 1,
+                       published: 1,
+                       origin_title: 1,
+                       trans_title: 1
+                     }},
                      {$sort: {published: -1}}
         ])
         today.setHours(-24 * 7, 0, 0)

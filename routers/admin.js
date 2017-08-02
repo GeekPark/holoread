@@ -21,7 +21,7 @@ router.post('/account/sms', Admin.User.sms)
 router.get('/search', Admin.Search)
 
 export default BaseRouter.resources('/users', Admin.User, [authSession])
-                         .resources('/articles', Admin.Article, [authSession])
+                         .resources('/articles', Admin.Article)
                          .resources('/likes', Admin.Like, [authSession])
                          .resources('/logs', Admin.Log, [authSession])
                          .router
