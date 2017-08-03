@@ -34,6 +34,6 @@ Article.schema.path('edited_content')
   return $.empty(val) ? this.trans_content : val
 })
 
-Article.schema.index({trans_title: 1, published: -1})
+Article.schema.index({published: -1, state: 1})
 
 export default Article

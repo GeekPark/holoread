@@ -73,6 +73,7 @@ ArticleAPI.index = async function (req, res) {
     const skip = isSkip ? {$skip: tempCount} : {$skip: 0}
     const list = await ArticleModel.model.aggregate([
       { $match: _query },
+      { $sort: {published: -1}},
       { $project: {
           origin_content: 0,
           trans_content: 0,
