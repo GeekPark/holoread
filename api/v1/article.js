@@ -51,7 +51,7 @@ export default {
   index: async (req, res) => {
     const date = await lastDate(req, -1)
     $.debug($.dateformat(date))
-    const query = {'published': {'$gt': date, '$ne': date},
+    const query = {'updatedAt': {'$gt': date, '$ne': date},
       '$nor': [ { state: 'pending' }, { state: 'deleted' } ]
     }
     const list = await queryArticles(query, req.query.limit)
@@ -104,7 +104,7 @@ async function queryLikes (query, limit = 20) {
 async function queryArticles (query, limit = 20) {
   const list = await ArticleModel.model.aggregate([
                  {$match: query},
-                 {$sort: {published: 1}},
+                 {$sort: {updatedAt: 1}},
                  {$limit: parseInt(limit)},
     selectLike,
     selectAccess
@@ -145,7 +145,7 @@ function edited (list) {
     const summary = delHtmlTag(el.edited_content)
     el.summary = !el.summary ? summary.substr(0, 100) : el.summary
     el.published = $.dateformat(el.published)
-    el.is_cn = cn.test(el.origin_title)
+    el.updated_at = $.dateformat(el.updatedAt)
 
     if (el.is_cn) {
       el.edited_content = el.origin_content
