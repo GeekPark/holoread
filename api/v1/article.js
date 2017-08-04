@@ -39,7 +39,6 @@ export default {
     const like = await LikeModel.find({article: req.params.id, from: req.query.user})
 
     article.is_like = !$.empty(like)
-    article.is_cn = cn.test(article.origin_title)
 
     if (article.is_cn) {
       article.edited_content = article.origin_content
@@ -50,7 +49,8 @@ export default {
   },
 
   index: async (req, res) => {
-    const date = await lastDate(req, -24)
+    const date = await lastDate(req, -1)
+    $.debug($.dateformat(date))
     const query = {'published': {'$gt': date, '$ne': date},
       '$nor': [ { state: 'pending' }, { state: 'deleted' } ]
     }
@@ -64,7 +64,7 @@ export default {
   },
 
   myLikes: async (req, res) => { // 我的收藏
-    const date = await lastDate(req, 24)
+    const date = await lastDate(req, 1)
     const user = mongoose.Types.ObjectId(req.params.user)
     const query = {createdAt: {'$lt': date}, from: user}
     const list = await queryLikes(query, req.query.limit)
@@ -112,10 +112,10 @@ async function queryArticles (query, limit = 20) {
   return list
 }
 
-function lastDate (req, hours = 0) {
+function lastDate (req, date = 0) {
   if (req.query.last === 'now') {
     const today = new Date()
-    today.setHours(hours)
+    today.setDate(today.getDate() + date)
     return today
   } else {
     return new Date(req.query.last)
