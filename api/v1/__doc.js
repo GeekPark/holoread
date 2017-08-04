@@ -21,8 +21,6 @@
  *     }
  */
 
-
-
 // User
 
 /**
@@ -31,13 +29,20 @@
  * @apiGroup User
  * @apiVersion 1.0.0
  *
- * @apiParam {String} openid 微信openid (微信授权获取到的信息, 全部提交)
+ * @apiParam {String} openid 微信openid
+ * @apiParam {Number} gender 性别, 男1, 女0
+ * @apiParam {String} province 省份
+ * @apiParam {String} city  城市
+ * @apiParam {String} headimgurl 头像
+ * @apiParam {String} nickname 昵称
+ * @apiParam {String} language 语言
  *
  * @apiExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
+ *
  *       "data": {
- **         "_id": "59142b85c92638bf4e1d8017",
+ *         "_id": "59142b85c92638bf4e1d8017",
  *          "updatedAt": "2017-05-11T09:29:42.708Z",
  *          "createdAt": "2017-05-11T09:14:45.997Z",
  *          "token": "...",
@@ -67,6 +72,7 @@
  *
  * @apiParam {String} phone 手机号
  * @apiParam {String} code 邀请码
+ * @apiParam {String} openid openid
  *
  * @apiExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -90,6 +96,7 @@
  * @apiVersion 1.0.0
  *
  * @apiParam {String} phone 手机号
+ * @apiParam {String} openid openid
  *
  * @apiExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -108,12 +115,38 @@
  */
 
 /**
- * @api {get} /api/v1/articles  获取所有文章
+ * @api {post} /api/v1/feedback  提交反馈
+ * @apiName  Feedback
+ * @apiGroup User
+ * @apiVersion 1.0.0
+ *
+ * @apiParam {String} email email
+ * @apiParam {String} content content
+ *
+ * @apiExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "data": {
+ *       },
+ *       "msg": "发送成功"
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 403
+ *     {
+ *       "data": "",
+ *       "msg" : "发送失败"
+ *     }
+ */
+
+/**
+ * @api {get} /api/v1/articles  获取所有文章(默认当天)
  * @apiName Index
  * @apiGroup Article
  * @apiVersion 1.0.0
  *
- * @apiParam {Number} start 分页,默认为0
+ * @apiParam {String} last 本页最后一个 item 的 published (例如 ?last=2017-05-10T08:42:58.000Z)
+ * @apiParam {user} userid
  *
  * @apiExample {json} Success-Response:
  *     HTTP/1.1 200 OK
@@ -137,6 +170,32 @@
  */
 
 /**
+ * @api {get} /api/v1/articles/:user/likes 获取用户收藏文章
+ * @apiName Get
+ * @apiGroup Article
+ * @apiVersion 1.0.0
+ * @apiParam {String} last 本页最后一个 item 的 created_at
+ *
+ *
+ * @apiExample {json} Success-Response:
+ *     分两次请求 第一次不带参数, 请求为当天收藏, 无分页
+ *     第二次请求过往收藏数据, 有分页 带上 ?last=
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "data": {
+ *       },
+ *       "msg": ""
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 403
+ *     {
+ *       "data": "",
+ *       "msg" : "..."
+ *     }
+ */
+
+/**
  * @api {post} /api/v1/logs  创建日志
  * @apiName Create
  * @apiGroup Log
@@ -145,6 +204,55 @@
  * @apiParam {String} token token
  * @apiParam {String} type 日志类型
  * @apiParam {String} event 日志事件
+ *
+ * @apiExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "data": {
+ *       },
+ *       "msg": ""
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 403
+ *     {
+ *       "data": "",
+ *       "msg" : "..."
+ *     }
+ */
+
+/**
+ * @api {post} /api/v1/likes 收藏文章
+ * @apiName Create
+ * @apiGroup Like
+ * @apiVersion 1.0.0
+ *
+ * @apiParam {String} token  当前用户token
+ * @apiParam {String} article 文章 ID
+ *
+ * @apiExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "data": {
+ *       },
+ *       "msg": ""
+ *     }
+ *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 403
+ *     {
+ *       "data": "",
+ *       "msg" : "..."
+ *     }
+ */
+
+/**
+ * @api {delete} /api/v1/likes/:id 删除收藏文章
+ * @apiName Delete
+ * @apiGroup Like
+ * @apiVersion 1.0.0
+ *
+ * @apiParam {String} token  当前用户token
  *
  * @apiExample {json} Success-Response:
  *     HTTP/1.1 200 OK

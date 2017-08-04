@@ -3,23 +3,19 @@
  * @version 1.0.0
  */
 
+import mongoose from 'mongoose'
+import $ from '../utils'
 
-import mongoose from 'mongoose';
-import $        from '../utils';
-
-
-const rules  = [];
-
+const rules = []
 
 // baseModel
 export default class Base {
-
-  constructor(name, options) {
-
+  constructor (name, options) {
     const schema = mongoose.Schema(options, {
       versionKey: false,
-      toObject:   { virtuals: true , getters: true},
-      toJSON:     { virtuals: true , getters: true},
+      id: false,
+      toObject: { virtuals: true, getters: true },
+      toJSON: { virtuals: true, getters: true },
       timestamps: {
         createdAt: 'createdAt',
         updatedAt: 'updatedAt'
@@ -27,129 +23,119 @@ export default class Base {
     })
 
     schema.virtual('created_at').get(function (doc) {
-      return $.dateformat(this.createdAt);
-    });
+      return $.dateformat(this.createdAt)
+    })
     schema.virtual('updated_at').get(function () {
-      return $.dateformat(this.updatedAt);
-    });
-    schema.options.toObject.transform = function (doc, ret, options) {
-      delete ret.id;
-    };
-    schema.options.toJSON.transform = function (doc, ret, options) {
-      delete ret.id;
-    };
+      return $.dateformat(this.updatedAt)
+    })
 
-    this.schema  = schema;
-    this.model   = mongoose.model(name, schema);
-    this.methods = addMethods(this);
+    this.schema = schema
+    this.model = mongoose.model(name, schema)
+    addMethods(this)
   };
 
-  static ObjectId() {
-    return mongoose.Schema.ObjectId;
+  static ObjectId () {
+    return mongoose.Schema.ObjectId
   };
 
   // try catch methods
-  async all(query, options) {
-    const _count  = 20;
-    const {start = 0} = options;
+  async all (query, options) {
+    const {start = 0, limit = 20} = options
+
     try {
       return await this.model.find(query)
-        .limit(_count).skip(_count * start)
-        .populate(rules).sort({createdAt: -1});
+        .limit(limit).skip(start * limit)
+        .populate(rules).sort({createdAt: -1})
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
   };
 
-  async find(query, options) {
+  async find (query, options) {
     try {
       return await this.model.findOne(query)
-        .populate(rules);
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
   };
 
-  async create(query) {
+  async create (query) {
     try {
-      return await this.model.create(query);
+      return await this.model.create(query)
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
   };
 
-  async updateBy(query, info) {
+  async updateBy (query, info) {
     try {
       return await this.model.update(query, { $set: info })
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
   };
 
-  async update(query) {
+  async update (query) {
     try {
-      return await query.save();
+      return await query.save()
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
   };
 
-  async deleteBy(query) {
+  async deleteBy (query) {
     try {
-      return await this.model.remove(query);
+      return await this.model.remove(query)
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
   };
 
-  async delete(query) {
+  async delete (query) {
     try {
-      return await query.remove();
+      return await query.remove()
     } catch (e) {
-      console.error(e);
+      console.error(e)
     }
   };
-
 }
 
-
 function addMethods (_this) {
+  _this.count = async function (query) {
+    const count = await _this.model.count(query)
+    return count
+  }
 
-  const methods = {};
+  // _this.all = async function (query, options) {
+  //   return await _this.all(query, options);
+  // };
 
-  methods.count = async function (query) {
-    return await _this.model.count(query);
-  };
+  // _this.find = async function (query) {
+  //   return await _this.find(query);
+  // };
 
-  methods.all = async function (query, options) {
-    return await _this.all(query, options);
-  };
+  _this.findById = async function (id) {
+    const result = await _this.find({ _id: id })
+    return result
+  }
 
-  methods.find = async function (query) {
-    return await _this.find(query);
-  };
+  // _this.create = async function (query) {
+  //   return await _this.create(query);
+  // };
 
-  methods.findById = async function (id) {
-    return await _this.find({ _id: id });
-  };
+  // _this.updateBy = async function (query, info) {
+  //   return await _this.updateBy(query, info);
+  // };
 
-  methods.create = async function (query) {
-    return await _this.create(query);
-  };
+  // _this.update = async function (query, info) {
+  //   return await _this.update(query, info);
+  // };
 
-  methods.updateBy = async function (query, info) {
-    return await _this.updateBy(query, info);
-  };
+  // _this.delete = async function (query) {
+  //   const item = await _this.find(query);
+  //   if (!item) { return -1;}
+  //   return await _this.delete(item);
+  // };
 
-  methods.update = async function (query, info) {
-    return await _this.update(query, info);
-  };
-
-  methods.delete = async function (query) {
-    const item = await _this.find(query);
-    if (!item) { return -1;}
-    return await _this.delete(item);
-  };
-
-  return methods;
+  return _this
 }

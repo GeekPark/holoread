@@ -2,27 +2,26 @@
  * @author
  * @version 1.0.0
  */
-import {request, admin, mock} from '../tools';
-
+import {request, admin} from '../tools'
 
 export default class Base {
-  constructor(options) {
-    addMethods(this);
-    Object.keys(options).forEach(el => this[el] = options[el]);
+  constructor (options) {
+    addMethods(this)
+    Object.keys(options).forEach(el => {
+      this[el] = options[el]
+    })
   }
 }
 
-
 const addMethods = (_this) => {
   _this._get = (url, reqData, statusCode) => {
-    return new Promise( (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       request
       .get(`${admin}${url}`)
       .query(reqData)
       .then((res) => {
-        console.log(res.body.msg);
         res.statusCode.should.equal(statusCode)
-        resolve();
+        resolve()
       })
       .catch(e => reject(e))
     })
@@ -30,13 +29,12 @@ const addMethods = (_this) => {
 
   ['post', 'put', 'delete'].forEach(el => {
     _this[`_${el}`] = (url, reqData, statusCode) => {
-      return new Promise( (resolve, reject) => {
+      return new Promise((resolve, reject) => {
         request[el](`${admin}${url}`)
         .send(reqData)
         .then((res) => {
-          console.log(res.body.msg);
           res.statusCode.should.equal(statusCode)
-          resolve();
+          resolve()
         })
         .catch(e => reject(e))
       })

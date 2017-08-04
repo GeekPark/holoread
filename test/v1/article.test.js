@@ -1,10 +1,8 @@
 // import {request, v1, mock} from '../tools'
 // import Base from './base'
 
-
 // const {_get} = new Base({});
 // let user     = {};
-
 
 // describe('GET ARTICLE',  () => {
 
@@ -17,4 +15,3 @@
 //     return _get(`article/${article._id}`, {}, 200);
 //   });
 // });
-

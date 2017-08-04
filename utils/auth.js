@@ -4,96 +4,78 @@
  */
 
 import Models from '../models'
-import $      from './index'
-import yaml   from 'js-yaml'
-import fs     from 'fs'
-import path   from 'path'
+import $ from './index'
 
+// 暂时关闭权限认证
+// import yaml from 'js-yaml'
+// import fs from 'fs'
+// import path from 'path'
 
-const UserModel       = Models.UserModel;
-const filePath        = path.join(__dirname, 'permission.yml');
-const result          = $.result;
-const permissionCache = {};
-let   yml             = {};
-const jwt             = require('jsonwebtoken');
+const UserModel = Models.UserModel
+const result = $.result
+const jwt = require('jsonwebtoken')
+// const filePath = path.join(__dirname, 'permission.yml')
 
+// const permissionCache = {}
+// let yml = {}
 
-try {
-  yml = yaml.safeLoad(fs.readFileSync(filePath , 'utf8'));
-} catch (e) {
-  console.error(e);
-}
+// try {
+//   yml = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'))
+// } catch (e) {
+//   console.error(e)
+// }
 
-
-function _tokenPromise (token) {
-  return new Promise ((resolve, reject) => {
+const verify = function (token) {
+  return new Promise((resolve, reject) => {
     jwt.verify(token, $.config.secret, (err, value) => {
-      if (err) {reject(err); return;}
-      resolve(value);
-    });
-  });
+      if (err) { reject(err); return }
+      resolve(value)
+    })
+  })
 }
-
 
 export default {
 
-  createToken: (json) => {
-    const token = jwt.sign(json, $.config.secret, { expiresIn: '180d'});
-    return token;
+  sign: (json) => {
+    const token = jwt.sign(json, $.config.secret, {expiresIn: '180d'})
+    return token
   },
 
+  verify,
+
   loadUser: async function (req, res, next) {
-    const token  = req.headers.token || req.body.token || null;
-    const userid = req.body.userid || req.query.userid || null;
-    let user     = {};
-    if (!$.empty(token)) {
-      user = await UserModel.find({'token': token});
-    } else if(!$.empty(user)) {
-      user = await UserModel.find({'_id': userid});
-    } else {
-      result(res, 'load user error');
-    }
-    req.user = user;
-    next();
+    const token = req.headers.token || req.body.token || null
+    if ($.empty(token)) return result(res, 'load user error')
+    const user = await UserModel.find({'token': token})
+    $.debug(`auth user: ${user._id} ${user.nickname}`)
+    req.user = user
+    next()
   },
 
   authToken: async function (req, res, next) {
-    const token = req.headers.token || req.body.token || null;
-    if ($.empty(token)) { return result(res, 'token error'); }
+    const token = req.headers.token || req.body.token || null
+    if ($.empty(token)) { return result(res, 'token error') }
 
-    _tokenPromise(token).then(async (decode) => {
-      const user = await UserModel.find({'_id': decode.user});
-      if (user) req.user = user, next();
-      else result(res, 'token error');
+    verify(token).then(async (decode) => {
+      const user = await UserModel.find({'_id': decode.user})
+      if (user) {
+        req.user = user
+        next()
+      } else {
+        result(res, 'token error')
+      }
     }).catch(e => {
-      result(res, 'token error');
+      result(res, 'token error')
     })
   },
 
-
   authSession: async function (req, res, next) {
+    if ($.empty(req.session.user)) return result(res, 'session error')
 
-    if ($.empty(req.session.user)) { return result(res, 'session error'); }
-
-    const user = await UserModel.find({ '_id': req.session.user._id });
-
-    if ($.empty(user)) { return result(res, 'session error'); }
-
-    // 判断权限
-    const permissionStr = user.permission.toString();
-    let actions = {}, url = `${req.baseUrl}${req.route.path}#${req.method}`;
-
-    if ($.empty(permissionCache[permissionStr])) {
-      user.permission.forEach(key => {
-        if (yml[key]) { actions = Object.assign(actions, yml[key]); }
-      })
-      permissionCache[permissionStr] = actions;
-    } else {
-      actions = permissionCache[permissionStr];
+    if (req.session.user.permission.indexOf('admin') < 0) {
+      return result(res, 'permission denied')
     }
-
-    if (actions[url] === 'allow') { next(); return; }
-
-    result(res, `Permission denied. ${url}, your permission is ${user.permission}`);
+    $.debug(`auth session: ${req.session.user.phone}`)
+    next()
   }
 }

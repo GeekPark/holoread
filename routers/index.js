@@ -1,4 +1,4 @@
-import v1    from './v1'
+import v1 from './v1'
 import admin from './admin'
 
 export default {

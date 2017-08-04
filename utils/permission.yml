@@ -39,12 +39,12 @@ admin: &admin
   /api/admin/logs#POST: allow
   /api/admin/logs/:id#PUT: allow
   /api/admin/logs/:id#DELETE: allow
-  # follow
-  /api/admin/follows#GET: allow
-  /api/admin/follows/:id#GET: allow
-  /api/admin/follows#POST: allow
-  /api/admin/follows/:id#PUT: allow
-  /api/admin/follows/:id#DELETE: allow
+  # Like
+  /api/admin/likes#GET: allow
+  /api/admin/likes/:id#GET: allow
+  /api/admin/likes#POST: allow
+  /api/admin/likes/:id#PUT: allow
+  /api/admin/likes/:id#DELETE: allow
   #search
   /api/admin/search#GET: allow
 

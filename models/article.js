@@ -3,51 +3,37 @@
  * @version 1.0.0
  */
 
-import $    from '../utils';
-import Base from './base';
+import $ from '../utils'
+import Base from './base'
 
 const Article = new Base('Article', {
-  origin_title:   String,
+  origin_title: {type: String, index: true},
   origin_content: String,
-  trans_title:    String,
-  trans_content:  String,
-  summary:        String,
-  url:            String,
-  source:         String,
-  published:      Date,
-  order: {
-    type:    Number,
-    default: 0
-  },
-  added: {
-    type:    Date,
-    default: Date.now
-  },
-  tags: {
-    type:    [String],
-    default: []
-  },
-  edited_title: {
-    type: String,
-    default: ''
-  },
-  edited_content: {
-    type: String,
-    default: ''
-  }
-});
-
+  trans_title: {type: String, index: true},
+  trans_content: String,
+  is_like: Boolean,
+  is_cn: Boolean,
+  summary: {type: String, default: ''},
+  url: {type: String, index: true},
+  source: {type: String, index: true},
+  published: {type: Date, index: true},
+  lock: {type: Base.ObjectId(), ref: 'User'},
+  state: {type: String, default: ''},
+  tags: {type: [String], default: []},
+  edited_title: {type: String, default: '', index: true},
+  edited_content: {type: String, default: ''}
+})
 
 Article.schema.path('edited_title')
-.get(function(val) {
-    return $.empty(val) ? this.trans_title : val;
+.get(function (val) {
+  return $.empty(val) ? this.trans_title : val
 })
 
 Article.schema.path('edited_content')
-.get(function(val) {
-    return $.empty(val) ? this.trans_content : val;
+.get(function (val) {
+  return $.empty(val) ? this.trans_content : val
 })
 
-export default Article.methods
+Article.schema.index({published: -1, state: 1})
 
-
+export default Article
