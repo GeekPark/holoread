@@ -1,9 +1,15 @@
 package models
 
 import (
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
 )
+
+type ArticleQuery struct {
+	Start int `form:"start" binding:"exists"`
+	Limit int `form:"limit" binding:"exists"`
+}
 
 type Article struct {
 	Id             bson.ObjectId `json:"_id" bson:"_id,omitempty"`
@@ -20,4 +26,16 @@ type Article struct {
 	State          string        `json:"state" bson:"state"`
 	Published      time.Time     `json:"published" bson:"published"`
 	CreatedAt      time.Time     `json:"created_at" bson:"created_at"`
+}
+
+func (m *Base) FindArticles(db interface{}, q ArticleQuery) ([]bson.M, error) {
+	coll := db.(*mgo.Database).C(m.Name)
+	var result []bson.M
+	err := coll.Find(bson.M{}).
+		Sort("-published").
+		Skip(q.Limit * q.Start).
+		Limit(q.Limit).
+		Select(bson.M{"trans_title": 1, "published": 1, "state": 1, "is_cn": 1}).
+		All(&result)
+	return result, err
 }

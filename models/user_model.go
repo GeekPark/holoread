@@ -24,5 +24,4 @@ type User struct {
 	Company    string        `json:"company" bson:"company"`
 	Token      string        `json:"token" bson:"token"`
 	SMS        string        `json:"sms" bson:"sms"`
-	Password   string        `json:"password" bson:"password"`
 }

@@ -22,8 +22,8 @@ type BaseMethods interface {
 	Finish()
 }
 
-func Init(m interface{}, name string) *Base {
-	return &Base{&models.Base{m, name}, name}
+func InitBase(m interface{}, name string) *Base {
+	return &Base{models.InitBase(m, name), name}
 }
 
 func (api *Base) Index(c *gin.Context) {

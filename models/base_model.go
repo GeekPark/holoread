@@ -20,6 +20,10 @@ type BaseMethods interface {
 	Delete(interface{}, string) error
 }
 
+func InitBase(m interface{}, name string) *Base {
+	return &Base{m, name}
+}
+
 func (m *Base) Count(db interface{}, query bson.M) (count int, err error) {
 	coll := db.(*mgo.Database).C(m.Name)
 	count, err = coll.Find(query).Count()

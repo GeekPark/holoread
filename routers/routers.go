@@ -14,11 +14,15 @@ func Init(r *gin.Engine) {
 }
 
 func mountAdmin(r *gin.Engine) {
-	group := r.Group("/api/admin")
-	restful(group, admin.Init(&models.User{}, "users"), "users")
-	restful(group, admin.Init(&models.User{}, "articles"), "articles")
+
+	g := r.Group("/api/admin")
+	restful(g, admin.InitBase(&models.User{}, "users"), "users")
+
+	articles := admin.InitArticle(&models.Article{}, "articles")
+	g.GET("/articles", articles.Index)
 }
 
+// restful api
 func restful(r *gin.RouterGroup, handle *admin.Base, path string) {
 
 	var fullPath = "/" + path
