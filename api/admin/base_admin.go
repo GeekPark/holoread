@@ -12,6 +12,7 @@ type Base struct {
 }
 
 type BaseMethods interface {
+	Init(interface{}, string) *Base
 	Prepare()
 	Index(gin.Context)
 	Show(gin.Context)
@@ -19,6 +20,10 @@ type BaseMethods interface {
 	Update(gin.Context)
 	Delete(gin.Context)
 	Finish()
+}
+
+func Init(m interface{}, name string) *Base {
+	return &Base{&models.Base{m, name}, name}
 }
 
 func (api *Base) Index(c *gin.Context) {
