@@ -32,7 +32,7 @@ func (api *Article) Index(c *gin.Context) {
 
 	result, _ := api.Model.FindArticles(db, params)
 	count, _ := api.Model.Count(db, query)
-	c.JSON(200, gin.H{"count": count, "data": result})
+	c.JSON(200, gin.H{"total": count, "data": result})
 }
 
 func (api *Article) Show(c *gin.Context) {

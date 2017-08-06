@@ -1,14 +1,19 @@
 package models
 
 import (
+	// "fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
 )
 
 type ArticleQuery struct {
-	Start int `form:"start" binding:"exists"`
-	Limit int `form:"limit" binding:"exists"`
+	Start    int    `form:"start" binding:"exists"`
+	Count    int    `form:"count" binding:"exists"`
+	Language string `form:"language" binding:"exists"`
+	State    string `form:"state" binding:"exists"`
+	Key      string `form:"key" binding:"exists"`
+	Value    string `form:"value" binding:"exists"`
 }
 
 type Article struct {
@@ -30,12 +35,36 @@ type Article struct {
 
 func (m *Base) FindArticles(db interface{}, q ArticleQuery) ([]bson.M, error) {
 	coll := db.(*mgo.Database).C(m.Name)
+
+	selector := bson.M{}
+
+	if q.Value != "" { // 查询全部
+		selector[q.Key] = bson.M{"$regex": q.Value, "$options": "$i"}
+	}
+
+	switch q.Language {
+	case "cn":
+		selector["is_cn"] = true
+	case "en":
+		selector["is_cn"] = false
+	}
+
+	switch q.State {
+	case "all":
+		{
+		}
+	case "handled":
+		selector["$nor"] = []bson.M{bson.M{"state": "pending"}, bson.M{"state": "deleted"}}
+	default:
+		selector["state"] = q.State
+	}
+
 	var result []bson.M
-	err := coll.Find(bson.M{}).
+	err := coll.Find(selector).
 		Sort("-published").
-		Skip(q.Limit * q.Start).
-		Limit(q.Limit).
-		Select(bson.M{"trans_title": 1, "published": 1, "state": 1, "is_cn": 1}).
+		Skip(q.Count * q.Start).
+		Limit(q.Count).
+		Select(bson.M{"trans_title": 1, "edited_title": 1, "published": 1, "state": 1, "is_cn": 1}).
 		All(&result)
 	return result, err
 }
