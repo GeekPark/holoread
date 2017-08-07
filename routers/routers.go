@@ -20,6 +20,8 @@ func mountAdmin(r *gin.Engine) {
 
 	articles := admin.InitArticle(&models.Article{}, "articles")
 	g.GET("/articles", articles.Index)
+	g.GET("/articles/:id", articles.Show)
+	g.PUT("/articles/:id", articles.Update)
 }
 
 // restful api

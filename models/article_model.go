@@ -16,21 +16,30 @@ type ArticleQuery struct {
 	Value    string `form:"value" binding:"exists"`
 }
 
+type ArticleUpdate struct {
+	State         string `form:"state" json:"state"`
+	EditedContent string `form:"edited_content" json:"edited_content"`
+	EditedTitle   string `form:"edited_title"  json:"edited_content"`
+	Source        string `form:"source" json:"source"`
+	Url           string `form:"url" json:"url"`
+	Summary       string `form:"summary" json:"summary"`
+}
+
 type Article struct {
-	Id             bson.ObjectId `json:"_id" bson:"_id,omitempty"`
-	Edited_Title   string        `json:"edited_title" bson:"edited_title"`
-	Edited_Content string        `json:"edited_content" bson:"edited_content"`
-	Trans_Title    string        `json:"trans_title" bson:"trans_title"`
-	Trans_Content  string        `json:"trans_content" bson:"trans_content"`
-	Origin_Title   string        `json:"origin_title" bson:"origin_title"`
-	Origin_Content string        `json:"origin_content" bson:"origin_content"`
-	Summary        string        `json:"summary" bson:"summary"`
-	Url            string        `json:"url" bson:"url"`
-	Source         string        `json:"source" bson:"source"`
-	CN             bool          `json:"is_cn" bson:"is_cn"`
-	State          string        `json:"state" bson:"state"`
-	Published      time.Time     `json:"published" bson:"published"`
-	CreatedAt      time.Time     `json:"created_at" bson:"created_at"`
+	Id            bson.ObjectId `json:"_id" bson:"_id,omitempty"`
+	EditedTitle   string        `json:"edited_title" bson:"edited_title"`
+	EditedContent string        `json:"edited_content" bson:"edited_content"`
+	TransTitle    string        `json:"tras_title" bson:"trans_title"`
+	TransContent  string        `json:"trns_content" bson:"trans_content"`
+	OriginTitle   string        `json:"orgin_title" bson:"origin_title"`
+	OriginContent string        `json:"oigin_content" bson:"origin_content"`
+	Summary       string        `json:"summary" bson:"summary"`
+	Url           string        `json:"url" bson:"url"`
+	Source        string        `json:"source" bson:"source"`
+	CN            bool          `json:"is_cn" bson:"is_cn"`
+	State         string        `json:"state" bson:"state"`
+	Published     time.Time     `json:"published" bson:"published"`
+	CreatedAt     time.Time     `json:"created_at" bson:"created_at"`
 }
 
 func (m *Base) FindArticles(db interface{}, q ArticleQuery) ([]bson.M, error) {
@@ -54,7 +63,8 @@ func (m *Base) FindArticles(db interface{}, q ArticleQuery) ([]bson.M, error) {
 		{
 		}
 	case "handled":
-		selector["$nor"] = []bson.M{bson.M{"state": "pending"}, bson.M{"state": "deleted"}}
+		selector["$nor"] = []bson.M{bson.M{"state": "pending"},
+			bson.M{"state": "deleted"}}
 	default:
 		selector["state"] = q.State
 	}
@@ -67,4 +77,11 @@ func (m *Base) FindArticles(db interface{}, q ArticleQuery) ([]bson.M, error) {
 		Select(bson.M{"trans_title": 1, "edited_title": 1, "published": 1, "state": 1, "is_cn": 1}).
 		All(&result)
 	return result, err
+}
+
+func (m *Base) UpdateArticle(db interface{}, id string, u bson.M) error {
+	coll := db.(*mgo.Database).C(m.Name)
+	err := coll.Update(bson.M{"_id": bson.ObjectIdHex(id)},
+		bson.M{"$set": u})
+	return err
 }

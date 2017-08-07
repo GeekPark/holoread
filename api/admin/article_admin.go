@@ -2,7 +2,7 @@ package admin
 
 import (
 	models "../../models"
-	// "fmt"
+	"fmt"
 	"gopkg.in/gin-gonic/gin.v1"
 )
 
@@ -29,7 +29,6 @@ func (api *Article) Index(c *gin.Context) {
 		c.JSON(400, gin.H{"msg": "params error"})
 		return
 	}
-
 	result, _ := api.Model.FindArticles(db, params)
 	count, _ := api.Model.Count(db, query)
 	c.JSON(200, gin.H{"total": count, "data": result})
@@ -42,4 +41,34 @@ func (api *Article) Show(c *gin.Context) {
 		panic(err)
 	}
 	c.JSON(200, result)
+}
+
+func (api *Article) Update(c *gin.Context) {
+	id := c.Param("id")
+	var params models.ArticleUpdate
+	if c.Bind(&params) != nil {
+		c.JSON(400, gin.H{"msg": "params error"})
+		return
+	}
+	fmt.Println(params)
+	update := createUpdate(params)
+	fmt.Print(update)
+	err := api.Model.UpdateArticle(c.MustGet("db"), id, update)
+	if err != nil {
+		panic(err)
+		return
+	}
+	c.JSON(200, gin.H{"msg": "success"})
+}
+
+// 为什么写这么复杂, 因为这个框架对json数据中key包含下划线的情况会做忽略, 干
+func createUpdate(params models.ArticleUpdate) map[string]interface{} {
+	update := make(map[string]interface{})
+	update["edited_content"] = params.EditedContent
+	update["edited_title"] = params.EditedTitle
+	update["state"] = params.State
+	update["url"] = params.Url
+	update["source"] = params.Source
+	update["summary"] = params.Summary
+	return update
 }
