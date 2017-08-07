@@ -1,11 +1,10 @@
 package routers
 
 import (
-	// ArticleAdmin "../api/admin/article"
-	// LogAdmin "../api/admin/log"
 	admin "../api/admin"
 	models "../models"
 	// "fmt"
+	"../services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,21 +14,26 @@ func Init(r *gin.Engine) {
 
 func mountAdmin(r *gin.Engine) {
 
-	g := r.Group("/api/admin")
-	// restful(g, admin.InitBase(&models.User{}, "users"), "users")
-
 	articles := admin.InitArticle(&models.Article{}, "articles")
+	users := admin.InitUser(&models.User{}, "users")
+
+	r.POST("api/login/sendsms", users.SendSms)
+	r.POST("api/login", users.Login)
+	r.POST("api/login/logout", users.Logout)
+
+	g := r.Group("/api/admin")
+	g.Use(services.AuthSession())
+
 	g.GET("/articles", articles.Index)
 	g.GET("/articles/:id", articles.Show)
 	g.PUT("/articles/:id", articles.Update)
-
-	users := admin.InitUser(&models.User{}, "users")
 	g.GET("/users", users.Index)
 	g.GET("/users/:id", users.Show)
 	g.PUT("/users/:id", users.Update)
 }
 
 // restful api
+// restful(g, admin.InitBase(&models.User{}, "users"), "users")
 func restful(r *gin.RouterGroup, handle *admin.Base, path string) {
 
 	var fullPath = "/" + path

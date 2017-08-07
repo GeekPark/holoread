@@ -49,7 +49,7 @@ func (api *Article) Update(c *gin.Context) {
 		c.JSON(400, gin.H{"msg": "params error"})
 		return
 	}
-	update := createUpdate(params)
+	update := updateParams(params)
 	err := api.Model.Update(c.MustGet("db"), id, update)
 	if err != nil {
 		panic(err)
@@ -59,7 +59,7 @@ func (api *Article) Update(c *gin.Context) {
 }
 
 // 为什么写这么复杂, 因为这个框架对json数据中key包含下划线的情况会做忽略, 干
-func createUpdate(params models.ArticleUpdate) map[string]interface{} {
+func updateParams(params models.ArticleUpdate) map[string]interface{} {
 	update := make(map[string]interface{})
 	update["edited_content"] = params.EditedContent
 	update["edited_title"] = params.EditedTitle

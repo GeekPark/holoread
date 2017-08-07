@@ -37,7 +37,7 @@ type User struct {
 	Title      string        `json:"title" bson:"title"`
 	Company    string        `json:"company" bson:"company"`
 	Token      string        `json:"token" bson:"token"`
-	SMS        string        `json:"sms" bson:"sms"`
+	SMS        bson.M        `json:"sms" bson:"sms"`
 }
 
 func (m *Base) FindUsers(db interface{}, q UserQuery) ([]bson.M, error) {
