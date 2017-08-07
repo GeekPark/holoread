@@ -2,7 +2,6 @@ package admin
 
 import (
 	models "../../models"
-	"fmt"
 	"gopkg.in/gin-gonic/gin.v1"
 )
 
@@ -50,10 +49,8 @@ func (api *Article) Update(c *gin.Context) {
 		c.JSON(400, gin.H{"msg": "params error"})
 		return
 	}
-	fmt.Println(params)
 	update := createUpdate(params)
-	fmt.Print(update)
-	err := api.Model.UpdateArticle(c.MustGet("db"), id, update)
+	err := api.Model.Update(c.MustGet("db"), id, update)
 	if err != nil {
 		panic(err)
 		return

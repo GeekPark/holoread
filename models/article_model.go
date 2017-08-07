@@ -78,10 +78,3 @@ func (m *Base) FindArticles(db interface{}, q ArticleQuery) ([]bson.M, error) {
 		All(&result)
 	return result, err
 }
-
-func (m *Base) UpdateArticle(db interface{}, id string, u bson.M) error {
-	coll := db.(*mgo.Database).C(m.Name)
-	err := coll.Update(bson.M{"_id": bson.ObjectIdHex(id)},
-		bson.M{"$set": u})
-	return err
-}

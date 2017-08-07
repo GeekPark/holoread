@@ -16,12 +16,17 @@ func Init(r *gin.Engine) {
 func mountAdmin(r *gin.Engine) {
 
 	g := r.Group("/api/admin")
-	restful(g, admin.InitBase(&models.User{}, "users"), "users")
+	// restful(g, admin.InitBase(&models.User{}, "users"), "users")
 
 	articles := admin.InitArticle(&models.Article{}, "articles")
 	g.GET("/articles", articles.Index)
 	g.GET("/articles/:id", articles.Show)
 	g.PUT("/articles/:id", articles.Update)
+
+	users := admin.InitUser(&models.User{}, "users")
+	g.GET("/users", users.Index)
+	g.GET("/users/:id", users.Show)
+	g.PUT("/users/:id", users.Update)
 }
 
 // restful api
