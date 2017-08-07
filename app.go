@@ -4,14 +4,17 @@ import (
 	"./routers"
 	database "./services/db"
 	"fmt"
-	"gopkg.in/gin-gonic/gin.v1"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 	"gopkg.in/mgo.v2"
 )
 
 func main() {
 	r := gin.New()
-	db := database.Connect()
+	db, store := database.Connect()
 	r.Use(SetDB(db))
+	sessionMiddleware := sessions.Sessions("holoread", store)
+	r.Use(sessionMiddleware)
 	r.Use(CORSMiddleware())
 	r.Use(RequestLogger())
 	routers.Init(r)

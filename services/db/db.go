@@ -3,6 +3,7 @@ package db
 import (
 	"../../config"
 	"fmt"
+	sessions "github.com/gin-contrib/sessions"
 	"gopkg.in/mgo.v2"
 )
 
@@ -13,7 +14,7 @@ type DataStore struct {
 	Session *mgo.Session
 }
 
-func Connect() *mgo.Database {
+func Connect() (*mgo.Database, sessions.MongoStore) {
 	session, err := mgo.Dial(c.MongoDB.URL)
 	if err != nil {
 		fmt.Println("Connected to MongoDB Error!")
@@ -26,7 +27,9 @@ func Connect() *mgo.Database {
 
 	ds := &DataStore{Session: session}
 	db := ds.Session.DB(c.MongoDB.Name)
-	return db
+	coll := db.C("sessions")
+	store := sessions.NewMongoStore(coll, 3600*30, true, []byte(c.MongoDB.Secret))
+	return db, store
 }
 
 // NewDataStore returns a new datastore with a copied session

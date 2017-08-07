@@ -6,7 +6,7 @@ import (
 	admin "../api/admin"
 	models "../models"
 	// "fmt"
-	"gopkg.in/gin-gonic/gin.v1"
+	"github.com/gin-gonic/gin"
 )
 
 func Init(r *gin.Engine) {

@@ -3,7 +3,7 @@ package admin
 import (
 	models "../../models"
 	"fmt"
-	"gopkg.in/gin-gonic/gin.v1"
+	"github.com/gin-gonic/gin"
 )
 
 type Base struct {

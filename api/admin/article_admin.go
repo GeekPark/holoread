@@ -2,7 +2,7 @@ package admin
 
 import (
 	models "../../models"
-	"gopkg.in/gin-gonic/gin.v1"
+	"github.com/gin-gonic/gin"
 )
 
 type Article struct {
