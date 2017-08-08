@@ -24,7 +24,8 @@ func mountV1(r *gin.Engine) {
 	g.POST("/sms/new", users.SendSms)
 
 	g.GET("/articles", articles.Index)
-	g.GET("/articles/:userid/likes", articles.Likes)
+	g.GET("/articles/:id", articles.Show)
+	g.GET("/likes/articles/:id", articles.Likes)
 }
 
 func mountAdmin(r *gin.Engine) {

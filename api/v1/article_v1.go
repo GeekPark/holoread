@@ -3,6 +3,7 @@ package v1
 import (
 	models "../../models"
 	// "fmt"
+	// "github.com/fatih/structs"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -29,6 +30,7 @@ func (api *Article) Index(c *gin.Context) {
 	start, _ := strconv.Atoi(c.DefaultQuery("start", "0"))
 	count, _ := strconv.Atoi(c.DefaultQuery("count", "20"))
 
+	userid := c.DefaultQuery("userid", "")
 	coll := c.MustGet("db").(*mgo.Database).C(api.Name)
 	match := gin.H{
 		"updatedAt": gin.H{"$gte": yesterday()},
@@ -62,8 +64,12 @@ func (api *Article) Index(c *gin.Context) {
 		}},
 	}
 
-	resp := []gin.H{}
+	resp := []interface{}{}
 	_ = coll.Pipe(pipe).All(&resp)
+	resp = Map(resp, func(v interface{}) interface{} {
+		hot := likeAndHot(v, userid)
+		return hot
+	})
 	c.JSON(200, gin.H{"data": resp})
 }
 
@@ -73,7 +79,8 @@ func (api *Article) Likes(c *gin.Context) {
 
 	db := c.MustGet("db").(*mgo.Database)
 	likeColl := db.C("likes")
-	from := bson.ObjectIdHex(c.Param("userid"))
+	userid := c.Param("userid")
+	from := bson.ObjectIdHex(userid)
 
 	match := gin.H{
 		// "createdAt": gin.H{"$gte": yesterday()},
@@ -104,23 +111,57 @@ func (api *Article) Likes(c *gin.Context) {
 
 		gin.H{"$lookup": gin.H{
 			"from":         "likes",
+			"localField":   "article._id",
+			"foreignField": "article",
+			"as":           "likes",
+		}},
+		gin.H{"$lookup": gin.H{
+			"from":         "accesses",
+			"localField":   "article._id",
+			"foreignField": "article",
+			"as":           "accesses",
+		}},
+	}
+
+	resp := []interface{}{}
+	_ = likeColl.Pipe(pipe).All(&resp)
+	resp = Map(resp, func(v interface{}) interface{} {
+		hot := likeAndHot(v, userid)
+		return hot
+	})
+	c.JSON(200, gin.H{"data": resp})
+}
+
+func (api *Article) Show(c *gin.Context) {
+	db := c.MustGet("db").(*mgo.Database)
+	id := c.Param("id")
+	userid := c.DefaultQuery("userid", "")
+	ip := c.ClientIP()
+	accessQuery := bson.M{"ip": ip, "article": bson.ObjectIdHex(id)}
+	var access bson.M
+	err := db.C("accesses").Find(access).One(&access)
+	if err != nil {
+		_ = db.C("accesses").Insert(accessQuery)
+	}
+
+	pipe := []gin.H{
+		gin.H{"$match": gin.H{"_id": bson.ObjectIdHex(id)}},
+		gin.H{"$lookup": gin.H{
+			"from":         "accesses",
+			"localField":   "_id",
+			"foreignField": "article",
+			"as":           "accesses",
+		}},
+		gin.H{"$lookup": gin.H{
+			"from":         "likes",
 			"localField":   "article",
 			"foreignField": "article",
 			"as":           "likes",
 		}},
 	}
-
-	resp := []gin.H{}
-	_ = likeColl.Pipe(pipe).All(&resp)
-	c.JSON(200, gin.H{"data": resp})
-}
-
-func (api *Article) Show(c *gin.Context) {
-	id := c.Param("id")
-	result, err := api.Model.FindById(c.MustGet("db"), id)
-	if err != nil {
-		panic(err)
-	}
+	var result bson.M
+	_ = db.C(api.Name).Pipe(pipe).One(&result)
+	result = likeAndHot(result, userid)
 	c.JSON(200, result)
 }
 
@@ -129,4 +170,49 @@ func yesterday() time.Time {
 	yesTime := nTime.AddDate(0, 0, -1)
 	// logDay := yesTime.Format("20060102")
 	return yesTime
+}
+
+func likeAndHot(list interface{}, userid string) bson.M {
+	m := list.(bson.M)
+	for k, v := range m {
+
+		m["hot"] = (len(m["likes"].([]interface{}))*10 + len(m["accesses"].([]interface{}))) > 20
+
+		if userid == "" {
+			m["likes"] = make([]interface{}, 0)
+			m["accesses"] = make([]interface{}, 0)
+			return list.(bson.M)
+		}
+
+		switch k {
+		case "likes":
+			{
+				m["like"] = len(v.([]interface{})) > 0 &&
+					Some(m["likes"].([]interface{}), func(el interface{}) bool {
+						hex := el.(bson.M)["from"].(bson.ObjectId).Hex()
+						return hex == userid
+					})
+				m["likes"] = make([]interface{}, 0)
+				m["accesses"] = make([]interface{}, 0)
+			}
+		}
+	}
+	return m
+}
+
+func Some(m []interface{}, f func(v interface{}) bool) bool {
+	for i := 0; i < len(m); i++ {
+		if f(m[i]) == true {
+			return true
+		}
+	}
+	return false
+}
+
+func Map(m []interface{}, f func(v interface{}) interface{}) []interface{} {
+	result := make([]interface{}, len(m))
+	for i := 0; i < len(m); i++ {
+		result[i] = f(m[i])
+	}
+	return result
 }
