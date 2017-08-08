@@ -2,6 +2,7 @@ package routers
 
 import (
 	admin "../api/admin"
+	v1 "../api/v1"
 	models "../models"
 	// "fmt"
 	"../services"
@@ -10,6 +11,20 @@ import (
 
 func Init(r *gin.Engine) {
 	mountAdmin(r)
+	mountV1(r)
+}
+
+func mountV1(r *gin.Engine) {
+	articles := v1.InitArticle(&models.Article{}, "articles")
+	users := v1.InitUser(&models.User{}, "users")
+	g := r.Group("/api/v1")
+
+	g.POST("/login/wechat", users.WechatLogin)
+	g.POST("sms/verify", users.VerifySms)
+	g.POST("/sms/new", users.SendSms)
+
+	g.GET("/articles", articles.Index)
+	g.GET("/articles/:userid/likes", articles.Likes)
 }
 
 func mountAdmin(r *gin.Engine) {

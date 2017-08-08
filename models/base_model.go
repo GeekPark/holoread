@@ -62,6 +62,12 @@ func (m *Base) UpdateById(db interface{}, id bson.ObjectId, params gin.H) (err e
 	return
 }
 
+func (m *Base) UpdateOneBy(db interface{}, query gin.H, params gin.H) (err error) {
+	coll := db.(*mgo.Database).C(m.Name)
+	err = coll.Update(query, bson.M{"$set": params})
+	return
+}
+
 func (m *Base) Update(db interface{}, id string, params gin.H) (err error) {
 	coll := db.(*mgo.Database).C(m.Name)
 	err = coll.Update(bson.M{"_id": bson.ObjectIdHex(id)},

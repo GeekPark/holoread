@@ -19,6 +19,19 @@ type UserUpdate struct {
 	Permission []string `form:"permission[]"`
 }
 
+type LoginParams struct {
+	OpenId     string `json:"openid"`
+	Phone      string `json:"phone"`
+	Token      string `json:"token"`
+	Code       string `json:"code"`
+	NickName   string `json:"nickname"`
+	Language   string `json:"language"`
+	City       string `json:"city"`
+	Province   string `json:"province"`
+	Country    string `json:"country"`
+	HeadImgUrl string `json:"headimgurl"`
+}
+
 type User struct {
 	Id         bson.ObjectId `json:"_id" bson:"_id,omitempty"`
 	OpenId     string        `json:"openid" bson:"openid"`
@@ -32,7 +45,6 @@ type User struct {
 	UpdatedAt  time.Time     `json:"update_at" bson:"update_at"`
 	Permission []string      `json:"permission" bson:"permission"`
 	Phone      int           `json:"phone" bson:"phone"`
-	WeChat     string        `json:"wechat" bson:"wechat"`
 	Email      string        `json:"email" bson:"email"`
 	Title      string        `json:"title" bson:"title"`
 	Company    string        `json:"company" bson:"company"`
@@ -63,5 +75,11 @@ func (m *Base) UpdateUser(db interface{}, id string, params UserUpdate) (err err
 	fmt.Println(params)
 	err = coll.Update(bson.M{"_id": bson.ObjectIdHex(id)},
 		bson.M{"$set": params})
+	return
+}
+
+func (m *Base) CreateUser(db interface{}, params LoginParams) (err error) {
+	coll := db.(*mgo.Database).C(m.Name)
+	err = coll.Insert(params)
 	return
 }

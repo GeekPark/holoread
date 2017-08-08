@@ -8,12 +8,18 @@ import (
 )
 
 type ArticleQuery struct {
-	Start    int    `form:"start" binding:"exists"`
-	Count    int    `form:"count" binding:"exists"`
+	ArticleBaseQuery
+	// Start    int    `form:"start" binding:"exists"`
+	// Count    int    `form:"count" binding:"exists"`
 	Language string `form:"language" binding:"exists"`
 	State    string `form:"state" binding:"exists"`
 	Key      string `form:"key" binding:"exists"`
 	Value    string `form:"value" binding:"exists"`
+}
+
+type ArticleBaseQuery struct {
+	Start int `form:"start" binding:"exists"`
+	Count int `form:"count" binding:"exists"`
 }
 
 type ArticleUpdate struct {
