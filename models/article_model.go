@@ -8,21 +8,28 @@ import (
 )
 
 type ArticleQuery struct {
-	Start    int    `form:"start" binding:"exists"`
-	Count    int    `form:"count" binding:"exists"`
+	ArticleBaseQuery
+	// Start    int    `form:"start" binding:"exists"`
+	// Count    int    `form:"count" binding:"exists"`
 	Language string `form:"language" binding:"exists"`
 	State    string `form:"state" binding:"exists"`
 	Key      string `form:"key" binding:"exists"`
 	Value    string `form:"value" binding:"exists"`
 }
 
+type ArticleBaseQuery struct {
+	Start int `form:"start" binding:"exists"`
+	Count int `form:"count" binding:"exists"`
+}
+
 type ArticleUpdate struct {
-	State         string `form:"state" json:"state"`
-	EditedContent string `form:"edited_content" json:"edited_content"`
-	EditedTitle   string `form:"edited_title"  json:"edited_content"`
-	Source        string `form:"source" json:"source"`
-	Url           string `form:"url" json:"url"`
-	Summary       string `form:"summary" json:"summary"`
+	UpdatedAr     time.Time `form:"updatedAt" json:"updatedAt"`
+	State         string    `form:"state" json:"state"`
+	EditedContent string    `form:"edited_content" json:"edited_content"`
+	EditedTitle   string    `form:"edited_title"  json:"edited_content"`
+	Source        string    `form:"source" json:"source"`
+	Url           string    `form:"url" json:"url"`
+	Summary       string    `form:"summary" json:"summary"`
 }
 
 type Article struct {

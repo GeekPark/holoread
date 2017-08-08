@@ -3,6 +3,7 @@ package admin
 import (
 	models "../../models"
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 type Article struct {
@@ -61,11 +62,14 @@ func (api *Article) Update(c *gin.Context) {
 // 为什么写这么复杂, 因为这个框架对json数据中key包含下划线的情况会做忽略, 干
 func updateParams(params models.ArticleUpdate) map[string]interface{} {
 	update := make(map[string]interface{})
-	update["edited_content"] = params.EditedContent
-	update["edited_title"] = params.EditedTitle
+	if params.EditedTitle != "" && len(params.EditedTitle) > 0 {
+		update["edited_content"] = params.EditedContent
+		update["edited_title"] = params.EditedTitle
+		update["url"] = params.Url
+		update["source"] = params.Source
+		update["summary"] = params.Summary
+	}
 	update["state"] = params.State
-	update["url"] = params.Url
-	update["source"] = params.Source
-	update["summary"] = params.Summary
+	update["updatedAt"] = time.Now()
 	return update
 }
