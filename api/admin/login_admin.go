@@ -42,19 +42,23 @@ func (api *User) Login(c *gin.Context) {
 	db := c.MustGet("db")
 	phone := c.PostForm("phone")
 	code := c.PostForm("code")
-	result, err := api.Model.FindOne(db, gin.H{"phone": phone, "sms.code": code})
-
+	result, err := api.Model.FindOne(db, gin.H{"sms.code": code, "phone": phone, "permission": "admin"})
+	fmt.Println(gin.H{"sms.code": code, "phone": phone, "permission": "admin"})
 	if err != nil {
 		c.JSON(404, gin.H{"msg": "not found"})
 		return
 	}
+	session := sessions.Default(c)
 
+	session.Set("user", result["_id"].(bson.ObjectId).Hex())
+	session.Save()
 	c.JSON(200, result)
 }
 
 func (api *User) Logout(c *gin.Context) {
 	session := sessions.Default(c)
 	session.Set("user", nil)
+	session.Save()
 	c.JSON(200, gin.H{"msg": "success"})
 }
 

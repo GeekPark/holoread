@@ -19,7 +19,7 @@ func mountAdmin(r *gin.Engine) {
 
 	r.POST("api/login/sendsms", users.SendSms)
 	r.POST("api/login", users.Login)
-	r.POST("api/login/logout", users.Logout)
+	r.POST("api/logout", users.Logout)
 
 	g := r.Group("/api/admin")
 	g.Use(services.AuthSession())
