@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+const FORMAT = "2006-01-02 15:04:05"
+
 type Article struct {
 	Base
 }
@@ -36,10 +38,11 @@ func (api *Article) Index(c *gin.Context) {
 		"$nor": []gin.H{gin.H{"state": "pending"}, gin.H{"state": "deleted"}},
 	}
 	if last == "" {
-		match["updatedAt"] = gin.H{"$gte": yesterday()}
+		match["updatedAt"] = gin.H{"$gt": yesterday()}
 	} else {
 		lastInt, _ := strconv.ParseInt(last, 10, 0)
-		match["updatedAt"] = gin.H{"$gte": time.Unix(lastInt, 0)}
+		lastUnix := time.Unix(lastInt, 0)
+		match["updatedAt"] = gin.H{"$gt": lastUnix}
 	}
 	pipe := []gin.H{
 		gin.H{"$match": match},
@@ -89,7 +92,7 @@ func (api *Article) Likes(c *gin.Context) {
 	match := gin.H{"from": from}
 	if last != "" {
 		lastInt, _ := strconv.ParseInt(last, 10, 0)
-		match["createdAt"] = gin.H{"$gte": time.Unix(lastInt, 0)}
+		match["createdAt"] = gin.H{"$gt": time.Unix(lastInt, 0)}
 	}
 
 	pipe := []gin.H{
@@ -132,15 +135,11 @@ func (api *Article) Likes(c *gin.Context) {
 	resp = Map(resp, func(v interface{}) interface{} {
 		hot := likeAndHot(v, userid)
 		var newHot = hot["article"].(bson.M) // 兼容客户端
-		for k, v := range hot {
-			if k == "hot" {
-				newHot["hot"] = v
-			} else if k == "like" {
-				newHot["like"] = v
-			} else if k == "_id" {
-				newHot["likeid"] = v
-			}
-		}
+		newHot["updatedAt"] = newHot["updatedAt"].(time.Time).Unix()
+		newHot["createdAt"] = newHot["createdAt"].(time.Time).Unix()
+		newHot["hot"] = hot["hot"]
+		newHot["_id"] = hot["likeid"]
+		newHot["like"] = hot["like"]
 		return newHot
 	})
 	c.JSON(200, gin.H{"data": resp})
@@ -188,29 +187,23 @@ func yesterday() time.Time {
 
 func likeAndHot(list interface{}, userid string) bson.M {
 	m := list.(bson.M)
-	for k, v := range m {
+	m["hot"] = (len(m["likes"].([]interface{}))*10 + len(m["accesses"].([]interface{}))) > 20
 
-		m["hot"] = (len(m["likes"].([]interface{}))*10 + len(m["accesses"].([]interface{}))) > 20
+	m["updatedAt"] = m["updatedAt"].(time.Time).Unix()
+	m["createdAt"] = m["createdAt"].(time.Time).Unix()
 
-		if userid == "" {
-			m["likes"] = make([]interface{}, 0)
-			m["accesses"] = make([]interface{}, 0)
-			return list.(bson.M)
-		}
-
-		switch k {
-		case "likes":
-			{
-				m["like"] = len(v.([]interface{})) > 0 &&
-					Some(m["likes"].([]interface{}), func(el interface{}) bool {
-						hex := el.(bson.M)["from"].(bson.ObjectId).Hex()
-						return hex == userid
-					})
-				m["likes"] = make([]interface{}, 0)
-				m["accesses"] = make([]interface{}, 0)
-			}
-		}
+	if userid == "" {
+		m["likes"] = make([]interface{}, 0)
+		m["accesses"] = make([]interface{}, 0)
+		return list.(bson.M)
 	}
+	m["like"] = len(m["likes"].([]interface{})) > 0 &&
+		Some(m["likes"].([]interface{}), func(el interface{}) bool {
+			hex := el.(bson.M)["from"].(bson.ObjectId).Hex()
+			return hex == userid
+		})
+	m["likes"] = make([]interface{}, 0)
+	m["accesses"] = make([]interface{}, 0)
 	return m
 }
 
