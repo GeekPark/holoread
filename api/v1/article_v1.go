@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+const FORMAT = "2006-01-02 15:04:05"
+
 type Article struct {
 	Base
 }
@@ -27,14 +29,20 @@ func InitArticle(m interface{}, name string) *Article {
 }
 
 func (api *Article) Index(c *gin.Context) {
-	start, _ := strconv.Atoi(c.DefaultQuery("start", "0"))
 	count, _ := strconv.Atoi(c.DefaultQuery("count", "20"))
 
 	userid := c.DefaultQuery("userid", "")
+	last := c.DefaultQuery("last", "")
 	coll := c.MustGet("db").(*mgo.Database).C(api.Name)
 	match := gin.H{
-		"updatedAt": gin.H{"$gte": yesterday()},
-		"$nor":      []gin.H{gin.H{"state": "pending"}, gin.H{"state": "deleted"}},
+		"$nor": []gin.H{gin.H{"state": "pending"}, gin.H{"state": "deleted"}},
+	}
+	if last == "" {
+		match["updatedAt"] = gin.H{"$gt": yesterday()}
+	} else {
+		lastInt, _ := strconv.ParseInt(last, 10, 0)
+		lastUnix := time.Unix(lastInt, 0)
+		match["updatedAt"] = gin.H{"$gt": lastUnix}
 	}
 	pipe := []gin.H{
 		gin.H{"$match": match},
@@ -48,7 +56,6 @@ func (api *Article) Index(c *gin.Context) {
 			"tags":           0,
 		}},
 		gin.H{"$sort": gin.H{"updatedAt": 1}},
-		gin.H{"$skip": start * count},
 		gin.H{"$limit": count},
 		gin.H{"$lookup": gin.H{
 			"from":         "accesses",
@@ -74,23 +81,23 @@ func (api *Article) Index(c *gin.Context) {
 }
 
 func (api *Article) Likes(c *gin.Context) {
-	start, _ := strconv.Atoi(c.DefaultQuery("start", "0"))
 	count, _ := strconv.Atoi(c.DefaultQuery("count", "20"))
+	last := c.DefaultQuery("last", "")
 
 	db := c.MustGet("db").(*mgo.Database)
 	likeColl := db.C("likes")
 	userid := c.Param("userid")
 	from := bson.ObjectIdHex(userid)
 
-	match := gin.H{
-		// "createdAt": gin.H{"$gte": yesterday()},
-		"from": from,
+	match := gin.H{"from": from}
+	if last != "" {
+		lastInt, _ := strconv.ParseInt(last, 10, 0)
+		match["createdAt"] = gin.H{"$gt": time.Unix(lastInt, 0)}
 	}
 
 	pipe := []gin.H{
 		gin.H{"$match": match},
 		gin.H{"$sort": gin.H{"createdAt": -1}},
-		gin.H{"$skip": start * count},
 		gin.H{"$limit": count},
 		gin.H{"$lookup": gin.H{
 			"from":         "articles",
@@ -127,7 +134,13 @@ func (api *Article) Likes(c *gin.Context) {
 	_ = likeColl.Pipe(pipe).All(&resp)
 	resp = Map(resp, func(v interface{}) interface{} {
 		hot := likeAndHot(v, userid)
-		return hot
+		var newHot = hot["article"].(bson.M) // 兼容客户端
+		newHot["updatedAt"] = newHot["updatedAt"].(time.Time).Unix()
+		newHot["createdAt"] = newHot["createdAt"].(time.Time).Unix()
+		newHot["hot"] = hot["hot"]
+		newHot["_id"] = hot["likeid"]
+		newHot["like"] = hot["like"]
+		return newHot
 	})
 	c.JSON(200, gin.H{"data": resp})
 }
@@ -174,29 +187,23 @@ func yesterday() time.Time {
 
 func likeAndHot(list interface{}, userid string) bson.M {
 	m := list.(bson.M)
-	for k, v := range m {
+	m["hot"] = (len(m["likes"].([]interface{}))*10 + len(m["accesses"].([]interface{}))) > 20
 
-		m["hot"] = (len(m["likes"].([]interface{}))*10 + len(m["accesses"].([]interface{}))) > 20
+	m["updatedAt"] = m["updatedAt"].(time.Time).Unix()
+	m["createdAt"] = m["createdAt"].(time.Time).Unix()
 
-		if userid == "" {
-			m["likes"] = make([]interface{}, 0)
-			m["accesses"] = make([]interface{}, 0)
-			return list.(bson.M)
-		}
-
-		switch k {
-		case "likes":
-			{
-				m["like"] = len(v.([]interface{})) > 0 &&
-					Some(m["likes"].([]interface{}), func(el interface{}) bool {
-						hex := el.(bson.M)["from"].(bson.ObjectId).Hex()
-						return hex == userid
-					})
-				m["likes"] = make([]interface{}, 0)
-				m["accesses"] = make([]interface{}, 0)
-			}
-		}
+	if userid == "" {
+		m["likes"] = make([]interface{}, 0)
+		m["accesses"] = make([]interface{}, 0)
+		return list.(bson.M)
 	}
+	m["like"] = len(m["likes"].([]interface{})) > 0 &&
+		Some(m["likes"].([]interface{}), func(el interface{}) bool {
+			hex := el.(bson.M)["from"].(bson.ObjectId).Hex()
+			return hex == userid
+		})
+	m["likes"] = make([]interface{}, 0)
+	m["accesses"] = make([]interface{}, 0)
 	return m
 }
 
