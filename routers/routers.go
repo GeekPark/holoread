@@ -12,6 +12,7 @@ import (
 func Init(r *gin.Engine) {
 	mountAdmin(r)
 	mountV1(r)
+	r.Any("/ws", admin.WsConnect)
 }
 
 func mountV1(r *gin.Engine) {
