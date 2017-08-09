@@ -33,7 +33,7 @@ restful(g, admin.InitBase(&models.User{}, "users"), "users")
 cd $GOROOT/src
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 ./make.bash
 ```
-2. 部署
+2. 部署, 打包上传到服务器, 重启
 ``` bash
 ./deploy.sh
 ```

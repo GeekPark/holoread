@@ -27,14 +27,19 @@ func InitArticle(m interface{}, name string) *Article {
 }
 
 func (api *Article) Index(c *gin.Context) {
-	start, _ := strconv.Atoi(c.DefaultQuery("start", "0"))
 	count, _ := strconv.Atoi(c.DefaultQuery("count", "20"))
 
 	userid := c.DefaultQuery("userid", "")
+	last := c.DefaultQuery("last", "")
 	coll := c.MustGet("db").(*mgo.Database).C(api.Name)
 	match := gin.H{
-		"updatedAt": gin.H{"$gte": yesterday()},
-		"$nor":      []gin.H{gin.H{"state": "pending"}, gin.H{"state": "deleted"}},
+		"$nor": []gin.H{gin.H{"state": "pending"}, gin.H{"state": "deleted"}},
+	}
+	if last == "" {
+		match["updatedAt"] = gin.H{"$gte": yesterday()}
+	} else {
+		lastInt, _ := strconv.ParseInt(last, 10, 0)
+		match["updatedAt"] = gin.H{"$gte": time.Unix(lastInt, 0)}
 	}
 	pipe := []gin.H{
 		gin.H{"$match": match},
@@ -48,7 +53,6 @@ func (api *Article) Index(c *gin.Context) {
 			"tags":           0,
 		}},
 		gin.H{"$sort": gin.H{"updatedAt": 1}},
-		gin.H{"$skip": start * count},
 		gin.H{"$limit": count},
 		gin.H{"$lookup": gin.H{
 			"from":         "accesses",
@@ -74,23 +78,23 @@ func (api *Article) Index(c *gin.Context) {
 }
 
 func (api *Article) Likes(c *gin.Context) {
-	start, _ := strconv.Atoi(c.DefaultQuery("start", "0"))
 	count, _ := strconv.Atoi(c.DefaultQuery("count", "20"))
+	last := c.DefaultQuery("last", "")
 
 	db := c.MustGet("db").(*mgo.Database)
 	likeColl := db.C("likes")
 	userid := c.Param("userid")
 	from := bson.ObjectIdHex(userid)
 
-	match := gin.H{
-		// "createdAt": gin.H{"$gte": yesterday()},
-		"from": from,
+	match := gin.H{"from": from}
+	if last != "" {
+		lastInt, _ := strconv.ParseInt(last, 10, 0)
+		match["createdAt"] = gin.H{"$gte": time.Unix(lastInt, 0)}
 	}
 
 	pipe := []gin.H{
 		gin.H{"$match": match},
 		gin.H{"$sort": gin.H{"createdAt": -1}},
-		gin.H{"$skip": start * count},
 		gin.H{"$limit": count},
 		gin.H{"$lookup": gin.H{
 			"from":         "articles",
@@ -127,7 +131,17 @@ func (api *Article) Likes(c *gin.Context) {
 	_ = likeColl.Pipe(pipe).All(&resp)
 	resp = Map(resp, func(v interface{}) interface{} {
 		hot := likeAndHot(v, userid)
-		return hot
+		var newHot = hot["article"].(bson.M) // 兼容客户端
+		for k, v := range hot {
+			if k == "hot" {
+				newHot["hot"] = v
+			} else if k == "like" {
+				newHot["like"] = v
+			} else if k == "_id" {
+				newHot["likeid"] = v
+			}
+		}
+		return newHot
 	})
 	c.JSON(200, gin.H{"data": resp})
 }
