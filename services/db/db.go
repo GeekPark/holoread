@@ -2,9 +2,9 @@ package db
 
 import (
 	"../../config"
-	"fmt"
 	sessions "github.com/gin-contrib/sessions"
 	"gopkg.in/mgo.v2"
+	"log"
 )
 
 var c = config.Init()
@@ -15,20 +15,20 @@ type DataStore struct {
 }
 
 func Connect() (*mgo.Database, sessions.MongoStore) {
-	session, err := mgo.Dial(c.MongoDB.URL)
+	session, err := mgo.DialWithInfo(c.MongoDB)
 	if err != nil {
-		fmt.Println("Connected to MongoDB Error!")
+		log.Println("Connected to MongoDB Error!")
 		panic(err)
 	}
 
 	session.SetMode(mgo.Monotonic, true)
 	// mgo.SetLogger(log.New(os.Stdout, "Mongo: ", 0))
-	fmt.Println("Connected to MongoDB")
+	log.Println("Connected to MongoDB")
 
 	ds := &DataStore{Session: session}
-	db := ds.Session.DB(c.MongoDB.Name)
+	db := ds.Session.DB(c.MongoDB.Database)
 	coll := db.C("sessions")
-	store := sessions.NewMongoStore(coll, 3600*30, true, []byte(c.MongoDB.Secret))
+	store := sessions.NewMongoStore(coll, 3600*30, true, []byte(c.Secret))
 	return db, store
 }
 
@@ -43,9 +43,9 @@ func (ds *DataStore) Close() {
 }
 
 func (ds *DataStore) DB() *mgo.Database {
-	return ds.Session.DB(c.MongoDB.Name)
+	return ds.Session.DB(c.MongoDB.Database)
 }
 
 func collectionFromSession(session *mgo.Session, name string) *mgo.Collection {
-	return session.DB(c.MongoDB.Name).C(name)
+	return session.DB(c.MongoDB.Database).C(name)
 }

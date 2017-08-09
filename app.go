@@ -3,10 +3,10 @@ package main
 import (
 	"./routers"
 	database "./services/db"
-	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/mgo.v2"
+	"log"
 )
 
 func main() {
@@ -15,7 +15,8 @@ func main() {
 	r.Use(SetDB(db))
 	r.Use(sessions.Sessions("holoread", store))
 	r.Use(CORSMiddleware())
-	r.Use(RequestLogger())
+	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
 	routers.Init(r)
 	r.Run(":4000")
 }
@@ -44,7 +45,7 @@ func CORSMiddleware() gin.HandlerFunc {
 
 func RequestLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		fmt.Printf("%s - %s", c.Request.Method, c.Request.URL)
+		log.Printf("%s - %s", c.Request.Method, c.Request.URL)
 		c.Next()
 	}
 }
