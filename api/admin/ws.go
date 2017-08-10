@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"flag"
 	// "github.com/fatih/structs"
+	"../../config"
+	"../../services/encrypt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -23,62 +25,77 @@ type articleMessage struct {
 	ID    string `json:"_id"`
 }
 
-var addr = flag.String("*", "127.0.0.1:3000", "http service address")
+type connect struct {
+	Connect *websocket.Conn
+	ID      string
+}
+
+var conf = config.Init()
+var addr = flag.String("*", "127.0.0.1:"+conf.Port, "http service address")
 var upgrader = websocket.Upgrader{}
 
 func WsConnect(c *gin.Context) {
 	userid := sessions.Default(c).Get("user").(string)
 	nickname := sessions.Default(c).Get("nickname").(string)
 	origin := c.Request.Header.Get("Origin")
-	whiteList := "http://127.0.0.1:8080"
-	if origin == whiteList {
-		c.Request.Header.Del("Origin")
+	for _, s := range conf.WsAllow {
+		if s == origin {
+			c.Request.Header.Del("Origin")
+		}
 	}
 
 	connect, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	sid := encrypt.GetRandomString(30)
+	coll := c.MustGet("db").(*mgo.Database).C("locks")
+	defer connect.Close()
+
 	if err != nil {
 		log.Print("upgrade:", err)
 		return
 	}
-
-	defer connect.Close()
 
 	for {
 		mt, message, err := connect.ReadMessage()
 
 		if err != nil {
 			log.Println("read:", err.Error())
-			if err.Error() == "websocket: close 1001 (going away)" {
-			}
+			_ = coll.Remove(gin.H{"sid": sid})
+			log.Println("wwebsocket unlock: ", sid)
 			break
 		}
-		// log.Printf("recv: %s", message)
+
 		var m lockMessage
 		_ = json.Unmarshal(message, &m)
+
 		switch m.Channel {
 		case "lock":
 			{
+				log.Println("websocket id: ", sid)
 				query := gin.H{
 					"article": bson.ObjectIdHex(m.Article.ID),
 					"userid":  bson.ObjectIdHex(userid),
+					"sid":     sid,
 				}
-				coll := c.MustGet("db").(*mgo.Database).C("locks")
 				var exist bson.M
-				err := coll.Find(query).One(&exist)
+				err := coll.Find(gin.H{"article": query["article"]}).One(&exist)
+
 				if err == nil && exist["userid"].(bson.ObjectId).Hex() != userid {
-					log.Printf("locked %s", nickname)
+					log.Printf("locked %s", exist["nickname"])
 					msg, _ := json.Marshal(gin.H{
 						"channel":  "lockState",
-						"nickname": nickname,
+						"nickname": exist["nickname"],
 						"type":     "failed",
 					})
 					_ = connect.WriteMessage(mt, msg)
 					return
 				}
-				log.Printf("lock success %s %s", nickname, m.Article.Title)
-				query["time"] = time.Now()
-				query["nickname"] = nickname
-				coll.Insert(query)
+				if err != nil {
+					query["time"] = time.Now()
+					query["nickname"] = nickname
+					coll.Insert(query)
+				}
+
+				log.Printf("lock success %s %s %s", nickname, m.Article.ID, m.Article.Title)
 				msg, _ := json.Marshal(gin.H{
 					"channel":  "lockState",
 					"nickname": nickname,

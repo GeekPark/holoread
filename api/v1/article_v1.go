@@ -193,6 +193,7 @@ func likeAndHot(list interface{}, userid string) bson.M {
 	m["createdAt"] = m["createdAt"].(time.Time).Unix()
 
 	if userid == "" {
+		m["like"] = false
 		m["likes"] = make([]interface{}, 0)
 		m["accesses"] = make([]interface{}, 0)
 		return list.(bson.M)
