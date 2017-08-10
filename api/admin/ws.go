@@ -2,7 +2,6 @@ package admin
 
 import (
 	"encoding/json"
-	"flag"
 	// "github.com/fatih/structs"
 	"../../config"
 	"../../services/encrypt"
@@ -30,18 +29,27 @@ type connect struct {
 	ID      string
 }
 
-var conf = config.Init()
-var addr = flag.String("*", "127.0.0.1:"+conf.Port, "http service address")
 var upgrader = websocket.Upgrader{}
 
 func WsConnect(c *gin.Context) {
-	userid := sessions.Default(c).Get("user").(string)
-	nickname := sessions.Default(c).Get("nickname").(string)
+	var conf = config.Init()
 	origin := c.Request.Header.Get("Origin")
+	log.Println("origin: ", origin)
 	for _, s := range conf.WsAllow {
+		log.Println(s)
 		if s == origin {
 			c.Request.Header.Del("Origin")
 		}
+	}
+
+	var nickname string
+	var userid string
+	if sessions.Default(c).Get("user") == nil {
+		userid = c.Query("userid")
+		nickname = c.Query("nickname")
+	} else {
+		userid = sessions.Default(c).Get("user").(string)
+		nickname = sessions.Default(c).Get("nickname").(string)
 	}
 
 	connect, err := upgrader.Upgrade(c.Writer, c.Request, nil)

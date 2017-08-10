@@ -15,6 +15,8 @@ func AuthSession() gin.HandlerFunc {
 			c.JSON(400, gin.H{"msg": "session error"})
 			c.Abort()
 		} else {
+			c.Set("user", session.Get("user"))
+			c.Set("nickname", session.Get("nickname"))
 			c.Next()
 		}
 	}

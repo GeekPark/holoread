@@ -49,7 +49,6 @@ func (api *User) Login(c *gin.Context) {
 		return
 	}
 	session := sessions.Default(c)
-
 	session.Set("user", result["_id"].(bson.ObjectId).Hex())
 	session.Set("nickname", result["nickname"])
 	session.Save()

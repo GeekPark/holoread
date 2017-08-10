@@ -38,9 +38,9 @@ func mountAdmin(r *gin.Engine) {
 	articles := admin.InitArticle(&models.Article{}, "articles")
 	users := admin.InitUser(&models.User{}, "users")
 
-	r.POST("api/login/sendsms", users.SendSms)
-	r.POST("api/login", users.Login)
-	r.POST("api/logout", users.Logout)
+	r.POST("/api/login/sendsms", users.SendSms)
+	r.POST("/api/login", users.Login)
+	r.POST("/api/logout", users.Logout)
 
 	g := r.Group("/api/admin")
 	g.Use(services.AuthSession())

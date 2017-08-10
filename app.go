@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	db, store := database.Connect()
 	r.Use(SetDB(db))
