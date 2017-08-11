@@ -47,9 +47,15 @@ func (api *Like) Create(c *gin.Context) {
 }
 
 func (api *Like) Delete(c *gin.Context) {
-	id := c.Param("id")
+	var params models.LikeQuery
+	if c.BindJSON(&params) != nil {
+		c.JSON(400, gin.H{"msg": "params error"})
+		return
+	}
+
 	db := c.MustGet("db")
-	err := api.Model.Delete(db, id)
+	err := api.Model.DeleteBy(db, gin.H{"article": params.Article, "from": params.From})
+
 	if err != nil {
 		c.JSON(400, gin.H{"msg": "not found"})
 		return

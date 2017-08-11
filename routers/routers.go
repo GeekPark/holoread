@@ -12,7 +12,7 @@ import (
 func Init(r *gin.Engine) {
 	mountAdmin(r)
 	mountV1(r)
-	r.Any("/ws", admin.WsConnect)
+	r.Any("/ws", admin.LockConnect)
 }
 
 func mountV1(r *gin.Engine) {
@@ -30,7 +30,7 @@ func mountV1(r *gin.Engine) {
 	g.GET("/likes/articles/:userid", articles.Likes)
 
 	g.POST("/likes", likes.Create)
-	g.DELETE("/likes/:id", likes.Delete)
+	g.DELETE("/likes", likes.Delete)
 }
 
 func mountAdmin(r *gin.Engine) {

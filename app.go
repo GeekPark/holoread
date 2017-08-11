@@ -18,6 +18,7 @@ func main() {
 	r.Use(CORSMiddleware())
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+	r.Use(RequestLogger())
 	routers.Init(r)
 	r.Run(":4000")
 }

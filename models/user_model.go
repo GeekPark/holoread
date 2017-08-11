@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
@@ -16,6 +15,7 @@ type UserQuery struct {
 type UserUpdate struct {
 	Nickname   string   `form:"nickname"`
 	Phone      string   `form:"phone"`
+	State      string   `form:"state"`
 	Permission []string `form:"permission[]"`
 }
 
@@ -47,6 +47,7 @@ type User struct {
 	Phone      int           `json:"phone" bson:"phone"`
 	Email      string        `json:"email" bson:"email"`
 	Title      string        `json:"title" bson:"title"`
+	State      string        `json:"state" bson:"state"`
 	Company    string        `json:"company" bson:"company"`
 	Token      string        `json:"token" bson:"token"`
 	SMS        bson.M        `json:"sms" bson:"sms"`
@@ -59,6 +60,7 @@ func (m *Base) FindUsers(db interface{}, q UserQuery) ([]bson.M, error) {
 	if q.Nickname != "" { // 查询全部
 		selector["nickname"] = bson.M{"$regex": q.Nickname, "$options": "$i"}
 	}
+	selector["$nor"] = []bson.M{bson.M{"state": "deleted"}}
 
 	var result []bson.M
 	err := coll.Find(selector).
@@ -72,7 +74,6 @@ func (m *Base) FindUsers(db interface{}, q UserQuery) ([]bson.M, error) {
 
 func (m *Base) UpdateUser(db interface{}, id string, params UserUpdate) (err error) {
 	coll := db.(*mgo.Database).C(m.Name)
-	fmt.Println(params)
 	err = coll.Update(bson.M{"_id": bson.ObjectIdHex(id)},
 		bson.M{"$set": params})
 	return

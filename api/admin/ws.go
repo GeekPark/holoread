@@ -8,6 +8,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/muesli/cache2go"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
@@ -29,9 +30,34 @@ type connect struct {
 	ID      string
 }
 
+var max = 500
 var upgrader = websocket.Upgrader{}
+var pool = cache2go.Cache("websocket")
 
-func WsConnect(c *gin.Context) {
+func addConn(c *websocket.Conn, id string) {
+	if pool.Count() > max {
+		log.Println("limit connect")
+		return
+	}
+	pool.Add(id, 0, c)
+}
+
+func removeConn(id string) {
+	pool.Delete(id)
+}
+
+func broadcast(coll *mgo.Collection, id string, mt int) {
+	var exist []gin.H
+	_ = coll.Find(bson.M{}).All(&exist)
+	pool.Foreach(func(key interface{}, item *cache2go.CacheItem) {
+		connect := item.Data().(*websocket.Conn)
+		msg, _ := json.Marshal(gin.H{"channel": "locked", "data": exist})
+		_ = connect.WriteMessage(mt, msg)
+	})
+	log.Println("broatcast:", pool.Count())
+}
+
+func LockConnect(c *gin.Context) {
 	var conf = config.Init()
 	origin := c.Request.Header.Get("Origin")
 	log.Println("origin: ", origin)
@@ -53,14 +79,16 @@ func WsConnect(c *gin.Context) {
 	}
 
 	connect, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-	sid := encrypt.GetRandomString(30)
-	coll := c.MustGet("db").(*mgo.Database).C("locks")
 	defer connect.Close()
-
 	if err != nil {
 		log.Print("upgrade:", err)
 		return
 	}
+
+	sid := encrypt.GetRandomString(30)
+	coll := c.MustGet("db").(*mgo.Database).C("locks")
+	addConn(connect, sid)
+	broadcast(coll, sid, 1)
 
 	for {
 		mt, message, err := connect.ReadMessage()
@@ -68,6 +96,8 @@ func WsConnect(c *gin.Context) {
 		if err != nil {
 			log.Println("read:", err.Error())
 			_ = coll.Remove(gin.H{"sid": sid})
+			removeConn(sid)
+			broadcast(coll, sid, 1)
 			log.Println("wwebsocket unlock: ", sid)
 			break
 		}
@@ -110,6 +140,7 @@ func WsConnect(c *gin.Context) {
 					"type":     "success",
 				})
 				_ = connect.WriteMessage(mt, msg)
+				broadcast(coll, sid, mt)
 			}
 		}
 		err = connect.WriteMessage(mt, message)

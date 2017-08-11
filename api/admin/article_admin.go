@@ -3,6 +3,7 @@ package admin
 import (
 	models "../../models"
 	"github.com/gin-gonic/gin"
+	// "log"
 	"time"
 )
 
@@ -23,14 +24,13 @@ func InitArticle(m interface{}, name string) *Article {
 
 func (api *Article) Index(c *gin.Context) {
 	db := c.MustGet("db")
-	query := make(map[string]interface{})
 	var params models.ArticleQuery
 	if c.Bind(&params) != nil {
 		c.JSON(400, gin.H{"msg": "params error"})
 		return
 	}
 	result, _ := api.Model.FindArticles(db, params)
-	count, _ := api.Model.Count(db, query)
+	count, _ := api.Model.ArticlesCount(db, params)
 	c.JSON(200, gin.H{"total": count, "data": result})
 }
 

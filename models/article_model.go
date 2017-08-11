@@ -4,6 +4,7 @@ import (
 	// "fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"log"
 	"time"
 )
 
@@ -11,10 +12,12 @@ type ArticleQuery struct {
 	ArticleBaseQuery
 	// Start    int    `form:"start" binding:"exists"`
 	// Count    int    `form:"count" binding:"exists"`
-	Language string `form:"language" binding:"exists"`
-	State    string `form:"state" binding:"exists"`
-	Key      string `form:"key" binding:"exists"`
-	Value    string `form:"value" binding:"exists"`
+	Language  string `form:"language" binding:"exists"`
+	State     string `form:"state" binding:"exists"`
+	Key       string `form:"key" binding:"exists"`
+	Value     string `form:"value" binding:"exists"`
+	TimeStart int64  `form:"timestart" binding:"exists"`
+	TimeEnd   int64  `form:"timeend" binding:"exists"`
 }
 
 type ArticleBaseQuery struct {
@@ -49,13 +52,38 @@ type Article struct {
 	CreatedAt     time.Time     `json:"created_at" bson:"created_at"`
 }
 
+func (m *Base) ArticlesCount(db interface{}, q ArticleQuery) (int, error) {
+	coll := db.(*mgo.Database).C(m.Name)
+	selector := createSelector(q)
+	count, err := coll.Find(selector).Count()
+	return count, err
+}
+
 func (m *Base) FindArticles(db interface{}, q ArticleQuery) ([]bson.M, error) {
 	coll := db.(*mgo.Database).C(m.Name)
+	selector := createSelector(q)
+	var result []bson.M
+	err := coll.Find(selector).
+		Sort("-published").
+		Skip(q.Count * q.Start).
+		Limit(q.Count).
+		Select(bson.M{"trans_title": 1, "edited_title": 1, "published": 1, "state": 1, "is_cn": 1}).
+		All(&result)
+	return result, err
+}
 
+func createSelector(q ArticleQuery) bson.M {
 	selector := bson.M{}
 
 	if q.Value != "" { // 查询全部
 		selector[q.Key] = bson.M{"$regex": q.Value, "$options": "$i"}
+	}
+
+	if q.TimeStart != 0 && q.TimeEnd != 0 {
+		start := time.Unix(q.TimeStart, 0)
+		end := time.Unix(q.TimeEnd, 0)
+		selector["published"] = bson.M{"$gte": start, "$lte": end}
+		log.Println(selector["published"])
 	}
 
 	switch q.Language {
@@ -70,18 +98,13 @@ func (m *Base) FindArticles(db interface{}, q ArticleQuery) ([]bson.M, error) {
 		{
 		}
 	case "handled":
-		selector["$nor"] = []bson.M{bson.M{"state": "pending"},
-			bson.M{"state": "deleted"}}
+		selector["$nor"] = []bson.M{
+			bson.M{"state": "pending"},
+			bson.M{"state": "deleted"},
+		}
 	default:
 		selector["state"] = q.State
 	}
 
-	var result []bson.M
-	err := coll.Find(selector).
-		Sort("-published").
-		Skip(q.Count * q.Start).
-		Limit(q.Count).
-		Select(bson.M{"trans_title": 1, "edited_title": 1, "published": 1, "state": 1, "is_cn": 1}).
-		All(&result)
-	return result, err
+	return selector
 }
