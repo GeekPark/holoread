@@ -1,6 +1,7 @@
 package main
 
 import (
+	"./config"
 	"./routers"
 	database "./services/db"
 	"github.com/gin-contrib/sessions"
@@ -26,6 +27,7 @@ func main() {
 func SetDB(db *mgo.Database) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("db", db)
+		c.Set("config", config.Init())
 		c.Next()
 	}
 }
