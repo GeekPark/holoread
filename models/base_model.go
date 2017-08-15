@@ -80,3 +80,9 @@ func (m *Base) Delete(db interface{}, id string) (err error) {
 	err = coll.Remove(bson.M{"_id": bson.ObjectIdHex(id)})
 	return
 }
+
+func (m *Base) DeleteBy(db interface{}, p gin.H) (err error) {
+	coll := db.(*mgo.Database).C(m.Name)
+	err = coll.Remove(p)
+	return
+}

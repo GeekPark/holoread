@@ -44,6 +44,7 @@ func (api *Article) Index(c *gin.Context) {
 		lastUnix := time.Unix(lastInt, 0)
 		match["updatedAt"] = gin.H{"$gt": lastUnix}
 	}
+
 	pipe := []gin.H{
 		gin.H{"$match": match},
 		gin.H{"$project": gin.H{
@@ -65,7 +66,7 @@ func (api *Article) Index(c *gin.Context) {
 		}},
 		gin.H{"$lookup": gin.H{
 			"from":         "likes",
-			"localField":   "article",
+			"localField":   "_id",
 			"foreignField": "article",
 			"as":           "likes",
 		}},
@@ -74,8 +75,7 @@ func (api *Article) Index(c *gin.Context) {
 	resp := []interface{}{}
 	_ = coll.Pipe(pipe).All(&resp)
 	resp = Map(resp, func(v interface{}) interface{} {
-		hot := likeAndHot(v, userid)
-		return hot
+		return likeAndHot(v, userid)
 	})
 	c.JSON(200, gin.H{"data": resp})
 }
@@ -135,10 +135,9 @@ func (api *Article) Likes(c *gin.Context) {
 	resp = Map(resp, func(v interface{}) interface{} {
 		hot := likeAndHot(v, userid)
 		var newHot = hot["article"].(bson.M) // 兼容客户端
+		newHot["createdAt"] = hot["createdat"].(time.Time).Unix()
 		newHot["updatedAt"] = newHot["updatedAt"].(time.Time).Unix()
-		newHot["createdAt"] = newHot["createdAt"].(time.Time).Unix()
 		newHot["hot"] = hot["hot"]
-		newHot["_id"] = hot["likeid"]
 		newHot["like"] = hot["like"]
 		return newHot
 	})
@@ -189,10 +188,15 @@ func likeAndHot(list interface{}, userid string) bson.M {
 	m := list.(bson.M)
 	m["hot"] = (len(m["likes"].([]interface{}))*10 + len(m["accesses"].([]interface{}))) > 20
 
-	m["updatedAt"] = m["updatedAt"].(time.Time).Unix()
-	m["createdAt"] = m["createdAt"].(time.Time).Unix()
+	if m["updatedAt"] != nil {
+		m["updatedAt"] = m["updatedAt"].(time.Time).Unix()
+	}
+	if m["createdAt"] != nil {
+		m["createdAt"] = m["createdAt"].(time.Time).Unix()
+	}
 
 	if userid == "" {
+		m["like"] = false
 		m["likes"] = make([]interface{}, 0)
 		m["accesses"] = make([]interface{}, 0)
 		return list.(bson.M)

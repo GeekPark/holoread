@@ -12,12 +12,14 @@ import (
 func Init(r *gin.Engine) {
 	mountAdmin(r)
 	mountV1(r)
+	r.Any("/ws", admin.LockConnect)
 }
 
 func mountV1(r *gin.Engine) {
 	articles := v1.InitArticle(&models.Article{}, "articles")
 	users := v1.InitUser(&models.User{}, "users")
 	likes := v1.InitLike(&models.Like{}, "likes")
+
 	g := r.Group("/api/v1")
 
 	g.POST("/login/wechat", users.WechatLogin)
@@ -29,7 +31,9 @@ func mountV1(r *gin.Engine) {
 	g.GET("/likes/articles/:userid", articles.Likes)
 
 	g.POST("/likes", likes.Create)
-	g.DELETE("/likes/:id", likes.Delete)
+	g.DELETE("/likes", likes.Delete)
+
+	g.POST("/feedback", v1.FeedBack)
 }
 
 func mountAdmin(r *gin.Engine) {
@@ -37,9 +41,9 @@ func mountAdmin(r *gin.Engine) {
 	articles := admin.InitArticle(&models.Article{}, "articles")
 	users := admin.InitUser(&models.User{}, "users")
 
-	r.POST("api/login/sendsms", users.SendSms)
-	r.POST("api/login", users.Login)
-	r.POST("api/logout", users.Logout)
+	r.POST("/api/login/sendsms", users.SendSms)
+	r.POST("/api/login", users.Login)
+	r.POST("/api/logout", users.Logout)
 
 	g := r.Group("/api/admin")
 	g.Use(services.AuthSession())

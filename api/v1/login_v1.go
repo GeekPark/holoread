@@ -48,7 +48,8 @@ func (api *User) WechatLogin(c *gin.Context) {
 		token := encrypt.GetRandomString(50)
 		params.Token = token
 		err = api.Model.CreateUser(db, params)
-		c.JSON(200, gin.H{"data": token})
+		result, err = api.Model.FindOne(db, gin.H{"openid": params.OpenId})
+		c.JSON(200, gin.H{"data": result})
 		return
 	}
 	c.JSON(200, result)

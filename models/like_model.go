@@ -9,14 +9,14 @@ import (
 type LikeQuery struct {
 	From      bson.ObjectId `form:"from" binding:"exists"`
 	Article   bson.ObjectId `form:"article" binding:"exists"`
-	CreatedAt time.Time     `form:"created_at" binding:"exists"`
+	CreatedAt time.Time     `form:"createdAt" binding:"exists"`
 }
 
 type Like struct {
 	Id        bson.ObjectId `json:"_id" bson:"_id,omitempty"`
 	From      string        `json:"from" bson:"from"`
 	Article   string        `json:"article" bson:"article"`
-	CreatedAt time.Time     `json:"created_at" bson:"created_at"`
+	CreatedAt time.Time     `json:"createdAt" bson:"createdAt"`
 }
 
 func (m *Base) CreateLike(db interface{}, params LikeQuery) (err error) {

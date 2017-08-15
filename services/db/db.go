@@ -7,14 +7,13 @@ import (
 	"log"
 )
 
-var c = config.Init()
-
 // DataStore is the type for a database session
 type DataStore struct {
 	Session *mgo.Session
 }
 
 func Connect() (*mgo.Database, sessions.MongoStore) {
+	c := config.Init()
 	session, err := mgo.DialWithInfo(c.MongoDB)
 	if err != nil {
 		log.Println("Connected to MongoDB Error!")
@@ -23,12 +22,12 @@ func Connect() (*mgo.Database, sessions.MongoStore) {
 
 	session.SetMode(mgo.Monotonic, true)
 	// mgo.SetLogger(log.New(os.Stdout, "Mongo: ", 0))
-	log.Println("Connected to MongoDB")
+	log.Println("Connected to MongoDB", c.MongoDB.Addrs, c.MongoDB.Database)
 
 	ds := &DataStore{Session: session}
 	db := ds.Session.DB(c.MongoDB.Database)
 	coll := db.C("sessions")
-	store := sessions.NewMongoStore(coll, 3600*30, true, []byte(c.Secret))
+	store := sessions.NewMongoStore(coll, 3600*24*30, true, []byte(c.Secret))
 	return db, store
 }
 
@@ -43,9 +42,9 @@ func (ds *DataStore) Close() {
 }
 
 func (ds *DataStore) DB() *mgo.Database {
-	return ds.Session.DB(c.MongoDB.Database)
+	return ds.Session.DB(config.Init().MongoDB.Database)
 }
 
 func collectionFromSession(session *mgo.Session, name string) *mgo.Collection {
-	return session.DB(c.MongoDB.Database).C(name)
+	return session.DB(config.Init().MongoDB.Database).C(name)
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"./config"
 	"./routers"
 	database "./services/db"
 	"github.com/gin-contrib/sessions"
@@ -10,6 +11,7 @@ import (
 )
 
 func main() {
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	db, store := database.Connect()
 	r.Use(SetDB(db))
@@ -17,6 +19,7 @@ func main() {
 	r.Use(CORSMiddleware())
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+	r.Use(RequestLogger())
 	routers.Init(r)
 	r.Run(":4000")
 }
@@ -24,6 +27,7 @@ func main() {
 func SetDB(db *mgo.Database) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("db", db)
+		c.Set("config", config.Init())
 		c.Next()
 	}
 }
@@ -31,7 +35,7 @@ func SetDB(db *mgo.Database) gin.HandlerFunc {
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Content-Type", "application/json")
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://127.0.0.1:8080")
+		c.Writer.Header().Set("Access-Control-Allow-Origin", c.Request.Header.Get("Origin"))
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "X-Requested-With,content-type")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
