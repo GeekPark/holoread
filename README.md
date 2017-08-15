@@ -46,4 +46,7 @@ CGO_ENABLED=0 GOOS=linux GOARCH=amd64 ./make.bash
 ./deploy.sh
 ```
 
+### 吐槽
+go 是种一点都不函数式, 和函数式八竿子打不着的语言....
+
 
