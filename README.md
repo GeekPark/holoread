@@ -28,6 +28,7 @@ restful(g, admin.InitBase(&models.User{}, "users"), "users")
 
 ### 运行
 ```bash
+# in gopath
 brew install gpm
 git clone https://github.com/GeekPark/shareading.git
 cd shareading
