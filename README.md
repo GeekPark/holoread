@@ -27,6 +27,15 @@ restful(g, admin.InitBase(&models.User{}, "users"), "users")
 但是由于强类型, 避免使用反射, 又不支持重载, 如果需要修改以上任一 `handler`, 则需要重写其他函数,
 后续会对 `restful` 函数做修改
 
+### 运行
+```bash
+brew install gpm
+git clone ...
+gpm install
+go run app.go
+```
+
+
 ### 部署
 1. 交叉编译设置 (mac -> linux)
 ``` bash
@@ -37,4 +46,5 @@ CGO_ENABLED=0 GOOS=linux GOARCH=amd64 ./make.bash
 ``` bash
 ./deploy.sh
 ```
+
 
