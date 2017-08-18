@@ -12,6 +12,10 @@ import (
 func Init(r *gin.Engine) {
 	mountAdmin(r)
 	mountV1(r)
+	mountWs(r)
+}
+
+func mountWs(r *gin.Engine) {
 	r.Any("/ws", admin.LockConnect)
 }
 
@@ -51,6 +55,8 @@ func mountAdmin(r *gin.Engine) {
 	g.GET("/articles", articles.Index)
 	g.GET("/articles/:id", articles.Show)
 	g.PUT("/articles/:id", articles.Update)
+	g.PUT("/articles", articles.UpdateList)
+
 	g.GET("/users", users.Index)
 	g.GET("/users/:id", users.Show)
 	g.PUT("/users/:id", users.Update)

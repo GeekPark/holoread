@@ -35,6 +35,11 @@ type ArticleUpdate struct {
 	Summary       string    `form:"summary" json:"summary"`
 }
 
+type ArticleUpdateList struct {
+	State string   `form:"state" json:"state"`
+	List  []string `form:"list" json:"list"`
+}
+
 type Article struct {
 	Id            bson.ObjectId `json:"_id" bson:"_id,omitempty"`
 	EditedTitle   string        `json:"edited_title" bson:"edited_title"`

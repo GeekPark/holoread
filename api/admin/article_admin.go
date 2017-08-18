@@ -59,6 +59,23 @@ func (api *Article) Update(c *gin.Context) {
 	c.JSON(200, gin.H{"msg": "success"})
 }
 
+func (api *Article) UpdateList(c *gin.Context) {
+	var params models.ArticleUpdateList
+	if c.Bind(&params) != nil {
+		c.JSON(400, gin.H{"msg": "params error"})
+		return
+	}
+	err := api.Model.UpdateList(c.MustGet("db"),
+		params.List,
+		gin.H{"state": params.State})
+
+	if err != nil {
+		panic(err)
+		return
+	}
+	c.JSON(200, gin.H{"msg": "success"})
+}
+
 // 为什么写这么复杂, 因为这个框架对json数据中key包含下划线的情况会做忽略, 干
 func updateParams(params models.ArticleUpdate) map[string]interface{} {
 	update := make(map[string]interface{})

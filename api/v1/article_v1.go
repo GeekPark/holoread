@@ -92,12 +92,12 @@ func (api *Article) Likes(c *gin.Context) {
 	match := gin.H{"from": from}
 	if last != "" {
 		lastInt, _ := strconv.ParseInt(last, 10, 0)
-		match["createdAt"] = gin.H{"$gt": time.Unix(lastInt, 0)}
+		match["createdat"] = gin.H{"$gt": time.Unix(lastInt, 0)}
 	}
 
 	pipe := []gin.H{
 		gin.H{"$match": match},
-		gin.H{"$sort": gin.H{"createdAt": -1}},
+		gin.H{"$sort": gin.H{"createdat": -1}},
 		gin.H{"$limit": count},
 		gin.H{"$lookup": gin.H{
 			"from":         "articles",
