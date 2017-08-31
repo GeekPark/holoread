@@ -20,6 +20,7 @@ func main() {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 	r.Use(RequestLogger())
+	r.Static("/imgs", "../holoread-bot/imgs")
 	routers.Init(r)
 	r.Run(":4000")
 }
