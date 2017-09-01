@@ -45,6 +45,7 @@ func mountAdmin(r *gin.Engine) {
 	articles := admin.InitArticle(&models.Article{}, "articles")
 	users := admin.InitUser(&models.User{}, "users")
 	accesses := admin.InitAccess(&models.Access{}, "accesses")
+	translogs := admin.InitTranslateLog(&models.TranslateLog{}, "translatelogs")
 
 	r.POST("/api/login/sendsms", users.SendSms)
 	r.POST("/api/login", users.Login)
@@ -64,6 +65,7 @@ func mountAdmin(r *gin.Engine) {
 	g.PUT("/users/:id", users.Update)
 
 	g.GET("/accesses", accesses.Index)
+	g.GET("/translatelogs", translogs.Index)
 
 }
 

@@ -34,6 +34,7 @@ func (m *Base) FindAccesses(db interface{}, q AccessQuery) ([]bson.M, error) {
 	coll := db.(*mgo.Database).C(m.Name)
 	pipe := []bson.M{
 		bson.M{"$match": bson.M{}},
+		bson.M{"$sort": bson.M{"createdAt": -1}},
 		bson.M{"$skip": q.Count * q.Start},
 		bson.M{"$limit": q.Count},
 		bson.M{"$lookup": bson.M{
