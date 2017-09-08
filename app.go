@@ -14,6 +14,7 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	db, store := database.Connect()
+	// RemoveTwo(db)
 	logdb := database.ConnectLog()
 	r.Use(SetDB(db, "db"))
 	r.Use(SetDB(logdb, "logdb"))
