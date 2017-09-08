@@ -75,6 +75,18 @@ func (m *Base) Update(db interface{}, id string, params gin.H) (err error) {
 	return
 }
 
+func (m *Base) UpdateList(db interface{}, list []string, params gin.H) error {
+	coll := db.(*mgo.Database).C(m.Name)
+	var err error
+	for _, id := range list {
+		e := coll.Update(bson.M{"_id": bson.ObjectIdHex(id)}, bson.M{"$set": params})
+		if e != nil {
+			err = e
+		}
+	}
+	return err
+}
+
 func (m *Base) Delete(db interface{}, id string) (err error) {
 	coll := db.(*mgo.Database).C(m.Name)
 	err = coll.Remove(bson.M{"_id": bson.ObjectIdHex(id)})

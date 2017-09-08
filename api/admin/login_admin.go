@@ -45,6 +45,7 @@ func (api *User) Login(c *gin.Context) {
 	result, err := api.Model.FindOne(db, gin.H{"sms.code": code, "phone": phone, "permission": "admin"})
 	fmt.Println(gin.H{"sms.code": code, "phone": phone, "permission": "admin"})
 	if err != nil {
+		fmt.Print(err)
 		c.JSON(404, gin.H{"msg": "not found"})
 		return
 	}

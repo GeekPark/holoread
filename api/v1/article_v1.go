@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"log"
 	"strconv"
 	"time"
 )
@@ -42,6 +43,7 @@ func (api *Article) Index(c *gin.Context) {
 	} else {
 		lastInt, _ := strconv.ParseInt(last, 10, 0)
 		lastUnix := time.Unix(lastInt, 0)
+
 		match["updatedAt"] = gin.H{"$gt": lastUnix}
 	}
 
@@ -92,12 +94,12 @@ func (api *Article) Likes(c *gin.Context) {
 	match := gin.H{"from": from}
 	if last != "" {
 		lastInt, _ := strconv.ParseInt(last, 10, 0)
-		match["createdAt"] = gin.H{"$gt": time.Unix(lastInt, 0)}
+		match["createdat"] = gin.H{"$lt": time.Unix(lastInt, 0)}
 	}
 
 	pipe := []gin.H{
 		gin.H{"$match": match},
-		gin.H{"$sort": gin.H{"createdAt": -1}},
+		gin.H{"$sort": gin.H{"createdat": -1}},
 		gin.H{"$limit": count},
 		gin.H{"$lookup": gin.H{
 			"from":         "articles",
@@ -148,11 +150,13 @@ func (api *Article) Show(c *gin.Context) {
 	db := c.MustGet("db").(*mgo.Database)
 	id := c.Param("id")
 	userid := c.DefaultQuery("userid", "")
-	ip := c.ClientIP()
+	ip := c.Request.Header.Get("X-real-ip")
+	log.Println(ip)
 	accessQuery := bson.M{"ip": ip, "article": bson.ObjectIdHex(id)}
 	var access bson.M
-	err := db.C("accesses").Find(access).One(&access)
+	err := db.C("accesses").Find(accessQuery).One(&access)
 	if err != nil {
+		accessQuery["createdAt"] = time.Now()
 		_ = db.C("accesses").Insert(accessQuery)
 	}
 
@@ -166,7 +170,7 @@ func (api *Article) Show(c *gin.Context) {
 		}},
 		gin.H{"$lookup": gin.H{
 			"from":         "likes",
-			"localField":   "article",
+			"localField":   "_id",
 			"foreignField": "article",
 			"as":           "likes",
 		}},

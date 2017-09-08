@@ -35,6 +35,11 @@ type ArticleUpdate struct {
 	Summary       string    `form:"summary" json:"summary"`
 }
 
+type ArticleUpdateList struct {
+	State string   `form:"state" json:"state"`
+	List  []string `form:"list" json:"list"`
+}
+
 type Article struct {
 	Id            bson.ObjectId `json:"_id" bson:"_id,omitempty"`
 	EditedTitle   string        `json:"edited_title" bson:"edited_title"`
@@ -67,7 +72,7 @@ func (m *Base) FindArticles(db interface{}, q ArticleQuery) ([]bson.M, error) {
 		Sort("-published").
 		Skip(q.Count * q.Start).
 		Limit(q.Count).
-		Select(bson.M{"trans_title": 1, "edited_title": 1, "published": 1, "state": 1, "is_cn": 1}).
+		Select(bson.M{"trans_title": 1, "edited_title": 1, "published": 1, "state": 1, "is_cn": 1, "source": 1}).
 		All(&result)
 	return result, err
 }

@@ -27,8 +27,25 @@ func Connect() (*mgo.Database, sessions.MongoStore) {
 	ds := &DataStore{Session: session}
 	db := ds.Session.DB(c.MongoDB.Database)
 	coll := db.C("sessions")
-	store := sessions.NewMongoStore(coll, 3600*24*30, true, []byte(c.Secret))
+	store := sessions.NewMongoStore(coll, 3600*1000*24*30*30, true, []byte(c.Secret))
 	return db, store
+}
+
+func ConnectLog() *mgo.Database {
+	c := config.Init()
+	session, err := mgo.DialWithInfo(c.LogMongoDB)
+	if err != nil {
+		log.Println("Connected to LogMongoDB Error!")
+		panic(err)
+	}
+
+	session.SetMode(mgo.Monotonic, true)
+	// mgo.SetLogger(log.New(os.Stdout, "Mongo: ", 0))
+	log.Println("Connected to LogMongoDB", c.LogMongoDB.Addrs, c.LogMongoDB.Database)
+
+	ds := &DataStore{Session: session}
+	db := ds.Session.DB(c.LogMongoDB.Database)
+	return db
 }
 
 // NewDataStore returns a new datastore with a copied session
