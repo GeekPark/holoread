@@ -9,7 +9,7 @@ Send a HEAD request::
 Send a POST request::
     curl -d "foo=bar&bin=baz" http://localhost
 """
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, HTTPServer
 import ast
 from libs import Abstract
 
@@ -40,6 +40,6 @@ if __name__ == "__main__":
     from sys import argv
     server_address = ('', 4004)
     httpd = HTTPServer(server_address, S)
-    print 'Starting httpd...'
+    print('Starting httpd...')
     httpd.serve_forever()
 

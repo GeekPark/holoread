@@ -3,7 +3,7 @@ from collections import Counter,defaultdict
 import codecs
 import math
 import numpy as np
-from utils import AttrDict, get_default_stop_words_file
+from .utils import AttrDict, get_default_stop_words_file
 
 delimiters = ['?', '!', ';', '？', '！', '。', '；', '……', '…', '\n']
 stop_words    = []
@@ -85,5 +85,5 @@ def textRank(graph, d=0.85):
         temp += in_vi * weight / out_vj
       TR[word] = 1 - d + d * temp
 
-  return [AttrDict(word= word, weight=weight) for word,weight in sorted(TR.iteritems(),key=lambda (k,v):(v,k),reverse=True)]
+  return [AttrDict(word= word, weight=weight) for word,weight in sorted(TR.iteritems(),key=lambda kv: (-kv[1], kv[0]),reverse=True)]
 

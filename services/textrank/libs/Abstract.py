@@ -1,5 +1,4 @@
 #-*- encoding:utf-8 -*-
-import jieba.posseg as pseg
 from collections import Counter,defaultdict
 import codecs
 import math
@@ -63,5 +62,5 @@ def abstract_rank(graph, d=0.85, sent_num=3):
         TR[sent] = 1 - d + d * temp
     error += (TR[sent] - TR_copy[sent])**2
     index += 1
-  ks = [sent for sent,weight in sorted(TR.iteritems(),key=lambda (k,v):(v,k),reverse=True)[:sent_num]]
+  ks = [sent for sent,weight in sorted(TR.iteritems(),key=lambda kv: (-kv[1], kv[0]),reverse=True)[:sent_num]]
   return ks
