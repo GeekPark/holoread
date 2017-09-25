@@ -34,7 +34,7 @@ class S(BaseHTTPRequestHandler):
         post_body = post_body.decode('utf8')
         text = base64.b64decode(post_body)
         w = Abstract()
-        print(text)
+        # print(text)
         rank = w.analyze(str(text))
         self.wfile.write(rank[0].encode())
 

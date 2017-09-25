@@ -4,9 +4,11 @@ import (
 	models "../../models"
 	// "fmt"
 	// "github.com/fatih/structs"
+	//
 	"bytes"
 	"encoding/base64"
 	"github.com/gin-gonic/gin"
+	"github.com/muesli/cache2go"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
@@ -18,6 +20,8 @@ import (
 
 const FORMAT = "2006-01-02 15:04:05"
 const url = "http://127.0.0.1:4004"
+
+var absPool = cache2go.Cache("abstract")
 
 type Article struct {
 	Base
@@ -63,7 +67,14 @@ func (api *Article) Test(c *gin.Context) {
 	_ = coll.Pipe(pipe).All(&resp)
 	resp = Map(resp, func(v interface{}) interface{} {
 		m := v.(bson.M)
-		m["origin_content"] = httpPostForm(m["origin_content"].(string))
+		if absPool.Exists(m["url"]) {
+			result, _ := absPool.Value(m["url"])
+			m["origin_content"] = result
+		} else {
+			result := httpPostForm(m["origin_content"].(string))
+			m["origin_content"] = result
+			absPool.Add(m["url"], 0, result)
+		}
 		return m
 	})
 	c.JSON(200, gin.H{"data": resp})
