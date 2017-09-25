@@ -4,15 +4,19 @@ import (
 	models "../../models"
 	// "fmt"
 	// "github.com/fatih/structs"
+	"bytes"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"strconv"
 	"time"
 )
 
 const FORMAT = "2006-01-02 15:04:05"
+const url = "http://127.0.0.1:4004"
 
 type Article struct {
 	Base
@@ -27,6 +31,72 @@ func InitArticle(m interface{}, name string) *Article {
 	a.Name = name
 	a.Model = models.InitBase(m, name)
 	return a
+}
+
+func (api *Article) Test(c *gin.Context) {
+	start, _ := strconv.Atoi(c.DefaultQuery("start", "0"))
+	count, _ := strconv.Atoi(c.DefaultQuery("count", "20"))
+	coll := c.MustGet("db").(*mgo.Database).C(api.Name)
+	match := gin.H{"is_cn": false}
+	if c.Query("source") != "" {
+		match["source"] = c.Query("source")
+	}
+
+	pipe := []gin.H{
+		gin.H{"$match": match},
+		gin.H{"$project": gin.H{
+			// "origin_content": 0,
+			"trans_content":  0,
+			"trans_title":    0,
+			"edited_title":   0,
+			"edited_content": 0,
+			"tags":           0,
+			"summary":        0,
+		}},
+		gin.H{"$sort": gin.H{"published": -1}},
+		gin.H{"$skip": count * start},
+		gin.H{"$limit": count},
+	}
+
+	resp := []interface{}{}
+	_ = coll.Pipe(pipe).All(&resp)
+	resp = Map(resp, func(v interface{}) interface{} {
+		m := v.(bson.M)
+		m["origin_content"] = httpPostForm(m["origin_content"].(string))
+		return m
+	})
+	c.JSON(200, gin.H{"data": resp})
+}
+
+func httpPostForm(text string) string {
+
+	// log.Println("URL:>", url)
+
+	//json序列化
+	post := "{\"text\":\"" + text + "\"}"
+
+	// log.Println(url, "post", post)
+
+	var jsonStr = []byte(post)
+	// log.Println("jsonStr", jsonStr)
+	// log.Println("new_str", bytes.NewBuffer(jsonStr))
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
+	// req.Header.Set("X-Custom-Header", "myvalue")
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	// log.Println("response Status:", resp.Status)
+	// log.Println("response Headers:", resp.Header)
+	body, _ := ioutil.ReadAll(resp.Body)
+	// log.Println("response Body:", string(body))
+	return string(body)
 }
 
 func (api *Article) Index(c *gin.Context) {
