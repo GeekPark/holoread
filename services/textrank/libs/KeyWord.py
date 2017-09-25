@@ -85,5 +85,5 @@ def textRank(graph, d=0.85):
         temp += in_vi * weight / out_vj
       TR[word] = 1 - d + d * temp
 
-  return [AttrDict(word= word, weight=weight) for word,weight in sorted(TR.iteritems(),key=lambda kv: (-kv[1], kv[0]),reverse=True)]
+  return [AttrDict(word= word, weight=weight) for word,weight in sorted(TR.items(),key=lambda kv: (-kv[1], kv[0]),reverse=True)]
 

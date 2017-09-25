@@ -21,7 +21,7 @@ class Abstract(object):
 # 本文预处理
 def preprocess(text):
   text = re.sub(r'</?\w+[^>]*>','',text)
-  print(text)
+  # print(text)
   docs = text.split('.')
   sentence_kw = defaultdict(list)
   for sen in docs:
@@ -62,5 +62,5 @@ def abstract_rank(graph, d=0.85, sent_num=3):
         TR[sent] = 1 - d + d * temp
     error += (TR[sent] - TR_copy[sent])**2
     index += 1
-  ks = [sent for sent,weight in sorted(TR.iteritems(),key=lambda kv: (-kv[1], kv[0]),reverse=True)[:sent_num]]
+  ks = [sent for sent,weight in sorted(TR.items(),key=lambda kv: (-kv[1], kv[0]),reverse=True)[:sent_num]]
   return ks

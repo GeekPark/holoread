@@ -5,6 +5,7 @@ import (
 	// "fmt"
 	// "github.com/fatih/structs"
 	"bytes"
+	"encoding/base64"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -73,7 +74,7 @@ func httpPostForm(text string) string {
 	// log.Println("URL:>", url)
 
 	//json序列化
-	post := "{\"text\":\"" + text + "\"}"
+	post := string(base64.StdEncoding.EncodeToString([]byte(text)))
 
 	// log.Println(url, "post", post)
 

@@ -10,7 +10,7 @@ Send a POST request::
     curl -d "foo=bar&bin=baz" http://localhost
 """
 from http.server import BaseHTTPRequestHandler, HTTPServer
-import ast
+import ast, json, re, base64
 from libs import Abstract
 
 class S(BaseHTTPRequestHandler):
@@ -29,12 +29,14 @@ class S(BaseHTTPRequestHandler):
     def do_POST(self):
         # Doesn't do anything with posted data
         self._set_headers()
-        content_len = int(self.headers.getheader('content-length', 0))
+        content_len = int(self.headers.get_all("content-length")[0])
         post_body = self.rfile.read(content_len)
-        text = ast.literal_eval(post_body)["text"]
+        post_body = post_body.decode('utf8')
+        text = base64.b64decode(post_body)
         w = Abstract()
-        rank = w.analyze(text)
-        self.wfile.write(rank[0])
+        print(text)
+        rank = w.analyze(str(text))
+        self.wfile.write(rank[0].encode())
 
 if __name__ == "__main__":
     from sys import argv
