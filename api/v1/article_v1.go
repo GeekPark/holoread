@@ -49,6 +49,9 @@ func (api *Article) Test(c *gin.Context) {
 
 	pipe := []gin.H{
 		gin.H{"$match": match},
+		gin.H{"$sort": gin.H{"published": -1}},
+		gin.H{"$skip": count * start},
+		gin.H{"$limit": count},
 		gin.H{"$project": gin.H{
 			// "origin_content": 0,
 			"trans_content":  0,
@@ -58,18 +61,16 @@ func (api *Article) Test(c *gin.Context) {
 			"tags":           0,
 			"summary":        0,
 		}},
-		gin.H{"$sort": gin.H{"published": -1}},
-		gin.H{"$skip": count * start},
-		gin.H{"$limit": count},
 	}
 
 	resp := []interface{}{}
 	_ = coll.Pipe(pipe).All(&resp)
 	resp = Map(resp, func(v interface{}) interface{} {
 		m := v.(bson.M)
+		log.Println(m["url"])
 		if absPool.Exists(m["url"]) {
 			result, _ := absPool.Value(m["url"])
-			m["origin_content"] = result
+			m["origin_content"] = string(result.Data().(string))
 		} else {
 			result := httpPostForm(m["origin_content"].(string))
 			m["origin_content"] = result
