@@ -14,7 +14,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -42,10 +44,19 @@ func (api *Article) Test(c *gin.Context) {
 	start, _ := strconv.Atoi(c.DefaultQuery("start", "0"))
 	count, _ := strconv.Atoi(c.DefaultQuery("count", "20"))
 	coll := c.MustGet("db").(*mgo.Database).C(api.Name)
-	match := gin.H{"is_cn": false}
+	match := bson.M{"is_cn": false}
 	if c.Query("source") != "" {
 		match["source"] = c.Query("source")
 	}
+	resp := TestArticle(coll, match, start, count)
+	c.JSON(200, gin.H{"data": resp})
+}
+
+func (api *Article) TestWords(c *gin.Context) {
+
+}
+
+func TestArticle(coll *mgo.Collection, match bson.M, start int, count int) []interface{} {
 
 	pipe := []gin.H{
 		gin.H{"$match": match},
@@ -54,9 +65,9 @@ func (api *Article) Test(c *gin.Context) {
 		gin.H{"$limit": count},
 		gin.H{"$project": gin.H{
 			// "origin_content": 0,
-			"trans_content":  0,
-			"trans_title":    0,
-			"edited_title":   0,
+			"trans_content": 0,
+			"trans_title":   0,
+			// "edited_title":   0,
 			"edited_content": 0,
 			"tags":           0,
 			"summary":        0,
@@ -67,18 +78,57 @@ func (api *Article) Test(c *gin.Context) {
 	_ = coll.Pipe(pipe).All(&resp)
 	resp = Map(resp, func(v interface{}) interface{} {
 		m := v.(bson.M)
-		log.Println(m["url"])
-		if absPool.Exists(m["url"]) {
-			result, _ := absPool.Value(m["url"])
-			m["origin_content"] = string(result.Data().(string))
+		str := m["origin_content"].(string)
+		trimStr := strings.Split(trimHtml(str), "\n")[0]
+		if len(strings.Split(trimStr, " ")) > 10 {
+			m["origin_content"] = trimStr
 		} else {
-			result := httpPostForm(m["origin_content"].(string))
-			m["origin_content"] = result
-			absPool.Add(m["url"], 0, result)
+			m["origin_content"] = ""
 		}
+		m["cover"] = getImgSrc(str)
 		return m
+		// if absPool.Exists(m["url"]) {
+		// 	result, _ := absPool.Value(m["url"])
+		// 	m["origin_content"] = string(result.Data().(string))
+		// } else if m["abstract"] != "" {
+		// 	result := httpPostForm(m["origin_content"].(string))
+		// 	m["origin_content"] = result
+		// 	coll.Update(bson.M{"url": m["url"]}, bson.M{"$set": bson.M{"abstract": result}})
+		// } else {
+		// 	result := httpPostForm(m["origin_content"].(string))
+		// 	m["origin_content"] = result
+		// 	absPool.Add(m["url"], 0, result)
+		// }
+		// return m
 	})
-	c.JSON(200, gin.H{"data": resp})
+	return resp
+}
+
+func trimHtml(src string) string {
+	//将HTML标签全转换成小写
+	re, _ := regexp.Compile("\\<[\\S\\s]+?\\>")
+	src = re.ReplaceAllStringFunc(src, strings.ToLower)
+	//去除STYLE
+	re, _ = regexp.Compile("\\<style[\\S\\s]+?\\</style\\>")
+	src = re.ReplaceAllString(src, "")
+	//去除SCRIPT
+	re, _ = regexp.Compile("\\<script[\\S\\s]+?\\</script\\>")
+	src = re.ReplaceAllString(src, "")
+	//去除所有尖括号内的HTML代码，并换成换行符
+	re, _ = regexp.Compile("\\<[\\S\\s]+?\\>")
+	src = re.ReplaceAllString(src, "\n")
+	//去除连续的换行符
+	re, _ = regexp.Compile("\\s{2,}")
+	src = re.ReplaceAllString(src, "\n")
+	return strings.TrimSpace(src)
+}
+
+func getImgSrc(str string) string {
+	re, _ := regexp.Compile("\\<img[\\S\\s]+?\\>")
+	result := re.FindStringSubmatch(str)
+	newStr := strings.Join(result, "")
+	re = regexp.MustCompile(`(http://|https://)\S+(.jpeg|.jpg|.png)`)
+	return re.FindString(newStr)
 }
 
 func httpPostForm(text string) string {

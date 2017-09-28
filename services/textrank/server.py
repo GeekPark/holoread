@@ -1,14 +1,13 @@
-"""
-Very simple HTTP server in python.
-Usage::
-    ./dummy-web-server.py [<port>]
-Send a GET request::
-    curl http://localhost
-Send a HEAD request::
-    curl -I http://localhost
-Send a POST request::
-    curl -d "foo=bar&bin=baz" http://localhost
-"""
+#-*- encoding:utf-8 -*-
+from __future__ import print_function
+
+import sys
+try:
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
+except:
+    pass
+
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import ast, json, re, base64
 from libs import Abstract

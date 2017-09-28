@@ -34,6 +34,7 @@ class KeyWord(object):
   def preprocess(self, text):
     # 分词
     text = text.split(' ')
+    # print(text)
     # 去除空白
     text = [w for w in text if len(w)>0]
     # 去除停用词

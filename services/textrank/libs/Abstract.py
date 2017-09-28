@@ -21,12 +21,18 @@ class Abstract(object):
 # 本文预处理
 def preprocess(text):
   text = re.sub(r'</?\w+[^>]*>','',text)
+  # text = re.sub(r"[\!\/_$%^*(+\"\')]+","",text)
+  text = re.sub(r'\\x[a-zA-Z0-9]{2}', '', text)
   # print(text)
-  docs = text.split('.')
+  docs = text.split('. ')
   sentence_kw = defaultdict(list)
+  # print('-----')
+  # print('\n'.join(docs))
   for sen in docs:
     # 去除空白
     sen = " ".join(sen.split())
+    if len(sen.split(' ')) < 10:
+      continue
     w = KeyWord()
     rank = w.keywords(sen)
     keywords = [item.word for item in rank]
