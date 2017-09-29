@@ -32,8 +32,8 @@ func mountV1(r *gin.Engine) {
 
 	g.GET("/articles", articles.Index)
 	g.GET("/articles/:id", articles.Show)
-	g.GET("/fetures/test", articles.Test)
-	g.GET("/fetures/words", articles.TestWords)
+	g.GET("/fetures/holonews", articles.HoloNews)
+	g.GET("/fetures/holonewswords", articles.HoloNewsWords)
 	g.GET("/likes/articles/:userid", articles.Likes)
 
 	g.POST("/likes", likes.Create)
