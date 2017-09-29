@@ -41,7 +41,7 @@ func (api *Article) HoloNewsWords(c *gin.Context) {
 func (api *Article) HoloNews(c *gin.Context) {
 	var resp interface{}
 	item, err := holonewsPool.Value("news")
-	if err == nil && item.Data( != nil {
+	if err == nil && item.Data() != nil {
 		// log.Println("load cache news")
 		resp = item.Data().([]interface{})
 	} else {

@@ -49,11 +49,11 @@ coll = db.get_collection('articles')
 print('connect db success')
 
 def Keywords():
-  articles = list(coll.find({}, {'url':1, 'origin_content': 1}).sort('published',pymongo.DESCENDING).limit(db_limit))
+  articles = list(coll.find({}, {'url':1, 'origin_title': 1}).sort('published',pymongo.DESCENDING).limit(db_limit))
   print('find articles:', len(articles), 'training....')
 
   # source
-  textArr = [x["origin_content"] for x in articles]
+  textArr = [x["origin_title"] for x in articles]
   wordDict = {}
 
   # compute
@@ -100,7 +100,7 @@ def Keywords():
   for i in ne_list:
     if i in word_dict:
       item = list(set(word_dict[i]))
-      article_urls.append(AttrDict(word=i, url=[articles[x]["url"] for x in item]))
+      article_urls.append(AttrDict(word=i, url=[articles[x]["url"] for x in item], origin_title=[articles[x]["origin_title"] for x in item]))
   # print(article_urls)
   print(ne_list)
   return article_urls
