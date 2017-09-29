@@ -18,8 +18,8 @@ class AttrDict(dict):
 with open('config.json') as data_file:
     config = json.load(data_file)
 seg_word     = 'bbbbb-'
-db_limit     = 10
-result_limit = 10
+db_limit     = 1000
+result_limit = 30
 uri = "mongodb://{username}:{password}@{host}:{port}/{db_name}".format(username=config['user_name'],
   password=config['user_pwd'],
   host=config['mongo_host'],

@@ -28,6 +28,7 @@ class S(BaseHTTPRequestHandler):
     def do_POST(self):
         # Doesn't do anything with posted data
         self._set_headers()
+        print('request ...')
         w = Keywords()
         self.wfile.write(str.encode(json.dumps(w)))
 
