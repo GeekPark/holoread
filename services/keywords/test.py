@@ -25,7 +25,7 @@ uri = "mongodb://{username}:{password}@{host}:{port}/{db_name}".format(username=
   host=config['mongo_host'],
   port=config['mongo_port'],
   db_name=config['mongo_db_name'])
-uri = 'mongodb://127.0.0.1:27017'
+# uri = 'mongodb://127.0.0.1:27017'
 
 # loadfile
 
