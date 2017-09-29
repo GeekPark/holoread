@@ -28,6 +28,12 @@ a
 {
 }
 -
+\
+\t
+\n
+div
+O
+script
 =
 good
 able

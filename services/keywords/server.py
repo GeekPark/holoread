@@ -10,12 +10,12 @@ except:
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import ast, json, re, base64
-from libs import Abstract
+from test import Keywords
 
 class S(BaseHTTPRequestHandler):
     def _set_headers(self):
         self.send_response(200)
-        self.send_header('Content-type', 'text/plain')
+        self.send_header('Content-type', 'application/json')
         self.end_headers()
 
     def do_GET(self):
@@ -28,14 +28,8 @@ class S(BaseHTTPRequestHandler):
     def do_POST(self):
         # Doesn't do anything with posted data
         self._set_headers()
-        content_len = int(self.headers.get_all("content-length")[0])
-        post_body = self.rfile.read(content_len)
-        post_body = post_body.decode('utf8')
-        text = base64.b64decode(post_body)
-        w = Abstract()
-        # print(text)
-        rank = w.analyze(str(text))
-        self.wfile.write(rank[0].encode())
+        w = Keywords()
+        self.wfile.write(str.encode(json.dumps(w)))
 
 if __name__ == "__main__":
     from sys import argv
