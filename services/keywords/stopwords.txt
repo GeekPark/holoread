@@ -33,6 +33,7 @@ a
 \n
 div
 O
+<
 script
 =
 good

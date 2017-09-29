@@ -18,7 +18,7 @@ class AttrDict(dict):
 with open('config.json') as data_file:
     config = json.load(data_file)
 seg_word     = 'bbbbb-'
-db_limit     = 1000
+db_limit     = 300
 result_limit = 30
 uri = "mongodb://{username}:{password}@{host}:{port}/{db_name}".format(username=config['user_name'],
   password=config['user_pwd'],
@@ -94,10 +94,13 @@ def Keywords():
       ne_list.append(item[0].replace(seg_word, ''))
 
   ne_list = [x for x in ne_list if x != ''][:result_limit]
+  word_dict = dict(wordDict)
   article_urls = []
+  # print(wordDict)
   for i in ne_list:
-    item = list(set(dict(wordDict)[i]))
-    article_urls.append(AttrDict(word=i, url=[articles[x]["url"] for x in item]))
-  print(article_urls)
+    if i in word_dict:
+      item = list(set(word_dict[i]))
+      article_urls.append(AttrDict(word=i, url=[articles[x]["url"] for x in item]))
+  # print(article_urls)
   print(ne_list)
   return article_urls
