@@ -39,9 +39,11 @@ func (api *Article) HoloNewsWords(c *gin.Context) {
 }
 
 func (api *Article) HoloNews(c *gin.Context) {
+
 	var resp interface{}
-	item, err := holonewsPool.Value("news")
-	if err == nil && c.Query("source") == "" {
+	key := c.Request.URL.String()
+	item, err := holonewsPool.Value(key)
+	if err == nil {
 		log.Println("load cache news")
 		resp = item.Data().([]interface{})
 	} else {
@@ -54,7 +56,7 @@ func (api *Article) HoloNews(c *gin.Context) {
 			match["source"] = c.Query("source")
 		}
 		resp = holoNewsQuery(coll, match, start, count)
-		holonewsPool.Add("news", 5*time.Minute, resp)
+		holonewsPool.Add(key, 5*time.Minute, resp)
 	}
 	c.JSON(200, gin.H{"data": resp})
 }
