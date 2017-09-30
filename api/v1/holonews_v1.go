@@ -28,7 +28,7 @@ const url = "http://127.0.0.1:4004"
 func (api *Article) HoloNewsWords(c *gin.Context) {
 	var words interface{}
 	item, err := holonewsPool.Value("words")
-	if err == nil && item.Data() != nil {
+	if err == nil {
 		log.Println("load cache words")
 		words = item.Data().([]interface{})
 	} else {
@@ -41,8 +41,8 @@ func (api *Article) HoloNewsWords(c *gin.Context) {
 func (api *Article) HoloNews(c *gin.Context) {
 	var resp interface{}
 	item, err := holonewsPool.Value("news")
-	if err == nil && item.Data() != nil {
-		// log.Println("load cache news")
+	if err == nil && c.Query("source") == "" {
+		log.Println("load cache news")
 		resp = item.Data().([]interface{})
 	} else {
 		// log.Println("load news")
