@@ -2,8 +2,13 @@ package admin
 
 import (
 	models "../../models"
+	"bytes"
+	"encoding/json"
+	"errors"
 	"github.com/gin-gonic/gin"
-	// "log"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"time"
 )
 
@@ -14,6 +19,8 @@ type Article struct {
 type ArticleMethods interface {
 	BaseMethods
 }
+
+const requestUrl = "http://127.0.0.1:4008/translate"
 
 func InitArticle(m interface{}, name string) *Article {
 	a := new(Article)
@@ -89,4 +96,44 @@ func updateParams(params models.ArticleUpdate) map[string]interface{} {
 	update["state"] = params.State
 	update["updatedAt"] = time.Now()
 	return update
+}
+
+func (api *Article) Translate(c *gin.Context) {
+	_url, _ := c.GetPostForm("url")
+	result, _ := httpPostForm(gin.H{"url": _url})
+	log.Println(result["title"])
+	err := api.Model.UpdateOneBy(c.MustGet("db"), gin.H{"url": _url}, gin.H{
+		"trans_content":  result["content"],
+		"edited_content": result["content"],
+		"trans_title":    result["title"],
+		"edited_title":   result["title"],
+	})
+	if err != nil {
+		log.Println(err)
+	}
+	c.JSON(200, "ok")
+}
+
+func httpPostForm(data interface{}) (map[string]interface{}, error) {
+	//json序列化
+	b, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return nil, err
+	}
+	response, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(b))
+	if err == nil && (response.StatusCode < 200 || response.StatusCode > 299) {
+		err = errors.New(response.Status)
+	}
+	bytes, _ := ioutil.ReadAll(response.Body)
+	result, err := getStations(bytes)
+	return result, err
+}
+
+func getStations(body []byte) (map[string]interface{}, error) {
+	var s map[string]interface{}
+	err := json.Unmarshal(body, &s)
+	if err != nil {
+		log.Println("whoops:", err)
+	}
+	return s, err
 }

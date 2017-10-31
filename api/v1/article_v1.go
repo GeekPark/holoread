@@ -183,7 +183,6 @@ func (api *Article) Show(c *gin.Context) {
 func yesterday() time.Time {
 	nTime := time.Now()
 	yesTime := nTime.AddDate(0, 0, -1)
-	// logDay := yesTime.Format("20060102")
 	return yesTime
 }
 

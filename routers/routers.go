@@ -62,12 +62,15 @@ func mountAdmin(r *gin.Engine) {
 	g.PUT("/articles/:id", articles.Update)
 	g.PUT("/articles", articles.UpdateList)
 
+	g.POST("translate", articles.Translate)
+
 	g.GET("/users", users.Index)
 	g.GET("/users/:id", users.Show)
 	g.PUT("/users/:id", users.Update)
 
 	g.GET("/accesses", accesses.Index)
 	g.GET("/translatelogs", translogs.Index)
+	g.GET("/translatelogs/check", translogs.Check)
 
 }
 

@@ -14,10 +14,11 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	db, store := database.Connect()
-	// RemoveTwo(db)
 	logdb := database.ConnectLog()
+	articledb := database.ConnectArticle()
 	r.Use(SetDB(db, "db"))
 	r.Use(SetDB(logdb, "logdb"))
+	r.Use(SetDB(articledb, "articledb"))
 
 	r.Use(sessions.Sessions("holoread", store))
 	r.Use(CORSMiddleware())

@@ -20,16 +20,17 @@ type UserUpdate struct {
 }
 
 type LoginParams struct {
-	OpenId     string `json:"openid"`
-	Phone      string `json:"phone"`
-	Token      string `json:"token"`
-	Code       string `json:"code"`
-	NickName   string `json:"nickname"`
-	Language   string `json:"language"`
-	City       string `json:"city"`
-	Province   string `json:"province"`
-	Country    string `json:"country"`
-	HeadImgUrl string `json:"headimgurl"`
+	OpenId     string    `json:"openid"`
+	Phone      string    `json:"phone"`
+	Token      string    `json:"token"`
+	Code       string    `json:"code"`
+	NickName   string    `json:"nickname"`
+	Language   string    `json:"language"`
+	City       string    `json:"city"`
+	Province   string    `json:"province"`
+	Country    string    `json:"country"`
+	HeadImgUrl string    `json:"headimgurl"`
+	CreatedAt  time.Time `json:"CreatedAt"`
 }
 
 type User struct {
@@ -64,7 +65,7 @@ func (m *Base) FindUsers(db interface{}, q UserQuery) ([]bson.M, error) {
 
 	var result []bson.M
 	err := coll.Find(selector).
-		Sort("-created_at").
+		Sort("-createdAt").
 		Skip(q.Count * q.Start).
 		Limit(q.Count).
 		Select(bson.M{"token": 0}).
@@ -81,6 +82,7 @@ func (m *Base) UpdateUser(db interface{}, id string, params UserUpdate) (err err
 
 func (m *Base) CreateUser(db interface{}, params LoginParams) (err error) {
 	coll := db.(*mgo.Database).C(m.Name)
+	params.CreatedAt = time.Now()
 	err = coll.Insert(params)
 	return
 }
