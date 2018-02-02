@@ -23,7 +23,6 @@ func mountV1(r *gin.Engine) {
 	articles := v1.InitArticle(&models.Article{}, "articles")
 	users := v1.InitUser(&models.User{}, "users")
 	likes := v1.InitLike(&models.Like{}, "likes")
-
 	g := r.Group("/api/v1")
 
 	g.POST("/login/wechat", users.WechatLogin)
@@ -62,6 +61,7 @@ func mountAdmin(r *gin.Engine) {
 	g.PUT("/articles/:id", articles.Update)
 	g.PUT("/articles", articles.UpdateList)
 
+	g.POST("/urlcontent", articles.URLContent)
 	g.POST("translate", articles.Translate)
 
 	g.GET("/users", users.Index)

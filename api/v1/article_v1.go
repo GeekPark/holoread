@@ -54,7 +54,6 @@ func (api *Article) Index(c *gin.Context) {
 			"trans_content":  0,
 			"trans_title":    0,
 			"edited_content": 0,
-			"url":            0,
 			"tags":           0,
 		}},
 		gin.H{"$sort": gin.H{"updatedAt": 1}},
@@ -161,6 +160,11 @@ func (api *Article) Show(c *gin.Context) {
 
 	pipe := []gin.H{
 		gin.H{"$match": gin.H{"_id": bson.ObjectIdHex(id)}},
+		gin.H{"$project": gin.H{
+			"trans_content": 0,
+			"trans_title":   0,
+			"summary":       0,
+		}},
 		gin.H{"$lookup": gin.H{
 			"from":         "accesses",
 			"localField":   "_id",

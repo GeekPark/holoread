@@ -7,6 +7,7 @@ import (
 	// "fmt"
 	"github.com/gin-gonic/gin"
 	// "gopkg.in/mgo.v2/bson"
+	"time"
 )
 
 type User struct {
@@ -47,6 +48,7 @@ func (api *User) WechatLogin(c *gin.Context) {
 	if err != nil {
 		token := encrypt.GetRandomString(50)
 		params.Token = token
+		params.CreatedAt = time.Now()
 		err = api.Model.CreateUser(db, params)
 		result, err = api.Model.FindOne(db, gin.H{"openid": params.OpenId})
 		c.JSON(200, gin.H{"data": result})

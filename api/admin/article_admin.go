@@ -20,8 +20,6 @@ type ArticleMethods interface {
 	BaseMethods
 }
 
-const requestUrl = "http://127.0.0.1:4008/translate"
-
 func InitArticle(m interface{}, name string) *Article {
 	a := new(Article)
 	a.Name = name
@@ -99,9 +97,9 @@ func updateParams(params models.ArticleUpdate) map[string]interface{} {
 }
 
 func (api *Article) Translate(c *gin.Context) {
+	const requestUrl = "http://127.0.0.1:4008/translate"
 	_url, _ := c.GetPostForm("url")
-	result, _ := httpPostForm(gin.H{"url": _url})
-	log.Println(result["title"])
+	result, _ := httpPostForm(requestUrl, gin.H{"url": _url})
 	err := api.Model.UpdateOneBy(c.MustGet("db"), gin.H{"url": _url}, gin.H{
 		"trans_content":  result["content"],
 		"edited_content": result["content"],
@@ -114,7 +112,23 @@ func (api *Article) Translate(c *gin.Context) {
 	c.JSON(200, "ok")
 }
 
-func httpPostForm(data interface{}) (map[string]interface{}, error) {
+func (api *Article) URLContent(c *gin.Context) {
+	const requestUrl = "http://127.0.0.1:4008/urlcontent"
+	url, _ := c.GetPostForm("url")
+	exist, err := api.Model.FindOne(c.MustGet("db"), gin.H{"url": url})
+	if err != nil {
+		panic(err)
+	}
+	if exist["edited_content"] == nil || exist["edited_content"] == "" {
+		result, _ := httpPostForm(requestUrl, gin.H{"url": url})
+		api.Model.UpdateOneBy(c.MustGet("db"), gin.H{"url": url}, gin.H{"edited_content": result["content"]})
+		c.JSON(200, result["content"])
+	} else {
+		c.JSON(200, exist["edited_content"])
+	}
+}
+
+func httpPostForm(requestUrl string, data interface{}) (map[string]interface{}, error) {
 	//json序列化
 	b, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {

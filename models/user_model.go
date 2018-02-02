@@ -10,6 +10,7 @@ type UserQuery struct {
 	Start    int    `form:"start" binding:"exists"`
 	Count    int    `form:"count" binding:"exists"`
 	Nickname string `form:"nickname" binding:"exists"`
+	Phone    string `form:"phone" binding:"exists"`
 }
 
 type UserUpdate struct {
@@ -60,6 +61,9 @@ func (m *Base) FindUsers(db interface{}, q UserQuery) ([]bson.M, error) {
 
 	if q.Nickname != "" { // 查询全部
 		selector["nickname"] = bson.M{"$regex": q.Nickname, "$options": "$i"}
+	}
+	if q.Phone != "" {
+		selector["phone"] = bson.M{"$regex": q.Phone, "$options": "$i"}
 	}
 	selector["$nor"] = []bson.M{bson.M{"state": "deleted"}}
 

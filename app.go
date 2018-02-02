@@ -16,6 +16,7 @@ func main() {
 	db, store := database.Connect()
 	logdb := database.ConnectLog()
 	articledb := database.ConnectArticle()
+
 	r.Use(SetDB(db, "db"))
 	r.Use(SetDB(logdb, "logdb"))
 	r.Use(SetDB(articledb, "articledb"))
@@ -25,7 +26,7 @@ func main() {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 	r.Use(RequestLogger())
-	r.Static("/imgs", "../holoread-bot/imgs")
+	r.Static("/imgs", "/data/imgs")
 	routers.Init(r)
 	r.Run(":4000")
 }
