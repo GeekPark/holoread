@@ -72,7 +72,7 @@ func (m *Base) FindArticles(db interface{}, q ArticleQuery) ([]bson.M, error) {
 		Sort("-published").
 		Skip(q.Count * q.Start).
 		Limit(q.Count).
-		Select(bson.M{"trans_title": 1, "edited_title": 1, "published": 1, "state": 1, "is_cn": 1, "source": 1}).
+		Select(bson.M{"trans_title": 1, "edited_title": 1, "origin_title": 1, "published": 1, "state": 1, "is_cn": 1, "source": 1}).
 		All(&result)
 	return result, err
 }
