@@ -21,12 +21,13 @@ type ArticleQuery struct {
 }
 
 type ArticleBaseQuery struct {
-	Start int `form:"start" binding:"exists"`
-	Count int `form:"count" binding:"exists"`
+	Start  int    `form:"start" binding:"exists"`
+	Count  int    `form:"count" binding:"exists"`
+	SortBy string `form:"sortby" binding:"exists"`
 }
 
 type ArticleUpdate struct {
-	UpdatedAr     time.Time `form:"updatedAt" json:"updatedAt"`
+	UpdatedAt     time.Time `form:"updatedAt" json:"updatedAt"`
 	State         string    `form:"state" json:"state"`
 	EditedContent string    `form:"edited_content" json:"edited_content"`
 	EditedTitle   string    `form:"edited_title"  json:"edited_content"`
@@ -69,10 +70,18 @@ func (m *Base) FindArticles(db interface{}, q ArticleQuery) ([]bson.M, error) {
 	selector := createSelector(q)
 	var result []bson.M
 	err := coll.Find(selector).
-		Sort("-published").
+		Sort("-" + q.SortBy).
 		Skip(q.Count * q.Start).
 		Limit(q.Count).
-		Select(bson.M{"trans_title": 1, "edited_title": 1, "origin_title": 1, "published": 1, "state": 1, "is_cn": 1, "source": 1}).
+		Select(bson.M{
+			"trans_title":  1,
+			"edited_title": 1,
+			"origin_title": 1,
+			"createdAt":    1,
+			"published":    1,
+			"state":        1,
+			"is_cn":        1,
+			"source":       1}).
 		All(&result)
 	return result, err
 }
@@ -87,8 +96,11 @@ func createSelector(q ArticleQuery) bson.M {
 	if q.TimeStart != 0 && q.TimeEnd != 0 {
 		start := time.Unix(q.TimeStart, 0)
 		end := time.Unix(q.TimeEnd, 0)
-		selector["published"] = bson.M{"$gte": start, "$lte": end}
-		log.Println(selector["published"])
+		if q.SortBy == "published" {
+			selector["published"] = bson.M{"$gte": start, "$lte": end}
+		} else {
+			selector["createdAt"] = bson.M{"$gte": start, "$lte": end}
+		}
 	}
 
 	switch q.Language {

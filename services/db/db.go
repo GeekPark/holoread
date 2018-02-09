@@ -45,7 +45,7 @@ func Connect() (*mgo.Database, sessions.MongoStore) {
 	ds := &DataStore{Session: session}
 	db := ds.Session.DB(c.MongoDB.Database)
 	coll := db.C("sessions")
-	store := sessions.NewMongoStore(coll, 3600*1000*24*30*30, true, []byte(c.Secret))
+	store := sessions.NewMongoStore(coll, 30*24*3600, true, []byte(c.Secret))
 	return db, store
 }
 
