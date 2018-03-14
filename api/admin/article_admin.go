@@ -48,6 +48,32 @@ func (api *Article) Show(c *gin.Context) {
 	c.JSON(200, result)
 }
 
+func (api *Article) Create(c *gin.Context) {
+	params := make(map[string]interface{})
+	params["origin_title"] = c.PostForm("edited_title")
+	params["trans_title"] = c.PostForm("edited_title")
+	params["edited_title"] = c.PostForm("edited_title")
+	params["origin_content"] = c.PostForm("edited_content")
+	params["trans_content"] = c.PostForm("edited_content")
+	params["edited_content"] = c.PostForm("edited_content")
+	params["published"] = time.Now()
+	params["updatedAt"] = time.Now()
+	params["createdAt"] = time.Now()
+	params["source"] = c.PostForm("source")
+	params["url"] = c.PostForm("url")
+	params["summary"] = c.PostForm("summary")
+	params["state"] = "normal"
+	params["is_cn"] = true
+	params["icon"] = "http://osxjx70im.bkt.clouddn.com/app/icon/holoreaddefalut.png"
+	err := api.Model.Create(c.MustGet("db"), params)
+	if err != nil {
+		panic(err)
+		c.JSON(400, gin.H{"msg": "error"})
+		return
+	}
+	c.JSON(200, gin.H{"msg": "success"})
+}
+
 func (api *Article) Update(c *gin.Context) {
 	id := c.Param("id")
 	var params models.ArticleUpdate
