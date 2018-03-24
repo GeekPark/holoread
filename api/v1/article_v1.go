@@ -2,15 +2,16 @@ package v1
 
 import (
 	models "../../models"
-	// "fmt"
-	// "github.com/fatih/structs"
 	"github.com/gin-gonic/gin"
+	"github.com/muesli/cache2go"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
 	"strconv"
 	"time"
 )
+
+var apiv1Pool = cache2go.Cache("apiv1articles")
 
 const FORMAT = "2006-01-02 15:04:05"
 
@@ -30,55 +31,60 @@ func InitArticle(m interface{}, name string) *Article {
 }
 
 func (api *Article) Index(c *gin.Context) {
-	count, _ := strconv.Atoi(c.DefaultQuery("count", "20"))
-
-	userid := c.DefaultQuery("userid", "")
-	last := c.DefaultQuery("last", "")
-	coll := c.MustGet("db").(*mgo.Database).C(api.Name)
-	match := gin.H{
-		"$nor": []gin.H{gin.H{"state": "pending"}, gin.H{"state": "deleted"}},
-	}
-	if last == "" {
-		match["updatedAt"] = gin.H{"$gt": yesterday()}
+	var resp []interface{}
+	key := c.Request.RequestURI
+	item, err := apiv1Pool.Value(key)
+	if err == nil {
+		log.Println("load cache api/v1/articles")
+		resp = item.Data().([]interface{})
 	} else {
-		lastInt, _ := strconv.ParseInt(last, 10, 0)
-		lastUnix := time.Unix(lastInt, 0)
+		count, _ := strconv.Atoi(c.DefaultQuery("count", "20"))
+		userid := c.DefaultQuery("userid", "")
+		last := c.DefaultQuery("last", "")
+		coll := c.MustGet("db").(*mgo.Database).C(api.Name)
+		match := gin.H{
+			"$nor": []gin.H{gin.H{"state": "pending"}, gin.H{"state": "deleted"}},
+		}
+		if last == "" {
+			match["updatedAt"] = gin.H{"$gt": yesterday()}
+		} else {
+			lastInt, _ := strconv.ParseInt(last, 10, 0)
+			lastUnix := time.Unix(lastInt, 0)
 
-		match["updatedAt"] = gin.H{"$gt": lastUnix}
+			match["updatedAt"] = gin.H{"$gt": lastUnix}
+		}
+
+		pipe := []gin.H{
+			gin.H{"$match": match},
+			gin.H{"$project": gin.H{
+				"origin_content": 0,
+				"origin_title":   0,
+				"trans_content":  0,
+				"trans_title":    0,
+				"edited_content": 0,
+				"tags":           0,
+			}},
+			gin.H{"$sort": gin.H{"updatedAt": 1}},
+			gin.H{"$limit": count},
+			gin.H{"$lookup": gin.H{
+				"from":         "accesses",
+				"localField":   "_id",
+				"foreignField": "article",
+				"as":           "accesses",
+			}},
+			gin.H{"$lookup": gin.H{
+				"from":         "likes",
+				"localField":   "_id",
+				"foreignField": "article",
+				"as":           "likes",
+			}},
+		}
+		_ = coll.Pipe(pipe).All(&resp)
+		resp = Map(resp, func(v interface{}) interface{} {
+			return likeAndHot(v, userid)
+		})
+		apiv1Pool.Add(key, 60*time.Second, resp)
 	}
-
-	pipe := []gin.H{
-		gin.H{"$match": match},
-		gin.H{"$project": gin.H{
-			"origin_content": 0,
-			"origin_title":   0,
-			"trans_content":  0,
-			"trans_title":    0,
-			"edited_content": 0,
-			"url":            0,
-			"tags":           0,
-		}},
-		gin.H{"$sort": gin.H{"updatedAt": 1}},
-		gin.H{"$limit": count},
-		gin.H{"$lookup": gin.H{
-			"from":         "accesses",
-			"localField":   "_id",
-			"foreignField": "article",
-			"as":           "accesses",
-		}},
-		gin.H{"$lookup": gin.H{
-			"from":         "likes",
-			"localField":   "_id",
-			"foreignField": "article",
-			"as":           "likes",
-		}},
-	}
-
-	resp := []interface{}{}
-	_ = coll.Pipe(pipe).All(&resp)
-	resp = Map(resp, func(v interface{}) interface{} {
-		return likeAndHot(v, userid)
-	})
 	c.JSON(200, gin.H{"data": resp})
 }
 
@@ -162,6 +168,11 @@ func (api *Article) Show(c *gin.Context) {
 
 	pipe := []gin.H{
 		gin.H{"$match": gin.H{"_id": bson.ObjectIdHex(id)}},
+		gin.H{"$project": gin.H{
+			"trans_content": 0,
+			"trans_title":   0,
+			"summary":       0,
+		}},
 		gin.H{"$lookup": gin.H{
 			"from":         "accesses",
 			"localField":   "_id",
@@ -184,7 +195,6 @@ func (api *Article) Show(c *gin.Context) {
 func yesterday() time.Time {
 	nTime := time.Now()
 	yesTime := nTime.AddDate(0, 0, -1)
-	// logDay := yesTime.Format("20060102")
 	return yesTime
 }
 

@@ -12,6 +12,24 @@ type DataStore struct {
 	Session *mgo.Session
 }
 
+func ConnectArticle() *mgo.Database {
+	c := config.Init()
+	c.LogMongoDB.Database = "magic_mirror_article"
+	session, err := mgo.DialWithInfo(c.LogMongoDB)
+	if err != nil {
+		log.Println("Connected to ArticleDB Error!")
+		panic(err)
+	}
+
+	session.SetMode(mgo.Monotonic, true)
+	// mgo.SetLogger(log.New(os.Stdout, "Mongo: ", 0))
+	log.Println("Connected to ArticleDB", c.LogMongoDB.Addrs, c.LogMongoDB.Database)
+
+	ds := &DataStore{Session: session}
+	db := ds.Session.DB(c.LogMongoDB.Database)
+	return db
+}
+
 func Connect() (*mgo.Database, sessions.MongoStore) {
 	c := config.Init()
 	session, err := mgo.DialWithInfo(c.MongoDB)
@@ -27,7 +45,7 @@ func Connect() (*mgo.Database, sessions.MongoStore) {
 	ds := &DataStore{Session: session}
 	db := ds.Session.DB(c.MongoDB.Database)
 	coll := db.C("sessions")
-	store := sessions.NewMongoStore(coll, 3600*1000*24*30*30, true, []byte(c.Secret))
+	store := sessions.NewMongoStore(coll, 30*24*3600, true, []byte(c.Secret))
 	return db, store
 }
 

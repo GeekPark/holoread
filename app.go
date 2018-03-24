@@ -14,17 +14,19 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	db, store := database.Connect()
-	// RemoveTwo(db)
 	logdb := database.ConnectLog()
+	articledb := database.ConnectArticle()
+
 	r.Use(SetDB(db, "db"))
 	r.Use(SetDB(logdb, "logdb"))
+	r.Use(SetDB(articledb, "articledb"))
 
 	r.Use(sessions.Sessions("holoread", store))
 	r.Use(CORSMiddleware())
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 	r.Use(RequestLogger())
-	r.Static("/imgs", "../holoread-bot/imgs")
+	r.Static("/imgs", "/data/imgs")
 	routers.Init(r)
 	r.Run(":4000")
 }

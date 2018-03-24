@@ -22,6 +22,7 @@ package config
 // }
 
 // const Yunpian = ""
+// const TelegramToken = ""
 
 // var conf *Config
 

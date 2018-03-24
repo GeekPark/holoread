@@ -23,7 +23,6 @@ func mountV1(r *gin.Engine) {
 	articles := v1.InitArticle(&models.Article{}, "articles")
 	users := v1.InitUser(&models.User{}, "users")
 	likes := v1.InitLike(&models.Like{}, "likes")
-
 	g := r.Group("/api/v1")
 
 	g.POST("/login/wechat", users.WechatLogin)
@@ -32,6 +31,8 @@ func mountV1(r *gin.Engine) {
 
 	g.GET("/articles", articles.Index)
 	g.GET("/articles/:id", articles.Show)
+	g.GET("/fetures/holonews", articles.HoloNews)
+	g.GET("/fetures/holonewswords", articles.HoloNewsWords)
 	g.GET("/likes/articles/:userid", articles.Likes)
 
 	g.POST("/likes", likes.Create)
@@ -56,9 +57,15 @@ func mountAdmin(r *gin.Engine) {
 	g.Use(services.AuthSession())
 
 	g.GET("/articles", articles.Index)
+	g.POST("/articles", articles.Create)
 	g.GET("/articles/:id", articles.Show)
 	g.PUT("/articles/:id", articles.Update)
 	g.PUT("/articles", articles.UpdateList)
+
+	// g.Use(services.AuthSession())
+
+	g.POST("/urlcontent", articles.URLContent)
+	g.POST("translate", articles.Translate)
 
 	g.GET("/users", users.Index)
 	g.GET("/users/:id", users.Show)
@@ -66,6 +73,7 @@ func mountAdmin(r *gin.Engine) {
 
 	g.GET("/accesses", accesses.Index)
 	g.GET("/translatelogs", translogs.Index)
+	g.GET("/translatelogs/check", translogs.Check)
 
 }
 

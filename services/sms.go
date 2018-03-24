@@ -12,7 +12,7 @@ import (
 const url_send_sms = "https://sms.yunpian.com/v2/sms/single_send.json"
 
 func tpl(code string) string {
-	return "【极客公园】您的验证码是" + code + "， 有效期为30分钟。请妥善保管您的验证码，勿透露给他人"
+	return "【好罗科技】您的验证码是" + code + "， 有效期为30分钟。请妥善保管您的验证码，勿透露给他人"
 }
 
 func SendSms(phone string) (code string) {
