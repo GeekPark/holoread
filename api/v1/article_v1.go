@@ -83,7 +83,7 @@ func (api *Article) Index(c *gin.Context) {
 		resp = Map(resp, func(v interface{}) interface{} {
 			return likeAndHot(v, userid)
 		})
-		apiv1Pool.Add(key, 3*time.Second, resp)
+		apiv1Pool.Add(key, 60*time.Second, resp)
 	}
 	c.JSON(200, gin.H{"data": resp})
 }
