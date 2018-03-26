@@ -7,4 +7,5 @@ go get gopkg.in/mgo.v2
 go get github.com/gin-contrib/sessions
 go get github.com/gorilla/websocket
 pwd
+cp config/config.example.yaml config/config.yaml
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build app.go
