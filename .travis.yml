@@ -11,4 +11,5 @@ install:
 
 script:
   - echo "script"
+  - chmod +x sh/build.sh
   - sh sh/build.sh
