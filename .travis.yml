@@ -1,14 +1,24 @@
-
 language: go
 
 go:
   - 1.9
+  - master
 
-sudo: required
+install: true
 
-install:
-  - echo "install"
+matrix:
+  allow_failures:
+    - go: master
+  fast_finish: true
 
+notifications:
+  email: false
+
+before_script:
+  - GO_FILES=$(find . -iname '*.go' -type f)
+  - go get github.com/golang/lint/golint
+  - go get honnef.co/go/tools/cmd/megacheck
+  - go get github.com/fzipp/gocyclo
 script:
   - echo "script"
   - chmod +x sh/build.sh
