@@ -1,5 +1,4 @@
 tmp/
-config.go
 *.tar.gz
 app
 config.yaml
