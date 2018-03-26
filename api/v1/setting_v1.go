@@ -16,7 +16,7 @@ type FeedBackParams struct {
 var feedbackPool = cache2go.Cache("feedback")
 
 func FeedBack(c *gin.Context) {
-	conf := c.MustGet("config").(*config.Config)
+	conf := c.MustGet("config").(*config.Server)
 	ip := c.Request.Header.Get("X-real-ip")
 	ua := c.Request.UserAgent()
 

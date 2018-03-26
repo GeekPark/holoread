@@ -22,9 +22,7 @@ func ConnectArticle() *mgo.Database {
 	}
 
 	session.SetMode(mgo.Monotonic, true)
-	// mgo.SetLogger(log.New(os.Stdout, "Mongo: ", 0))
 	log.Println("Connected to ArticleDB", c.LogMongoDB.Addrs, c.LogMongoDB.Database)
-
 	ds := &DataStore{Session: session}
 	db := ds.Session.DB(c.LogMongoDB.Database)
 	return db
@@ -39,7 +37,6 @@ func Connect() (*mgo.Database, sessions.MongoStore) {
 	}
 
 	session.SetMode(mgo.Monotonic, true)
-	// mgo.SetLogger(log.New(os.Stdout, "Mongo: ", 0))
 	log.Println("Connected to MongoDB", c.MongoDB.Addrs, c.MongoDB.Database)
 
 	ds := &DataStore{Session: session}

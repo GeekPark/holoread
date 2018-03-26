@@ -28,7 +28,7 @@ func main() {
 	r.Use(RequestLogger())
 	r.Static("/imgs", "/data/imgs")
 	routers.Init(r)
-	r.Run(":4000")
+	r.Run(config.Init().Port)
 }
 
 func SetDB(db *mgo.Database, name string) gin.HandlerFunc {
