@@ -1,5 +1,5 @@
 #! /bin/bash
-echo "build"
+echo "deps"
 go get github.com/koding/multiconfig
 go get github.com/muesli/cache2go
 go get github.com/gin-gonic/gin
@@ -8,4 +8,5 @@ go get github.com/gin-contrib/sessions
 go get github.com/gorilla/websocket
 pwd
 cp config/config.example.yaml config/config.yaml
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build app.go
+echo "build"
+go build app.go
