@@ -6,7 +6,7 @@ go get github.com/gin-gonic/gin
 go get gopkg.in/mgo.v2
 go get github.com/gin-contrib/sessions
 go get github.com/gorilla/websocket
-go get -u -v  gopkg.in/gavv/httpexpect.v1
+go get -u -v  github.com/gavv/httpexpect
 pwd
 cp config/config.example.yaml config/config.yaml
 echo "build"
