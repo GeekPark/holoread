@@ -31,7 +31,8 @@ func (api *User) SendSms(c *gin.Context) {
 
 	code := encrypt.GetRandomNumber(6)
 	id := result["_id"].(bson.ObjectId)
-	data_send_sms := url.Values{"apikey": {config.Yunpian}, "mobile": {phone}, "text": {tpl(code)}}
+	conf := config.Init()
+	data_send_sms := url.Values{"apikey": {conf.Yunpian}, "mobile": {phone}, "text": {tpl(code)}}
 	httpsPostForm(url_send_sms, data_send_sms)
 	err = api.Model.UpdateById(db, id, gin.H{"sms.code": code})
 

@@ -1,0 +1,38 @@
+default: &default
+  port: :4000
+  secret: secret
+  yunpian: yunpian
+  telegramtoken: telegramtoken
+  wsallow:
+    - http://127.0.0.1:8080
+  mongodb:
+    addrs:
+      - 127.0.0.1
+    database: shareading
+    username:
+    password:
+    timeout: 30s
+  logmongodb:
+    addrs:
+      - 127.0.0.1
+    database: bot_log
+    username:
+    password:
+    timeout: 30s
+  email:
+    user: example@gamil.com
+    pass: pass
+    host: smtp.163.com:25
+    receiver: example@gamil.com
+
+test:
+  <<: *default
+
+development:
+  <<: *default
+
+production:
+  <<: *default
+
+
+

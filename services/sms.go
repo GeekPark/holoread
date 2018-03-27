@@ -17,7 +17,8 @@ func tpl(code string) string {
 
 func SendSms(phone string) (code string) {
 	code = encrypt.GetRandomNumber(6)
-	data_send_sms := url.Values{"apikey": {config.Yunpian}, "mobile": {phone}, "text": {tpl(code)}}
+	conf := config.Init()
+	data_send_sms := url.Values{"apikey": {conf.Yunpian}, "mobile": {phone}, "text": {tpl(code)}}
 	httpsPostForm(url_send_sms, data_send_sms)
 	return
 }

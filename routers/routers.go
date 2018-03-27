@@ -4,9 +4,9 @@ import (
 	admin "../api/admin"
 	v1 "../api/v1"
 	models "../models"
-	// "fmt"
-	"../services"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"log"
 )
 
 func Init(r *gin.Engine) {
@@ -54,7 +54,7 @@ func mountAdmin(r *gin.Engine) {
 
 	g := r.Group("/api/admin")
 
-	g.Use(services.AuthSession())
+	g.Use(authToken())
 
 	g.GET("/articles", articles.Index)
 	g.POST("/articles", articles.Create)
@@ -62,7 +62,7 @@ func mountAdmin(r *gin.Engine) {
 	g.PUT("/articles/:id", articles.Update)
 	g.PUT("/articles", articles.UpdateList)
 
-	// g.Use(services.AuthSession())
+	// g.Use(authToken())
 
 	g.POST("/urlcontent", articles.URLContent)
 	g.POST("translate", articles.Translate)
@@ -89,4 +89,26 @@ func restful(r *gin.RouterGroup, handle *admin.Base, path string) {
 	r.POST(fullPath, handle.Create)
 	r.PUT(idPath, handle.Update)
 	r.DELETE(idPath, handle.Delete)
+}
+
+// 验证管理员
+func authSession() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		session := sessions.Default(c)
+		log.Println("current user: ", session.Get("nickname"), session.Get("user"))
+		if session.Get("user") == nil {
+			c.JSON(400, gin.H{"msg": "session error"})
+			c.Abort()
+		} else {
+			c.Set("user", session.Get("user"))
+			c.Set("nickname", session.Get("nickname"))
+			c.Next()
+		}
+	}
+}
+
+func authToken() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Next()
+	}
 }

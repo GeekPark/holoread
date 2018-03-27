@@ -1,12 +1,22 @@
 language: go
 
+services: mongodb
+
 go:
-  - 1.9
+  - 1.9.2
+  - master
 
-sudo: required
+install: true
 
-install:
-  - echo "install"
+matrix:
+  allow_failures:
+    - go: master
+  fast_finish: true
 
+notifications:
+  email: false
+  
 script:
   - echo "script"
+  - chmod +x sh/build.sh
+  - sh sh/build.sh
