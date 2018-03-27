@@ -8,7 +8,9 @@ go get github.com/gin-contrib/sessions
 go get github.com/gorilla/websocket
 go get -u -v  github.com/gavv/httpexpect
 pwd
+echo "add config file"
 cp config/config.example.yaml config/config.yaml
-echo "build"
+cat config/config.yaml
+echo "test"
 export GIN_MODE=test
 go test test/*
