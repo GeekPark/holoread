@@ -30,7 +30,6 @@ func ConnectArticle() *mgo.Database {
 
 func Connect() (*mgo.Database, sessions.MongoStore) {
 	c := config.Init()
-	log.Println(c.MongoDB)
 	session, err := mgo.DialWithInfo(c.MongoDB)
 	if err != nil {
 		log.Println("Connected to MongoDB Error!")

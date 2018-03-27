@@ -25,9 +25,14 @@ default: &default
     host: smtp.163.com:25
     receiver: example@gamil.com
 
+test:
+  <<: *default
+
 development:
   <<: *default
 
 production:
   <<: *default
+
+
 
