@@ -47,11 +47,11 @@ func Init() *Server {
 
 		log.Println("Current dir: ", pwd)
 		configPath := pwd + "/config/config.yaml"
-		log.Println("Config dir:", configPath)
 
 		if gin.Mode() == gin.TestMode {
 			configPath = strings.Replace(configPath, "/test", "", -1)
 		}
+		log.Println("Config dir:", configPath)
 		m := multiconfig.NewWithPath(configPath)
 		conf = new(Env)
 		m.MustLoad(conf)

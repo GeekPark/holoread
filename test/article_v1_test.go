@@ -18,5 +18,5 @@ func TestHttp(t *testing.T) {
 	e := httpexpect.New(t, server.URL)
 	e.GET("/api/v1/articles").
 		Expect().
-		Status(http.StatusNotFound).JSON()
+		Status(http.StatusOK).JSON()
 }
