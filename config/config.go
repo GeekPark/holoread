@@ -5,6 +5,8 @@ import (
 	"github.com/koding/multiconfig"
 	"gopkg.in/mgo.v2"
 	"log"
+	"os"
+	"strings"
 )
 
 type Server struct {
@@ -28,6 +30,7 @@ type Email struct {
 type Env struct {
 	Development *Server
 	Production  *Server
+	Test        *Server
 }
 
 var conf *Env
@@ -36,7 +39,20 @@ func Init() *Server {
 
 	if conf == nil {
 		log.Println("Current env: ", gin.Mode())
-		m := multiconfig.NewWithPath("config/config.yaml")
+		pwd, err := os.Getwd()
+		if err != nil {
+			log.Println(err)
+			os.Exit(1)
+		}
+
+		log.Println("Current dir: ", pwd)
+		configPath := pwd + "/config/config.yaml"
+		log.Println("Config dir:", configPath)
+
+		if gin.Mode() == gin.TestMode {
+			configPath = strings.Replace(configPath, "/test", "", -1)
+		}
+		m := multiconfig.NewWithPath(configPath)
 		conf = new(Env)
 		m.MustLoad(conf)
 	}
@@ -45,6 +61,8 @@ func Init() *Server {
 		return conf.Development
 	} else if gin.Mode() == gin.ReleaseMode {
 		return conf.Production
+	} else if gin.Mode() == gin.TestMode {
+		return conf.Test
 	}
 	return conf.Development
 }

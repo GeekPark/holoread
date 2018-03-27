@@ -9,4 +9,5 @@ go get github.com/gorilla/websocket
 pwd
 cp config/config.example.yaml config/config.yaml
 echo "build"
-go build app.go
+export GIN_MODE=test
+go test test/*
