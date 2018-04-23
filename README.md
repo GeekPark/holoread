@@ -104,6 +104,11 @@ go test -v -cover test/*
 │   └── unique.go
 ```
 
+### 相关文章
+
+* [对 holoread 项目的思考](https://ericjj.com/2018/03/23/%E5%AF%B9holoread%E9%A1%B9%E7%9B%AE%E7%9A%84%E6%80%9D%E8%80%83/)
+* [Go 项目中如何对 API 进行测试？](https://ericjj.com/2018/03/27/Go-%E9%A1%B9%E7%9B%AE%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AF%B9-API-%E8%BF%9B%E8%A1%8C%E6%B5%8B%E8%AF%95%EF%BC%9F/)
+
 ### 吐槽
 go 是种一点都不函数式, 和函数式八竿子打不着的语言....
 
