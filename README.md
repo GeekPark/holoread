@@ -1,5 +1,7 @@
 # Holoread
 
+[![Build Status](https://travis-ci.org/GeekPark/holoread.svg?branch=go)](https://travis-ci.org/GeekPark/holoread)
+
 ### 说明
 
 1. 架构
