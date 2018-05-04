@@ -28,7 +28,7 @@ func InitBase(m interface{}, name string) *Base {
 
 func (api *Base) Index(c *gin.Context) {
 	query := make(map[string]interface{})
-	result, err := api.Model.Find(c.MustGet("db"), query)
+	result, err := api.Model.Find(query)
 	if err != nil {
 		panic(err)
 	}
@@ -37,7 +37,7 @@ func (api *Base) Index(c *gin.Context) {
 
 func (api *Base) Show(c *gin.Context) {
 	id := c.Param("id")
-	result, err := api.Model.FindById(c.MustGet("db"), id)
+	result, err := api.Model.FindById(id)
 	if err != nil {
 		panic(err)
 	}

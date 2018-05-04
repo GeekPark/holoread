@@ -1,7 +1,8 @@
 package models
 
 import (
-	"gopkg.in/mgo.v2"
+	database "../services/db"
+	// "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
 )
@@ -24,14 +25,18 @@ type AccessBaseQuery struct {
 	Count int `form:"count" binding:"exists"`
 }
 
-func (m *Base) AccessesCount(db interface{}, q AccessQuery) (int, error) {
-	coll := db.(*mgo.Database).C(m.Name)
+func (m *Base) AccessesCount(q AccessQuery) (int, error) {
+	ds := database.NewSessionStore()
+	defer ds.Close()
+	coll := ds.C(m.Name)
 	count, err := coll.Find(bson.M{}).Count()
 	return count, err
 }
 
-func (m *Base) FindAccesses(db interface{}, q AccessQuery) ([]bson.M, error) {
-	coll := db.(*mgo.Database).C(m.Name)
+func (m *Base) FindAccesses(q AccessQuery) ([]bson.M, error) {
+	ds := database.NewSessionStore()
+	defer ds.Close()
+	coll := ds.C(m.Name)
 	pipe := []bson.M{
 		bson.M{"$match": bson.M{}},
 		bson.M{"$sort": bson.M{"createdAt": -1}},

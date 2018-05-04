@@ -26,31 +26,29 @@ func InitUser(m interface{}, name string) *User {
 }
 
 func (api *User) SendSms(c *gin.Context) {
-	db := c.MustGet("db")
 	var params models.LoginParams
 	if c.BindJSON(&params) != nil || params.Phone == "" {
 		c.JSON(400, gin.H{"msg": "params error"})
 		return
 	}
 	code := services.SendSms(params.Phone)
-	_ = api.Model.UpdateOneBy(db, gin.H{"openid": params.OpenId}, gin.H{"sms.code": code})
+	_ = api.Model.UpdateOneBy(gin.H{"openid": params.OpenId}, gin.H{"sms.code": code})
 	c.JSON(200, gin.H{"data": params.Phone, "msg": "success"})
 }
 
 func (api *User) WechatLogin(c *gin.Context) {
-	db := c.MustGet("db")
 	var params models.LoginParams
 	if c.BindJSON(&params) != nil {
 		c.JSON(400, gin.H{"msg": "params error"})
 		return
 	}
-	result, err := api.Model.FindOne(db, gin.H{"openid": params.OpenId})
+	result, err := api.Model.FindOne(gin.H{"openid": params.OpenId})
 	if err != nil {
 		token := encrypt.GetRandomString(50)
 		params.Token = token
 		params.CreatedAt = time.Now()
-		err = api.Model.CreateUser(db, params)
-		result, err = api.Model.FindOne(db, gin.H{"openid": params.OpenId})
+		err = api.Model.CreateUser(params)
+		result, err = api.Model.FindOne(gin.H{"openid": params.OpenId})
 		c.JSON(200, gin.H{"data": result})
 		return
 	}
@@ -58,19 +56,18 @@ func (api *User) WechatLogin(c *gin.Context) {
 }
 
 func (api *User) VerifySms(c *gin.Context) {
-	db := c.MustGet("db")
 	var params models.LoginParams
 	if c.BindJSON(&params) != nil {
 		c.JSON(400, gin.H{"msg": "params error"})
 		return
 	}
-	_, err := api.Model.FindOne(db, gin.H{
+	_, err := api.Model.FindOne(gin.H{
 		"sms.code": params.Code,
 		"openid":   params.OpenId})
 	if err != nil {
 		c.JSON(400, gin.H{"msg": "not match"})
 		return
 	}
-	err = api.Model.UpdateOneBy(db, gin.H{"openid": params.OpenId}, gin.H{"phone": params.Phone})
+	err = api.Model.UpdateOneBy(gin.H{"openid": params.OpenId}, gin.H{"phone": params.Phone})
 	c.JSON(200, gin.H{"msg": "success"})
 }

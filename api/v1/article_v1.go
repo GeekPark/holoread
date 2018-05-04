@@ -4,9 +4,10 @@ import (
 	models "../../models"
 	"github.com/gin-gonic/gin"
 	"github.com/muesli/cache2go"
-	"gopkg.in/mgo.v2"
+	// "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"log"
+	// "log"
+	database "../../services/db"
 	"strconv"
 	"time"
 )
@@ -35,13 +36,14 @@ func (api *Article) Index(c *gin.Context) {
 	key := c.Request.RequestURI
 	item, err := apiv1Pool.Value(key)
 	if err == nil {
-		log.Println("load cache api/v1/articles")
 		resp = item.Data().([]interface{})
 	} else {
 		count, _ := strconv.Atoi(c.DefaultQuery("count", "20"))
 		userid := c.DefaultQuery("userid", "")
 		last := c.DefaultQuery("last", "")
-		coll := c.MustGet("db").(*mgo.Database).C(api.Name)
+		ds := database.NewSessionStore()
+		defer ds.Close()
+		coll := ds.C(api.Name)
 		match := gin.H{
 			"$nor": []gin.H{gin.H{"state": "pending"}, gin.H{"state": "deleted"}},
 		}
@@ -92,8 +94,9 @@ func (api *Article) Likes(c *gin.Context) {
 	count, _ := strconv.Atoi(c.DefaultQuery("count", "20"))
 	last := c.DefaultQuery("last", "")
 
-	db := c.MustGet("db").(*mgo.Database)
-	likeColl := db.C("likes")
+	ds := database.NewSessionStore()
+	defer ds.Close()
+	likeColl := ds.C("likes")
 	userid := c.Param("userid")
 	from := bson.ObjectIdHex(userid)
 
@@ -153,17 +156,17 @@ func (api *Article) Likes(c *gin.Context) {
 }
 
 func (api *Article) Show(c *gin.Context) {
-	db := c.MustGet("db").(*mgo.Database)
+	ds := database.NewSessionStore()
+	defer ds.Close()
 	id := c.Param("id")
 	userid := c.DefaultQuery("userid", "")
 	ip := c.Request.Header.Get("X-real-ip")
-	log.Println(ip)
 	accessQuery := bson.M{"ip": ip, "article": bson.ObjectIdHex(id)}
 	var access bson.M
-	err := db.C("accesses").Find(accessQuery).One(&access)
+	err := ds.C("accesses").Find(accessQuery).One(&access)
 	if err != nil {
 		accessQuery["createdAt"] = time.Now()
-		_ = db.C("accesses").Insert(accessQuery)
+		_ = ds.C("accesses").Insert(accessQuery)
 	}
 
 	pipe := []gin.H{
@@ -187,7 +190,7 @@ func (api *Article) Show(c *gin.Context) {
 		}},
 	}
 	var result bson.M
-	_ = db.C(api.Name).Pipe(pipe).One(&result)
+	_ = ds.C(api.Name).Pipe(pipe).One(&result)
 	result = likeAndHot(result, userid)
 	c.JSON(200, result)
 }

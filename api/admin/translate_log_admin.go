@@ -2,6 +2,7 @@ package admin
 
 import (
 	models "../../models"
+	database "../../services/db"
 	"github.com/gin-gonic/gin"
 	"github.com/muesli/cache2go"
 	"gopkg.in/mgo.v2"
@@ -63,9 +64,10 @@ func (api *TranslateLog) Check(c *gin.Context) {
 
 func checkArticles(c *gin.Context) []originArticle {
 	articledb := c.MustGet("articledb")
-	db := c.MustGet("db")
+	ds := database.NewSessionStore()
+	defer ds.Close()
 	articlecoll := articledb.(*mgo.Database).C("articles")
-	coll := db.(*mgo.Database).C("articles")
+	coll := ds.C("articles")
 
 	var originArticles []originArticle
 	var ignoreArticles []originArticle

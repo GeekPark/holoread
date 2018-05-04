@@ -5,6 +5,7 @@ import (
 	// "fmt"
 	// "github.com/fatih/structs"
 	//
+	database "../../services/db"
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
@@ -50,7 +51,9 @@ func (api *Article) HoloNews(c *gin.Context) {
 		// log.Println("load news")
 		start, _ := strconv.Atoi(c.DefaultQuery("start", "0"))
 		count, _ := strconv.Atoi(c.DefaultQuery("count", "20"))
-		coll := c.MustGet("db").(*mgo.Database).C(api.Name)
+		ds := database.NewSessionStore()
+		defer ds.Close()
+		coll := ds.C(api.Name)
 		match := bson.M{"is_cn": false}
 		if c.Query("source") != "" {
 			match["source"] = c.Query("source")

@@ -11,12 +11,12 @@ import (
 )
 
 func GetMainEngine() *gin.Engine {
+	// gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
-	db, store := database.Connect()
+	store := database.Connect()
 	logdb := database.ConnectLog()
 	articledb := database.ConnectArticle()
 
-	r.Use(setDB(db, "db"))
 	r.Use(setDB(logdb, "logdb"))
 	r.Use(setDB(articledb, "articledb"))
 

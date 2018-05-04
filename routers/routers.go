@@ -46,7 +46,7 @@ func mountAdmin(r *gin.Engine) {
 	articles := admin.InitArticle(&models.Article{}, "articles")
 	users := admin.InitUser(&models.User{}, "users")
 	accesses := admin.InitAccess(&models.Access{}, "accesses")
-	translogs := admin.InitTranslateLog(&models.TranslateLog{}, "translatelogs")
+	// translogs := admin.InitTranslateLog(&models.TranslateLog{}, "translatelogs")
 
 	r.POST("/api/login/sendsms", users.SendSms)
 	r.POST("/api/login", users.Login)
@@ -54,7 +54,7 @@ func mountAdmin(r *gin.Engine) {
 
 	g := r.Group("/api/admin")
 
-	g.Use(authToken())
+	g.Use(authSession())
 
 	g.GET("/articles", articles.Index)
 	g.POST("/articles", articles.Create)
@@ -62,7 +62,7 @@ func mountAdmin(r *gin.Engine) {
 	g.PUT("/articles/:id", articles.Update)
 	g.PUT("/articles", articles.UpdateList)
 
-	// g.Use(authToken())
+	// g.Use(authSession())
 
 	g.POST("/urlcontent", articles.URLContent)
 	g.POST("translate", articles.Translate)
@@ -72,8 +72,8 @@ func mountAdmin(r *gin.Engine) {
 	g.PUT("/users/:id", users.Update)
 
 	g.GET("/accesses", accesses.Index)
-	g.GET("/translatelogs", translogs.Index)
-	g.GET("/translatelogs/check", translogs.Check)
+	// g.GET("/translatelogs", translogs.Index)
+	// g.GET("/translatelogs/check", translogs.Check)
 
 }
 

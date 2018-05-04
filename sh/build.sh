@@ -10,7 +10,7 @@ go get -u -v  github.com/gavv/httpexpect
 pwd
 echo "add config file"
 cp config/config.example.yaml config/config.yaml
-cat config/config.yaml
+# cat config/config.yaml
 echo "test"
 export GIN_MODE=test
-go test test/*
+go test -v -cover test/*
