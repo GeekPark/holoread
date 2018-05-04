@@ -35,14 +35,14 @@ func (api *Article) Index(c *gin.Context) {
 	var resp []interface{}
 	key := c.Request.RequestURI
 	item, err := apiv1Pool.Value(key)
+	ds := database.NewSessionStore()
+	defer ds.Close()
 	if err == nil {
 		resp = item.Data().([]interface{})
 	} else {
 		count, _ := strconv.Atoi(c.DefaultQuery("count", "20"))
 		userid := c.DefaultQuery("userid", "")
 		last := c.DefaultQuery("last", "")
-		ds := database.NewSessionStore()
-		defer ds.Close()
 		coll := ds.C(api.Name)
 		match := gin.H{
 			"$nor": []gin.H{gin.H{"state": "pending"}, gin.H{"state": "deleted"}},

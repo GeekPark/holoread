@@ -41,10 +41,11 @@ func Connect() sessions.MongoStore {
 		panic(err)
 	}
 
+	mainSession.SetSocketTimeout(1 * time.Hour)
 	mainSession.SetMode(mgo.Monotonic, true)
 	log.Println("Connected to MongoDB", c.MongoDB.Addrs, c.MongoDB.Database)
 
-	db := mainSession.DB(c.MongoDB.Database)
+	db := NewSessionStore().DB()
 	coll := db.C("sessions")
 	store := sessions.NewMongoStore(coll, 30*24*3600, true, []byte(c.Secret))
 	return store
@@ -77,7 +78,7 @@ func NewSessionStore() *SessionStore {
 }
 
 func (ds *SessionStore) Close() {
-	mainSession.Close()
+	ds.Session.Close()
 }
 
 func (ds *SessionStore) C(name string) *mgo.Collection {

@@ -13,13 +13,13 @@ type Base struct {
 }
 
 type BaseMethods interface {
-	Count(interface{}, bson.M) (int, error)
-	Find(interface{}, bson.M) ([]bson.M, error)
-	FindOne(interface{}, bson.M) (bson.M, error)
-	FindById(interface{}, string) (bson.M, error)
-	Create(interface{}, bson.M) ([]bson.M, error)
-	Update(interface{}, string, bson.M) error
-	Delete(interface{}, string) error
+	Count(bson.M) (int, error)
+	Find(bson.M) ([]bson.M, error)
+	FindOne(bson.M) (bson.M, error)
+	FindById(string) (bson.M, error)
+	Create(bson.M) ([]bson.M, error)
+	Update(string, bson.M) error
+	Delete(string) error
 }
 
 func InitBase(m interface{}, name string) *Base {
