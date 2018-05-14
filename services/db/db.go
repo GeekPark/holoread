@@ -2,7 +2,8 @@ package db
 
 import (
 	"../../config"
-	sessions "github.com/gin-contrib/sessions"
+	// sessions "github.com/gin-contrib/sessions"
+	mongo "github.com/gin-contrib/sessions/mongo"
 	"gopkg.in/mgo.v2"
 	"log"
 	"time"
@@ -32,7 +33,7 @@ func ConnectArticle() *mgo.Database {
 	return db
 }
 
-func Connect() sessions.MongoStore {
+func Connect() mongo.Store {
 	c := config.Init()
 	var err error
 	mainSession, err = mgo.DialWithInfo(c.MongoDB)
@@ -47,7 +48,7 @@ func Connect() sessions.MongoStore {
 
 	db := NewSessionStore().DB()
 	coll := db.C("sessions")
-	store := sessions.NewMongoStore(coll, 30*24*3600, true, []byte(c.Secret))
+	store := mongo.NewStore(coll, 30*24*3600, true, []byte(c.Secret))
 	return store
 }
 
