@@ -23,13 +23,12 @@ func InitAccess(m interface{}, name string) *Access {
 }
 
 func (api *Access) Index(c *gin.Context) {
-	db := c.MustGet("db")
 	var params models.AccessQuery
 	if c.Bind(&params) != nil {
 		c.JSON(400, gin.H{"msg": "params error"})
 		return
 	}
-	result, _ := api.Model.FindAccesses(db, params)
-	count, _ := api.Model.AccessesCount(db, params)
+	result, _ := api.Model.FindAccesses(params)
+	count, _ := api.Model.AccessesCount(params)
 	c.JSON(200, gin.H{"total": count, "data": result})
 }

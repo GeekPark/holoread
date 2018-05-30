@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	// "github.com/fatih/structs"
 	"../../config"
+	database "../../services/db"
 	"../../services/encrypt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -86,7 +87,9 @@ func LockConnect(c *gin.Context) {
 	}
 
 	sid := encrypt.GetRandomString(30)
-	coll := c.MustGet("db").(*mgo.Database).C("locks")
+	ds := database.NewSessionStore()
+	defer ds.Close()
+	coll := ds.C("locks")
 	addConn(connect, sid)
 	broadcast(coll, sid, 1)
 

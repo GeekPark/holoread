@@ -8,6 +8,7 @@ import (
 	// "gopkg.in/mgo.v2"
 	// "gopkg.in/mgo.v2/bson"
 	// "strconv"
+	// database "../../services/db"
 	"time"
 )
 
@@ -27,14 +28,13 @@ func InitLike(m interface{}, name string) *Like {
 }
 
 func (api *Like) Create(c *gin.Context) {
-	db := c.MustGet("db")
 	var params models.LikeQuery
 
 	if c.BindJSON(&params) != nil {
 		c.JSON(400, gin.H{"msg": "params error"})
 		return
 	}
-	exist, err := api.Model.FindOne(db, gin.H{
+	exist, err := api.Model.FindOne(gin.H{
 		"article": params.Article,
 		"from":    params.From})
 	if err == nil {
@@ -42,7 +42,7 @@ func (api *Like) Create(c *gin.Context) {
 		return
 	}
 	params.CreatedAt = time.Now()
-	_ = api.Model.CreateLike(db, params)
+	_ = api.Model.CreateLike(params)
 	c.JSON(200, gin.H{"msg": "success"})
 }
 
@@ -53,8 +53,7 @@ func (api *Like) Delete(c *gin.Context) {
 		return
 	}
 
-	db := c.MustGet("db")
-	err := api.Model.DeleteBy(db, gin.H{"article": params.Article, "from": params.From})
+	err := api.Model.DeleteBy(gin.H{"article": params.Article, "from": params.From})
 
 	if err != nil {
 		c.JSON(400, gin.H{"msg": "not found"})

@@ -21,21 +21,20 @@ func InitUser(m interface{}, name string) *User {
 }
 
 func (api *User) Index(c *gin.Context) {
-	db := c.MustGet("db")
 	query := make(map[string]interface{})
 	var params models.UserQuery
 	if c.Bind(&params) != nil {
 		c.JSON(400, gin.H{"msg": "params error"})
 		return
 	}
-	result, _ := api.Model.FindUsers(db, params)
-	count, _ := api.Model.Count(db, query)
+	result, _ := api.Model.FindUsers(params)
+	count, _ := api.Model.Count(query)
 	c.JSON(200, gin.H{"total": count, "data": result})
 }
 
 func (api *User) Show(c *gin.Context) {
 	id := c.Param("id")
-	result, err := api.Model.FindById(c.MustGet("db"), id)
+	result, err := api.Model.FindById(id)
 	if err != nil {
 		panic(err)
 	}
@@ -49,7 +48,7 @@ func (api *User) Update(c *gin.Context) {
 		c.JSON(400, gin.H{"msg": "params error"})
 		return
 	}
-	err := api.Model.UpdateUser(c.MustGet("db"), id, params)
+	err := api.Model.UpdateUser(id, params)
 	if err != nil {
 		panic(err)
 		return

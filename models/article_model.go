@@ -2,9 +2,10 @@ package models
 
 import (
 	// "fmt"
-	"gopkg.in/mgo.v2"
+	// "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	// "log"
+	database "../services/db"
 	"time"
 )
 
@@ -58,15 +59,19 @@ type Article struct {
 	CreatedAt     time.Time     `json:"created_at" bson:"created_at"`
 }
 
-func (m *Base) ArticlesCount(db interface{}, q ArticleQuery) (int, error) {
-	coll := db.(*mgo.Database).C(m.Name)
+func (m *Base) ArticlesCount(q ArticleQuery) (int, error) {
+	ds := database.NewSessionStore()
+	defer ds.Close()
+	coll := ds.C(m.Name)
 	selector := createSelector(q)
 	count, err := coll.Find(selector).Count()
 	return count, err
 }
 
-func (m *Base) FindArticles(db interface{}, q ArticleQuery) ([]bson.M, error) {
-	coll := db.(*mgo.Database).C(m.Name)
+func (m *Base) FindArticles(q ArticleQuery) ([]bson.M, error) {
+	ds := database.NewSessionStore()
+	defer ds.Close()
+	coll := ds.C(m.Name)
 	selector := createSelector(q)
 	var result []bson.M
 	err := coll.Find(selector).

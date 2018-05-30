@@ -21,9 +21,8 @@ func tpl(code string) string {
 }
 
 func (api *User) SendSms(c *gin.Context) {
-	db := c.MustGet("db")
 	phone := c.PostForm("phone")
-	result, err := api.Model.FindOne(db, gin.H{"permission": "admin", "phone": phone})
+	result, err := api.Model.FindOne(gin.H{"permission": "admin", "phone": phone})
 	if err != nil {
 		c.JSON(404, gin.H{"msg": "not found"})
 		return
@@ -34,16 +33,15 @@ func (api *User) SendSms(c *gin.Context) {
 	conf := config.Init()
 	data_send_sms := url.Values{"apikey": {conf.Yunpian}, "mobile": {phone}, "text": {tpl(code)}}
 	httpsPostForm(url_send_sms, data_send_sms)
-	err = api.Model.UpdateById(db, id, gin.H{"sms.code": code})
+	err = api.Model.UpdateById(id, gin.H{"sms.code": code})
 
 	c.JSON(200, gin.H{"phone": phone, "msg": "success"})
 }
 
 func (api *User) Login(c *gin.Context) {
-	db := c.MustGet("db")
 	phone := c.PostForm("phone")
 	code := c.PostForm("code")
-	result, err := api.Model.FindOne(db, gin.H{"sms.code": code, "phone": phone, "permission": "admin"})
+	result, err := api.Model.FindOne(gin.H{"sms.code": code, "phone": phone, "permission": "admin"})
 	fmt.Println(gin.H{"sms.code": code, "phone": phone, "permission": "admin"})
 	if err != nil {
 		fmt.Print(err)

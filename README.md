@@ -1,5 +1,7 @@
 # Holoread
 
+[![Build Status](https://travis-ci.org/GeekPark/holoread.svg?branch=go)](https://travis-ci.org/GeekPark/holoread)
+
 ### 说明
 
 使用了 `gin` 作为基础路由框架, `mgo` 做数据库驱动, 希望提供一个 `api` 服务;

@@ -1,7 +1,8 @@
 package models
 
 import (
-	"gopkg.in/mgo.v2"
+	database "../services/db"
+	// "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
 )
@@ -19,14 +20,18 @@ type Like struct {
 	CreatedAt time.Time     `json:"createdAt" bson:"createdAt"`
 }
 
-func (m *Base) CreateLike(db interface{}, params LikeQuery) (err error) {
-	coll := db.(*mgo.Database).C(m.Name)
+func (m *Base) CreateLike(params LikeQuery) (err error) {
+	ds := database.NewSessionStore()
+	defer ds.Close()
+	coll := ds.C(m.Name)
 	err = coll.Insert(params)
 	return
 }
 
-func (m *Base) FindLike(db interface{}, query LikeQuery) (res bson.M, err error) {
-	coll := db.(*mgo.Database).C(m.Name)
+func (m *Base) FindLike(query LikeQuery) (res bson.M, err error) {
+	ds := database.NewSessionStore()
+	defer ds.Close()
+	coll := ds.C(m.Name)
 	err = coll.Find(query).One(&res)
 	return
 }

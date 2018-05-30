@@ -1,7 +1,8 @@
 package models
 
 import (
-	"gopkg.in/mgo.v2"
+	database "../services/db"
+	// "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
 )
@@ -55,8 +56,10 @@ type User struct {
 	SMS        bson.M        `json:"sms" bson:"sms"`
 }
 
-func (m *Base) FindUsers(db interface{}, q UserQuery) ([]bson.M, error) {
-	coll := db.(*mgo.Database).C(m.Name)
+func (m *Base) FindUsers(q UserQuery) ([]bson.M, error) {
+	ds := database.NewSessionStore()
+	defer ds.Close()
+	coll := ds.C(m.Name)
 	selector := bson.M{}
 
 	if q.Nickname != "" { // 查询全部
@@ -77,15 +80,19 @@ func (m *Base) FindUsers(db interface{}, q UserQuery) ([]bson.M, error) {
 	return result, err
 }
 
-func (m *Base) UpdateUser(db interface{}, id string, params UserUpdate) (err error) {
-	coll := db.(*mgo.Database).C(m.Name)
+func (m *Base) UpdateUser(id string, params UserUpdate) (err error) {
+	ds := database.NewSessionStore()
+	defer ds.Close()
+	coll := ds.C(m.Name)
 	err = coll.Update(bson.M{"_id": bson.ObjectIdHex(id)},
 		bson.M{"$set": params})
 	return
 }
 
-func (m *Base) CreateUser(db interface{}, params LoginParams) (err error) {
-	coll := db.(*mgo.Database).C(m.Name)
+func (m *Base) CreateUser(params LoginParams) (err error) {
+	ds := database.NewSessionStore()
+	defer ds.Close()
+	coll := ds.C(m.Name)
 	params.CreatedAt = time.Now()
 	err = coll.Insert(params)
 	return

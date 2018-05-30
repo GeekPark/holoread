@@ -2,15 +2,19 @@ package db
 
 import (
 	"../../config"
-	sessions "github.com/gin-contrib/sessions"
+	// sessions "github.com/gin-contrib/sessions"
+	mongo "github.com/gin-contrib/sessions/mongo"
 	"gopkg.in/mgo.v2"
 	"log"
+	"time"
 )
 
-// DataStore is the type for a database session
-type DataStore struct {
+// SessionStore  is the type for a database session
+type SessionStore struct {
 	Session *mgo.Session
 }
+
+var mainSession *mgo.Session
 
 func ConnectArticle() *mgo.Database {
 	c := config.Init()
@@ -23,27 +27,29 @@ func ConnectArticle() *mgo.Database {
 
 	session.SetMode(mgo.Monotonic, true)
 	log.Println("Connected to ArticleDB", c.LogMongoDB.Addrs, c.LogMongoDB.Database)
-	ds := &DataStore{Session: session}
+	ds := &SessionStore{Session: session}
+	ds.Session.SetSocketTimeout(1 * time.Hour)
 	db := ds.Session.DB(c.LogMongoDB.Database)
 	return db
 }
 
-func Connect() (*mgo.Database, sessions.MongoStore) {
+func Connect() mongo.Store {
 	c := config.Init()
-	session, err := mgo.DialWithInfo(c.MongoDB)
+	var err error
+	mainSession, err = mgo.DialWithInfo(c.MongoDB)
 	if err != nil {
 		log.Println("Connected to MongoDB Error!")
 		panic(err)
 	}
 
-	session.SetMode(mgo.Monotonic, true)
+	mainSession.SetSocketTimeout(1 * time.Hour)
+	mainSession.SetMode(mgo.Monotonic, true)
 	log.Println("Connected to MongoDB", c.MongoDB.Addrs, c.MongoDB.Database)
 
-	ds := &DataStore{Session: session}
-	db := ds.Session.DB(c.MongoDB.Database)
+	db := NewSessionStore().DB()
 	coll := db.C("sessions")
-	store := sessions.NewMongoStore(coll, 30*24*3600, true, []byte(c.Secret))
-	return db, store
+	store := mongo.NewStore(coll, 30*24*3600, true, []byte(c.Secret))
+	return store
 }
 
 func ConnectLog() *mgo.Database {
@@ -58,22 +64,29 @@ func ConnectLog() *mgo.Database {
 	// mgo.SetLogger(log.New(os.Stdout, "Mongo: ", 0))
 	log.Println("Connected to LogMongoDB", c.LogMongoDB.Addrs, c.LogMongoDB.Database)
 
-	ds := &DataStore{Session: session}
+	ds := &SessionStore{Session: session}
+	ds.Session.SetSocketTimeout(1 * time.Hour)
 	db := ds.Session.DB(c.LogMongoDB.Database)
 	return db
 }
 
-// NewDataStore returns a new datastore with a copied session
-func (ds *DataStore) NewDataStore() *DataStore {
-	session := ds.Session.Copy()
-	return &DataStore{Session: session}
+// NewSessionStore  returns a new SessionStore  with a copied session
+func NewSessionStore() *SessionStore {
+	ds := &SessionStore{
+		Session: mainSession.Copy(),
+	}
+	return ds
 }
 
-func (ds *DataStore) Close() {
+func (ds *SessionStore) Close() {
 	ds.Session.Close()
 }
 
-func (ds *DataStore) DB() *mgo.Database {
+func (ds *SessionStore) C(name string) *mgo.Collection {
+	return ds.Session.DB(config.Init().MongoDB.Database).C(name)
+}
+
+func (ds *SessionStore) DB() *mgo.Database {
 	return ds.Session.DB(config.Init().MongoDB.Database)
 }
 

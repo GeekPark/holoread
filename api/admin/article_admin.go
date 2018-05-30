@@ -28,20 +28,19 @@ func InitArticle(m interface{}, name string) *Article {
 }
 
 func (api *Article) Index(c *gin.Context) {
-	db := c.MustGet("db")
 	var params models.ArticleQuery
 	if c.Bind(&params) != nil {
 		c.JSON(400, gin.H{"msg": "params error"})
 		return
 	}
-	result, _ := api.Model.FindArticles(db, params)
-	count, _ := api.Model.ArticlesCount(db, params)
+	result, _ := api.Model.FindArticles(params)
+	count, _ := api.Model.ArticlesCount(params)
 	c.JSON(200, gin.H{"total": count, "data": result})
 }
 
 func (api *Article) Show(c *gin.Context) {
 	id := c.Param("id")
-	result, err := api.Model.FindById(c.MustGet("db"), id)
+	result, err := api.Model.FindById(id)
 	if err != nil {
 		panic(err)
 	}
@@ -65,7 +64,7 @@ func (api *Article) Create(c *gin.Context) {
 	params["state"] = "normal"
 	params["is_cn"] = true
 	params["icon"] = "http://osxjx70im.bkt.clouddn.com/app/icon/holoreaddefalut.png"
-	err := api.Model.Create(c.MustGet("db"), params)
+	err := api.Model.Create(params)
 	if err != nil {
 		panic(err)
 		c.JSON(400, gin.H{"msg": "error"})
@@ -82,7 +81,7 @@ func (api *Article) Update(c *gin.Context) {
 		return
 	}
 	update := updateParams(params)
-	err := api.Model.Update(c.MustGet("db"), id, update)
+	err := api.Model.Update(id, update)
 	if err != nil {
 		panic(err)
 		return
@@ -96,7 +95,7 @@ func (api *Article) UpdateList(c *gin.Context) {
 		c.JSON(400, gin.H{"msg": "params error"})
 		return
 	}
-	err := api.Model.UpdateList(c.MustGet("db"),
+	err := api.Model.UpdateList(
 		params.List,
 		gin.H{"state": params.State})
 
@@ -126,7 +125,7 @@ func (api *Article) Translate(c *gin.Context) {
 	const requestUrl = "http://127.0.0.1:4008/translate"
 	_url, _ := c.GetPostForm("url")
 	result, _ := httpPostForm(requestUrl, gin.H{"url": _url})
-	err := api.Model.UpdateOneBy(c.MustGet("db"), gin.H{"url": _url}, gin.H{
+	err := api.Model.UpdateOneBy(gin.H{"url": _url}, gin.H{
 		"trans_content":  result["content"],
 		"edited_content": result["content"],
 		"trans_title":    result["title"],
@@ -141,13 +140,13 @@ func (api *Article) Translate(c *gin.Context) {
 func (api *Article) URLContent(c *gin.Context) {
 	const requestUrl = "http://127.0.0.1:4008/urlcontent"
 	url, _ := c.GetPostForm("url")
-	exist, err := api.Model.FindOne(c.MustGet("db"), gin.H{"url": url})
+	exist, err := api.Model.FindOne(gin.H{"url": url})
 	if err != nil {
 		panic(err)
 	}
 	if exist["edited_content"] == nil || exist["edited_content"] == "" {
 		result, _ := httpPostForm(requestUrl, gin.H{"url": url})
-		api.Model.UpdateOneBy(c.MustGet("db"), gin.H{"url": url}, gin.H{"edited_content": result["content"]})
+		api.Model.UpdateOneBy(gin.H{"url": url}, gin.H{"edited_content": result["content"]})
 		c.JSON(200, result["content"])
 	} else {
 		c.JSON(200, exist["edited_content"])
